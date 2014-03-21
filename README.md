@@ -84,7 +84,7 @@ Follow the Spring Batch team members and contributors on Twitter:
 
 ## License
 
-The Spring Integration Extensions Framework is released under version 2.0 of the [Apache License][] unless noted differently for individual extension Modules, but this should be the rare exception.
+The Spring Batch Extensions Framework is released under version 2.0 of the [Apache License][] unless noted differently for individual extension Modules, but this should be the rare exception.
 
 **We look forward to your contributions!!**
 
