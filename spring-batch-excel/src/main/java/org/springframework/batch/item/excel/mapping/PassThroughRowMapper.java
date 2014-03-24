@@ -23,7 +23,8 @@ import org.springframework.batch.item.excel.Sheet;
  * back directly rather than a mapped object.
  * 
  * @author Marten Deinum
- * 
+ * @since 1.0.0
+ *
  */
 public class PassThroughRowMapper implements RowMapper<String[]> {
 

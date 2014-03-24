@@ -28,7 +28,7 @@ import java.util.List;
  * Sheet implementation for Apache POI.
  * 
  * @author Marten Deinum
- *
+ * @since 1.2.0
  */
 public class PoiSheet implements Sheet {
 

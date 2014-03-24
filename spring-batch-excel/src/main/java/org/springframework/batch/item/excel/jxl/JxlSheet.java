@@ -24,7 +24,7 @@ import org.springframework.batch.item.excel.Sheet;
  * {@link org.springframework.batch.item.excel.Sheet} implementation for JXL.
  * 
  * @author Marten Deinum
- *
+ * @since 1.0.0
  */
 public class JxlSheet implements Sheet {
 
