@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * of fields and construction of objects.
  *
  * @author Marten Deinum
+ * @since 1.0.0
  *
  * @param <T>
  */

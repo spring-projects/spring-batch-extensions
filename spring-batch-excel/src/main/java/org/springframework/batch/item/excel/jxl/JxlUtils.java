@@ -27,7 +27,7 @@ import java.util.List;
  * Class containing utility methods to work with JXL.
  *
  * @author Marten Deinum
- *
+ * @since 1.0.0
  */
 public final class JxlUtils {
 

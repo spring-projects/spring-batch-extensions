@@ -20,6 +20,7 @@ package org.springframework.batch.item.excel;
  * Callback to handle skipped lines. Useful for header/footer processing.
  * 
  * @author Marten Deinum
+ * @since 1.1.0
  */
 public interface RowCallbackHandler {
 
