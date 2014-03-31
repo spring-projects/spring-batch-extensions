@@ -25,7 +25,7 @@ on [Stack Overflow][]. [Commercial support][] is available too.
 
 ## Issue Tracking
 
-Report issues via the [Spring Integration Extensions JIRA][].
+Report issues via the [Spring Batch Extensions Issues][].
 
 ## Building from source
 
@@ -93,7 +93,7 @@ The Spring Batch Extensions Framework is released under version 2.0 of the [Apac
 [spring-batch tag]: http://stackoverflow.com/questions/tagged/spring-batch
 [Stack Overflow]: http://stackoverflow.com/faq
 [Commercial support]: asdf
-[Spring Integration Extensions JIRA]: http://jira.springsource.org/browse/INTEXT
+[Spring Batch Extensions Issues]: https://github.com/mminella/spring-batch-extensions/issues
 [the lifecycle of an issue]: https://github.com/cbeams/spring-framework/wiki/The-Lifecycle-of-an-Issue
 [Gradle]: http://gradle.org
 [`./gradlew`]: http://vimeo.com/34436402
