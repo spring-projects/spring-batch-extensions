@@ -27,11 +27,6 @@ import org.springframework.batch.item.ParseException;
  */
 public class ExcelFileParseException extends ParseException {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -3939056060545496492L;
-
     private final String filename;
     private final String sheet;
     private final String[] row;

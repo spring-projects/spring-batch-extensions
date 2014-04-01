@@ -31,6 +31,7 @@ public class MappingColumnToAttributeConverter implements ColumnToAttributeConve
 
     private final Map<String, String> mapping = new HashMap<String, String>();
 
+    @Override
     public String toAttribute(final String column) {
         if (this.mapping.containsKey(column)) {
             return this.mapping.get(column);
@@ -38,6 +39,7 @@ public class MappingColumnToAttributeConverter implements ColumnToAttributeConve
         return column;
     }
 
+    @Override
     public String toColumn(final String attribute) {
         if (this.mapping.containsValue(attribute)) {
             for (Map.Entry<String, String> entry : this.mapping.entrySet()) {
