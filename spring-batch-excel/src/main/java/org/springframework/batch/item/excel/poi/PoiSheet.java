@@ -47,6 +47,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfRows() {
         return this.delegate.getLastRowNum() + 1;
     }
@@ -54,6 +55,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return this.delegate.getSheetName();
     }
@@ -61,6 +63,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getRow(final int rowNumber) {
         if (rowNumber > this.delegate.getLastRowNum()) {
             return null;
@@ -94,6 +97,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getHeader() {
         return this.getRow(0);
     }
@@ -101,6 +105,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfColumns() {
         final String[] columns = this.getHeader();
         if (columns != null) {

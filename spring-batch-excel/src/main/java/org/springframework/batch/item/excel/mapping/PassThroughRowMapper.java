@@ -28,6 +28,7 @@ import org.springframework.batch.item.excel.Sheet;
  */
 public class PassThroughRowMapper implements RowMapper<String[]> {
 
+    @Override
     public String[] mapRow(final Sheet sheet, final String[] row, final int rowNum) throws Exception {
         return row;
     }

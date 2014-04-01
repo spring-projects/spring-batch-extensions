@@ -23,10 +23,12 @@ package org.springframework.batch.item.excel.transform;
  */
 public class PassThroughColumnToAttributeConverter implements ColumnToAttributeConverter {
 
+    @Override
     public String toAttribute(final String column) {
         return column;
     }
 
+    @Override
     public String toColumn(final String attribute) {
         return attribute;
     }
