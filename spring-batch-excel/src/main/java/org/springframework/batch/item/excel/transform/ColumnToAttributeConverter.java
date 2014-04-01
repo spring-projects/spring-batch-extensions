@@ -18,7 +18,7 @@
  * Convert a column name to an attribute name and vice versa.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public interface ColumnToAttributeConverter {
 

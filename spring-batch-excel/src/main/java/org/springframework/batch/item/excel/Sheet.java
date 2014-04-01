@@ -19,7 +19,7 @@ package org.springframework.batch.item.excel;
  * Interface to wrap different Excel implementations like JExcel, JXL or Apache POI. 
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  *
  */
 public interface Sheet {

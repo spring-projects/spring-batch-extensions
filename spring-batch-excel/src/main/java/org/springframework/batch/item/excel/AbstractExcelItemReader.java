@@ -35,7 +35,7 @@ import java.io.InputStream;
  *
  * @param <T> the type
  * @author Marten Deinum
- * @since 1.1.0
+ * @since 0.5.0
  */
 public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> implements
         ResourceAwareItemReaderItemStream<T>, InitializingBean {

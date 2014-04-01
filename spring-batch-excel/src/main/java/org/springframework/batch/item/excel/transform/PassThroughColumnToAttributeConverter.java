@@ -19,7 +19,7 @@ package org.springframework.batch.item.excel.transform;
  * {@link ColumnToAttributeConverter} which simply returns the given value.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class PassThroughColumnToAttributeConverter implements ColumnToAttributeConverter {
 
