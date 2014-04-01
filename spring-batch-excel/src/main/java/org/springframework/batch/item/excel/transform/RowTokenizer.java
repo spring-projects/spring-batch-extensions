@@ -22,7 +22,7 @@ import org.springframework.batch.item.file.transform.FieldSet;
  * Interface that is used by framework to convert a Cell[] into a {@link org.springframework.batch.item.file.transform.FieldSet}.
  * 
  * @author Marten Deinum 
- * @since 1.0.0
+ * @since 0.5.0
  */
 public interface RowTokenizer {
 

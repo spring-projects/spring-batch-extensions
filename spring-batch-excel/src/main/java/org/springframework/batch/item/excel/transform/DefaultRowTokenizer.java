@@ -27,7 +27,7 @@ import org.springframework.util.StringUtils;
  * {@link RowTokenizer} which assumes the column names are on the first row in the sheet.
  *
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class DefaultRowTokenizer implements RowTokenizer, InitializingBean {
 

@@ -19,7 +19,7 @@ package org.springframework.batch.item.excel;
  * Map rows from an excel sheet to an object.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  *
  * @param <T>
  */

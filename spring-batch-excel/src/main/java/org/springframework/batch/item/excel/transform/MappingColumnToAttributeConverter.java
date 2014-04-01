@@ -25,7 +25,7 @@ import java.util.Map;
  * configuration. If a mapping cannot be found it returns the name as is.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class MappingColumnToAttributeConverter implements ColumnToAttributeConverter {
 

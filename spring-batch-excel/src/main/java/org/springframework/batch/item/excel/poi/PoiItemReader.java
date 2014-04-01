@@ -28,7 +28,7 @@ import org.springframework.core.io.Resource;
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
  * @author Marten Deinum
- * @since 1.2.0
+ * @since 0.5.0
  *
  * @param <T> the type
  */

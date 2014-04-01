@@ -23,7 +23,7 @@ import org.springframework.batch.item.ParseException;
  * simply dependencies to make it is generic as possible.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class ExcelFileParseException extends ParseException {
 
