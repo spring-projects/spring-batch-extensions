@@ -17,10 +17,10 @@
 package org.springframework.batch.item.excel.poi;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.batch.item.excel.Sheet;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,9 +68,7 @@ public class PoiSheet implements Sheet {
         final Row row = this.delegate.getRow(rowNumber);
         final List<String> cells = new LinkedList<String>();
 
-        final Iterator<Cell> cellIter = row.iterator();
-        while (cellIter.hasNext()) {
-            final Cell cell = cellIter.next();
+        for (Cell cell : row) {
             switch (cell.getCellType()) {
             case Cell.CELL_TYPE_NUMERIC:
                 cells.add(String.valueOf(cell.getNumericCellValue()));
@@ -81,6 +79,10 @@ public class PoiSheet implements Sheet {
             case Cell.CELL_TYPE_STRING:
             case Cell.CELL_TYPE_BLANK:
                 cells.add(cell.getStringCellValue());
+                break;
+            case Cell.CELL_TYPE_FORMULA:
+                FormulaEvaluator evaluator = delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                cells.add(evaluator.evaluate(cell).formatAsString());
                 break;
             default:
                 throw new IllegalArgumentException("Cannot handle cells of type " + cell.getCellType());
