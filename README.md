@@ -1,7 +1,7 @@
 Spring Batch Extensions
 =============================
 
-The Spring Batch Extensions project provides extension modules for [Spring Batch][]. This project is part of the [Spring organization][] on GitHub.
+The Spring Batch Extensions project provides extension modules for the [Spring Batch Project][]. This project is part of the [Spring organization][] on GitHub.
 
 ## Available Modules
 
@@ -25,13 +25,13 @@ on [Stack Overflow][]. [Commercial support][] is available too.
 
 ## Issue Tracking
 
-Report issues via the [Spring Integration Extensions JIRA][].
+Report issues via the Spring Batch Extensions [GitHub Issue Tracker][].
 
 ## Building from source
 
-Each module of the *Spring Batch Extensions* project is hosted as independent project with its own release cycle. For the build process of individual modules we recomend using a [Maven][]-based build system modelled after the [Spring Batch][] project. 
+Each module of the *Spring Batch Extensions* project is hosted as independent project with its own release cycle. For the build process of individual modules we recomend using a [Maven][] build system modelled after the [Spring Batch][] project. 
 
-Therefore, the following build instructions should generally apply for most, if not all, *Spring Batch Extensions*. In the instructions below, [`mvn`][] is invoked from the root of the source tree and serves as a cross-platform, self-contained bootstrap mechanism for the build. The only prerequisites are [Git][] and JDK 1.6+.
+Therefore, the following build instructions should generally apply for most, if not all, *Spring Batch Extensions*. In the instructions below, `mvn` is invoked from the root of the source tree and serves as a cross-platform, self-contained bootstrap mechanism for the build. The only prerequisites are [Git][] and JDK 1.6+.
 
 ### Check out the sources
 
@@ -39,11 +39,13 @@ Therefore, the following build instructions should generally apply for most, if 
 
 ### Go into the directory of a specific module
 
+`cd spring-batch-extensions`
+
 `cd module-name`
 
 ### Compile and test, build all jars
 
-`mvn package`
+`mvn clean package`
 
 ### Install the modules jars into your local Maven cache
 
@@ -53,13 +55,13 @@ Therefore, the following build instructions should generally apply for most, if 
 
 ### Using Eclipse / STS
 
-When using [SpringSource Tool Suite][] you can directly import Gradle based projects:
+When using [Spring Tool Suite] you can directly import Maven based projects:
 
 `File -> Import -> Maven Project`
 
 Alternatively, you can also generate the Eclipse metadata (.classpath and .project files) using Maven:
 
-`mvn eclipse`
+`mvn eclipse:eclipse`
 
 Once complete, you may then import the projects into Eclipse as usual:
 
@@ -69,11 +71,11 @@ Once complete, you may then import the projects into Eclipse as usual:
 
 To generate IDEA metadata (.iml and .ipr files), do the following:
 
-    mvn idea
+    mvn idea:idea
 
 ## Contributing
 
-[Pull requests][] are welcome. Please see the [contributor guidelines][] for details. Additionally, if you are contributing, we recommend following the process for Spring Batch as outlined in the [administrator guidelines][].
+[Pull requests][] are welcome. Please see the [Contributor Guidelines][] for details. 
 
 ## Staying in touch
 
@@ -89,22 +91,19 @@ The Spring Batch Extensions Framework is released under version 2.0 of the [Apac
 **We look forward to your contributions!!**
 
 [Spring Batch]: https://github.com/spring-projects/spring-batch
+[Spring Batch Project]: http://projects.spring.io/spring-batch/
 [Spring organization]: https://github.com/spring-projects
 [spring-batch tag]: http://stackoverflow.com/questions/tagged/spring-batch
 [Stack Overflow]: http://stackoverflow.com/faq
-[Commercial support]: asdf
-[Spring Integration Extensions JIRA]: http://jira.springsource.org/browse/INTEXT
-[the lifecycle of an issue]: https://github.com/cbeams/spring-framework/wiki/The-Lifecycle-of-an-Issue
-[Gradle]: http://gradle.org
-[`./gradlew`]: http://vimeo.com/34436402
+[Commercial support]: https://www.vmware.com/support/services/vfabric-developer.html
+[GitHub Issue Tracker]: https://github.com/spring-projects/spring-batch-extensions/issues
 [Git]: http://help.github.com/set-up-git-redirect
-[Gradle build and release FAQ]: https://github.com/SpringSource/spring-framework/wiki/Gradle-build-and-release-FAQ
 [Pull requests]: http://help.github.com/send-pull-requests
-[contributor guidelines]: https://github.com/SpringSource/spring-integration/wiki/Contributor-guidelines
-[administrator guidelines]: https://github.com/SpringSource/spring-integration/wiki/Administrator-Guidelines
 [Spring Batch Admin]: https://github.com/spring-projects/spring-batch-admin
 [Spring XD]: https://github.com/spring-projects/spring-xd
 [Spring for Apache Hadoop]: https://github.com/spring-projects/spring-hadoop
 [Spring Boot]: https://github.com/spring-projects/spring-boot
 [Spring Tool Suite]: http://spring.io/tools/sts
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Maven]: http://maven.apache.org
+[Contributor Guidelines]: com/spring-projects/spring-batch-extensions/blob/master/CONTRIBUTING.md
