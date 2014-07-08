@@ -1,16 +1,19 @@
 # spring-batch-elasticsearch
-
+--------------
 ItemReader and ItemWriter implementations for Elasticsearch
 
-## To index a document via ElasticsearchItemWriter
-
+## To index documents
+--------------
+Create a class and define the index name and type
+```
 @Document(indexName="some_index", type="some_type")
 public class SomeClass {
    // field(s) with getter(s) and setter(s)
 }
+```
 
 Create an item processor
-
+```
 public class SampleItemProcess implements ItemProcessor<Object, IndexQuery> {
  
    @Override
@@ -26,9 +29,11 @@ public class SampleItemProcess implements ItemProcessor<Object, IndexQuery> {
      return builder.build();
   }
 }
+```
 
-## Configuration for reading/writing documents from/to Elasticsearch
-
+## Configuration for reader/writer
+--------------
+```
 @Configuration
 public class ReaderWriterConfig {
 
@@ -58,6 +63,7 @@ public class ReaderWriterConfig {
 	    // configure and return elastic search template 
 	}
 }
+```
 
 ##### NOTE
 The Pageable object from the Query object will be used for paged requests. Setting the page and pageSize fields (inherited from AbstractPaginatedDataItemReader) will have no effect.
