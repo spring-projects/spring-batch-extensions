@@ -20,7 +20,7 @@ public class SampleItemProcess implements ItemProcessor<Object, IndexQuery> {
    public IndexQuery process(Object item) throws Exception {
              
       SomeClass someClass = new SomeClass();
-      // pouplate someClass from item (Object)
+      // populate someClass from item (Object)
              
       IndexQueryBuilder builder = new IndexQueryBuilder();
       builder.withObject(someClass);
