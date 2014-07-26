@@ -357,5 +357,100 @@ public class RegexFileItemReaderTest {
 		List<TestItem> result = readFromReader(itemReader);
 		assertEquals(10, result.size());
 	}
+	
+	@Test
+	public void testFirstItemBetweenFirstAndSecondBlock() throws Exception {
+
+		File f = createTestFile();
+
+		FileWriterTemplate template = new FileWriterTemplate(f);
+		template.write(new FileWriterAction() {
+
+			@Override
+			public void write(Writer writer) throws IOException {
+
+				for(int i=0; i < 2048-4; i++) {
+					writer.write("-");
+				}
+
+				for(int i=0; i < 100; i++) {
+					writer.write("<tr><td>"+i+"</td><td id=ID"+i+">other</td></tr>");
+				}
+			}
+		});
+		
+		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
+
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(100, result.size());
+		checkSequenceNumber(result);
+
+	}
+
+	@Test
+	public void testFirstItemBetweenSecondAndThirdBlock() throws Exception {
+
+		File f = createTestFile();
+
+		FileWriterTemplate template = new FileWriterTemplate(f);
+		template.write(new FileWriterAction() {
+
+			@Override
+			public void write(Writer writer) throws IOException {
+
+				for(int i=0; i < 2*2048-4; i++) {
+					writer.write("-");
+				}
+
+				for(int i=0; i < 100; i++) {
+					writer.write("<tr><td>"+i+"</td><td id=ID"+i+">other</td></tr>");
+				}
+			}
+		});
+		
+		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
+
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(100, result.size());
+		checkSequenceNumber(result);
+	}
+
+	@Test
+	public void testFirstItemBetweenFirstAndSecondBlockAndSecondItemBetweenSecondAndThirdBlock() throws Exception {
+
+		File f = createTestFile();
+
+		FileWriterTemplate template = new FileWriterTemplate(f);
+		template.write(new FileWriterAction() {
+
+			@Override
+			public void write(Writer writer) throws IOException {
+
+				int seqNumber=0;
+				
+				for(int i=0; i < 2048-4; i++) {
+					writer.write("-");
+				}
+				writer.write("<tr><td>"+Integer.toString(seqNumber++)+"</td><td id=IDX>other</td></tr>");
+
+				for(int i=0; i < 2048-38; i++) {
+					writer.write("-");
+				}
+				
+				for(int i=0; i < 99; i++) {
+					writer.write("<tr><td>"+Integer.toString(seqNumber++)+"</td><td id=ID"+i+">other</td></tr>");
+				}
+			}
+		});
+		
+		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
+
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(100, result.size());
+		checkSequenceNumber(result);
+	}
 
 }

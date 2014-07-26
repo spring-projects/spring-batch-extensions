@@ -223,10 +223,22 @@ ResourceAwareItemReaderItemStream<T>, InitializingBean {
 						offsetLastEnd = 0;
 						
 					} else {
-						// if can't find any item in current buffer then read only next buffer
-						// TODO: what if first item starts in first buffer and is in first and second buffer? 
-						offsetBuffer = 0;
-						currentBufferSize = bufferSize;
+						// if can't find any item in current buffer then read next block
+						// and add to first one (remove previous block if needed)
+						offsetBuffer = bufferSize;
+						if(currentBufferSize == bufferSize) {
+							
+							// first block stays, read next one after first
+							// blocks: 1 -> 12
+							currentBufferSize = 2*bufferSize;
+							
+						} else {
+							// copy second block to beginning, make room to next one, forget first
+							// blocks: 12 -> 23
+							copy(buffer, bufferSize, bufferSize, 0);
+							offsetBuffer = bufferSize;
+							currentBufferSize = 2*bufferSize;
+						}
 					}
 				}
 			}
