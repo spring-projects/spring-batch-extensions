@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.junit.After;
@@ -58,40 +59,6 @@ public class RegexFileItemReaderTest {
 		}};
 	}
 
-
-	@Before
-	public void setUp() throws Exception {
-		initMocks(this);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailAssertionOnNullLineMapper() throws Exception {
-
-		try {
-			RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
-			reader.setLineMapper(null);
-			reader.afterPropertiesSet();
-			fail("Assertion should have thrown exception on null LineMapper");
-		} catch (Exception e) {
-			assertEquals("LineMapper is required", e.getMessage());
-			throw e;
-		}
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailAssertionOnNullPattern() throws Exception {
-
-		try {
-			RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
-			reader.setLineMapper(emptyLineMapper);
-			reader.afterPropertiesSet();
-			fail("Assertion should have thrown exception on null Pattern");
-		} catch (Exception e) {
-			assertEquals("Pattern is required", e.getMessage());
-			throw e;
-		}
-	}
-	
 	private RegexFileItemReader<TestItem> createRegexFileItemReader(final Resource resource, final String regex) throws Exception {
 		
 		RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
@@ -131,6 +98,39 @@ public class RegexFileItemReaderTest {
 		}
 	}
 	
+	@Before
+	public void setUp() throws Exception {
+		initMocks(this);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldFailAssertionOnNullLineMapper() throws Exception {
+
+		try {
+			RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
+			reader.setLineMapper(null);
+			reader.afterPropertiesSet();
+			fail("Assertion should have thrown exception on null LineMapper");
+		} catch (Exception e) {
+			assertEquals("LineMapper is required", e.getMessage());
+			throw e;
+		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldFailAssertionOnNullPattern() throws Exception {
+
+		try {
+			RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
+			reader.setLineMapper(emptyLineMapper);
+			reader.afterPropertiesSet();
+			fail("Assertion should have thrown exception on null Pattern");
+		} catch (Exception e) {
+			assertEquals("Pattern is required", e.getMessage());
+			throw e;
+		}
+	}
+
 	@Test
 	public void testHtmlSimpleTable() throws Exception {
 
@@ -297,6 +297,43 @@ public class RegexFileItemReaderTest {
 		assertEquals("BATCH-2147", result.get(1).getId());
 		assertEquals(36034, result.get(49).getSequenceNumber());
 		assertEquals("BATCH-1686", result.get(49).getId());
+	}
+	
+	@Test
+	public void testReaderItemCountProperty() throws Exception {
+
+		File f = createTestFile();
+
+		FileWriterTemplate template = new FileWriterTemplate(f);
+		template.write(new FileWriterAction() {
+
+			@Override
+			public void write(Writer writer) throws IOException {
+
+				for(int i=0; i < 100; i++) {
+					writer.write("<tr><td>"+i+"</td><td id=ID"+i+">other</td></tr>");
+				}
+			}
+		});
+		
+		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
+
+		final AtomicInteger testCounter = new AtomicInteger(1);
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
+		itemReader.setLineMapper(new LineMapper<TestItem>() {
+
+			@Override
+			public TestItem mapLine(String line, int lineNumber)
+					throws Exception {
+				
+				assertEquals(testCounter.getAndIncrement(), lineNumber);
+				return new TestItem();
+			}
+			
+		});
+		
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(100, result.size());
 	}
 
 }

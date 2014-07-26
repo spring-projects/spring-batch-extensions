@@ -105,6 +105,11 @@ ResourceAwareItemReaderItemStream<T>, InitializingBean {
 		this.bufferedReaderFactory = bufferedReaderFactory;
 	}
 	
+	/**
+	 * RegExp pattern used to slice file into items 
+	 * 
+	 * @param bufferedReaderFactory the bufferedReaderFactory to set
+	 */
 	public void setPattern(Pattern pattern) {
 		this.pattern = pattern;
 	}
