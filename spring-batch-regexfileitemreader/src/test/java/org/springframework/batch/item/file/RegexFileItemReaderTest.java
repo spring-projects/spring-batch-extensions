@@ -20,7 +20,9 @@ import org.mockito.Mock;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.RegexLineTokenizer;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 public class RegexFileItemReaderTest {
 	
@@ -74,12 +76,12 @@ public class RegexFileItemReaderTest {
 		}
 	}
 	
-	private RegexFileItemReader<TestItem> createRegexFileItemReader(final File file, final String regex) throws Exception {
+	private RegexFileItemReader<TestItem> createRegexFileItemReader(final Resource resource, final String regex) throws Exception {
 		
 		RegexFileItemReader<TestItem> reader = new RegexFileItemReader<TestItem>();
 		reader.setLineMapper(getLineMapperForRegex(regex));
 		reader.setPattern(Pattern.compile(regex, Pattern.DOTALL));
-		reader.setResource(new FileSystemResource(file));
+		reader.setResource(resource);
 		reader.afterPropertiesSet();
 		
 		return reader;
@@ -155,7 +157,7 @@ public class RegexFileItemReaderTest {
 		
 		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
 		
-		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(f, regex);
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
 		List<TestItem> result = readFromReader(itemReader);
 		assertEquals(100, result.size());
 		checkSequenceNumber(result);
@@ -208,7 +210,7 @@ public class RegexFileItemReaderTest {
 		
 		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
 		
-		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(f, regex);
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
 		List<TestItem> result = readFromReader(itemReader);
 		assertEquals(100, result.size());
 		checkSequenceNumber(result);
@@ -247,9 +249,38 @@ public class RegexFileItemReaderTest {
 		
 		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
 		
-		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(f, regex);
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
 		List<TestItem> result = readFromReader(itemReader);
 		assertEquals(0, result.size());
+	}
+	
+	@Test
+	public void testHtmlGithubIssueList() throws Exception {
+
+		String regex = "<li id=\"issue_(.*?)\".*?>.*?<h4.*?>.*?<a href=\"(.*?)\".*?>(.*?)</a>.*?</h4>";
+		
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new ClassPathResource("TestHtmlGithubIssueList.txt", RegexFileItemReaderTest.class), regex);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(3, result.size());
+		assertEquals("Update README.md and add CONTRIBUTING.md", result.get(2).getText());
+		assertEquals(1, result.get(2).getSequenceNumber());
+		assertEquals("/spring-projects/spring-batch-extensions/pull/1", result.get(2).getId());
+	}
+	
+	@Test
+	public void testHtmlJiraIssueList() throws Exception {
+
+		String regex = "<li.*?data-id=\"(.*?)\" data-key=\"(.*?)\" title=\"(.*?)\">.*?</li>";
+		
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new ClassPathResource("TestHtmlJiraIssueList.txt", RegexFileItemReaderTest.class), regex);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(50, result.size());
+		assertEquals(58901, result.get(0).getSequenceNumber());
+		assertEquals("BATCH-2276", result.get(0).getId());
+		assertEquals(52006, result.get(1).getSequenceNumber());
+		assertEquals("BATCH-2147", result.get(1).getId());
+		assertEquals(36034, result.get(49).getSequenceNumber());
+		assertEquals("BATCH-1686", result.get(49).getId());
 	}
 
 }
