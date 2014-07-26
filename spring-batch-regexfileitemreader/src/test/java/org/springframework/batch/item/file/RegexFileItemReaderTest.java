@@ -20,9 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -30,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -76,7 +73,7 @@ public class RegexFileItemReaderTest {
 		TestItem item;
 		
 		itemReader.doOpen();
-		while((item = itemReader.doRead()) != null) {
+		while((item = itemReader.read()) != null) {
 			result.add(item);
 		}
 		itemReader.doClose();
@@ -334,6 +331,31 @@ public class RegexFileItemReaderTest {
 		
 		List<TestItem> result = readFromReader(itemReader);
 		assertEquals(100, result.size());
+	}
+	
+	@Test
+	public void testReaderMaxItemCountProperty() throws Exception {
+
+		File f = createTestFile();
+
+		FileWriterTemplate template = new FileWriterTemplate(f);
+		template.write(new FileWriterAction() {
+
+			@Override
+			public void write(Writer writer) throws IOException {
+
+				for(int i=0; i < 100; i++) {
+					writer.write("<tr><td>"+i+"</td><td id=ID"+i+">other</td></tr>");
+				}
+			}
+		});
+		
+		String regex = "<tr>.*?<td>(.*?)</td>.*?<td id=(.*?)>(.*?)</td>.*?</tr>";
+
+		RegexFileItemReader<TestItem> itemReader = createRegexFileItemReader(new FileSystemResource(f), regex);
+		itemReader.setMaxItemCount(10);
+		List<TestItem> result = readFromReader(itemReader);
+		assertEquals(10, result.size());
 	}
 
 }
