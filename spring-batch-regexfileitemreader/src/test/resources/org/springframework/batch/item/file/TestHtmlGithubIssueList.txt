@@ -1,0 +1,83 @@
+            
+
+<li id="issue_6" class="list-group-item issue-list-item js-list-browser-item js-navigation-item
+   read
+   closed
+  ">
+  <div class="issue-item-unread"></div>
+
+
+  <span class="list-group-item-number">#6</span>
+
+  <h4 class="list-group-item-name">
+    <span class="type-icon octicon octicon-git-pull-request closed" title="Closed pull request"></span>
+    <a href="/spring-projects/spring-batch-extensions/pull/6" class="js-navigation-open">Issue 1 - RegexFileItemReader - new ItemReader for spring-batch-extensions</a>
+  </h4>
+
+
+  <ul class="list-group-item-meta">
+    <li>
+      Opened by <a href="/daprog">daprog</a>
+        <time datetime="2014-07-26T07:04:08-07:00" is="relative-time">July 26, 2014</time>
+    </li>
+      <li>
+        <span class="octicon octicon-comment-discussion"></span> <a href="/spring-projects/spring-batch-extensions/pull/6">1 comment</a>
+      </li>
+  </ul>
+
+</li>
+
+            
+
+<li id="issue_3" class="list-group-item issue-list-item js-list-browser-item js-navigation-item
+   read
+   closed
+  ">
+  <div class="issue-item-unread"></div>
+
+
+  <span class="list-group-item-number">#3</span>
+
+  <h4 class="list-group-item-name">
+    <span class="type-icon octicon octicon-git-pull-request closed" title="Closed pull request"></span>
+    <a href="/spring-projects/spring-batch-extensions/pull/3" class="js-navigation-open">BATCH-2267: added support to read/write to/from Elasticsearch</a>
+  </h4>
+
+
+  <ul class="list-group-item-meta">
+    <li>
+      Opened by <a href="/hasnainjaved">hasnainjaved</a>
+        <time datetime="2014-07-07T23:50:08-07:00" is="relative-time">July 07, 2014</time>
+    </li>
+  </ul>
+
+</li>
+
+            
+
+<li id="issue_1" class="list-group-item issue-list-item js-list-browser-item js-navigation-item
+   read
+   closed
+  ">
+  <div class="issue-item-unread"></div>
+
+
+  <span class="list-group-item-number">#1</span>
+
+  <h4 class="list-group-item-name">
+    <span class="type-icon octicon octicon-git-pull-request closed" title="Closed pull request"></span>
+    <a href="/spring-projects/spring-batch-extensions/pull/1" class="js-navigation-open">Update README.md and add CONTRIBUTING.md</a>
+  </h4>
+
+
+  <ul class="list-group-item-meta">
+    <li>
+      Opened by <a href="/chrisjs">chrisjs</a>
+        <time datetime="2014-03-24T07:49:12-07:00" is="relative-time">March 24, 2014</time>
+    </li>
+      <li>
+        <span class="octicon octicon-comment-discussion"></span> <a href="/spring-projects/spring-batch-extensions/pull/1">3 comments</a>
+      </li>
+  </ul>
+
+</li>
