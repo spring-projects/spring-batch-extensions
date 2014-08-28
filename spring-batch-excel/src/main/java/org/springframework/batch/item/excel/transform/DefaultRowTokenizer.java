@@ -91,10 +91,22 @@ public class DefaultRowTokenizer implements RowTokenizer, InitializingBean {
         this.converter = converter;
     }
 
+    /**
+     * Should the name of the sheet be included in the list of columns. Default <code>false</code>
+     *
+     * @param includeSheetName
+     */
     public void setIncludeSheetName(final boolean includeSheetName) {
         this.includeSheetName = includeSheetName;
     }
 
+    /**
+     * When <code>includeSheetName</code> is <code>true</code> this is the name of the property used to store the name
+     * of the sheet.
+     *
+     * @param attributeForSheetName
+     * @see #setIncludeSheetName(boolean)
+     */
     public void setAttributeForSheetName(final String attributeForSheetName) {
         this.attributeForSheetName = attributeForSheetName;
     }
