@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.excel.mapping.PassThroughRowMapper;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +39,8 @@ public abstract class AbstractExcelItemReaderTests  {
 
     protected AbstractExcelItemReader itemReader;
 
+    private ExecutionContext executionContext;
+
     @Before
     public void setup() throws Exception {
         this.itemReader = createExcelItemReader();
@@ -52,7 +55,8 @@ public abstract class AbstractExcelItemReaderTests  {
         });
         configureItemReader(this.itemReader);
         this.itemReader.afterPropertiesSet();
-        this.itemReader.open(new ExecutionContext());
+        executionContext = new ExecutionContext();
+        this.itemReader.open(executionContext);
     }
 
     protected void configureItemReader(AbstractExcelItemReader itemReader) {
@@ -69,8 +73,13 @@ public abstract class AbstractExcelItemReaderTests  {
         String[] row = null;
         do {
             row = (String[]) this.itemReader.read();
-            this.logger.debug("Read: "+ StringUtils.arrayToCommaDelimitedString(row));
+            this.logger.debug("Read: " + StringUtils.arrayToCommaDelimitedString(row));
+            if (row != null) {
+                assertEquals(6, row.length);
+            }
         } while (row != null);
+        int readCount = (Integer) ReflectionTestUtils.getField(this.itemReader, "currentItemCount" );
+        assertEquals(4320, readCount); // File contains 4321 lines, first is header 4321-1=4320 records read.
     }
 
     @Test(expected = IllegalArgumentException.class)

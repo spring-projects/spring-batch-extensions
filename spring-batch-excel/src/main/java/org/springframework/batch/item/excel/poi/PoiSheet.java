@@ -34,6 +34,8 @@ public class PoiSheet implements Sheet {
 
     private final org.apache.poi.ss.usermodel.Sheet delegate;
 
+    private int numberOfColumns = -1;
+
     /**
      * Constructor which takes the delegate sheet.
      * 
@@ -71,7 +73,8 @@ public class PoiSheet implements Sheet {
         final Row row = this.delegate.getRow(rowNumber);
         final List<String> cells = new LinkedList<String>();
 
-        for (Cell cell : row) {
+        for (int i =0; i< getNumberOfColumns(); i++) {
+            Cell cell = row.getCell(i);
             switch (cell.getCellType()) {
             case Cell.CELL_TYPE_NUMERIC:
                 cells.add(String.valueOf(cell.getNumericCellValue()));
@@ -107,10 +110,9 @@ public class PoiSheet implements Sheet {
      */
     @Override
     public int getNumberOfColumns() {
-        final String[] columns = this.getHeader();
-        if (columns != null) {
-            return columns.length;
+        if (numberOfColumns < 0) {
+            numberOfColumns = this.delegate.getRow(0).getLastCellNum();
         }
-        return 0;
+        return numberOfColumns;
     }
 }
