@@ -142,9 +142,9 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     @Override
     protected final void doClose() throws Exception {
         doCloseWorkbook();
-        if (getResource() != null) {
+        if (this.resource != null) {
             try {
-                InputStream is = getResource().getInputStream();
+                InputStream is = this.resource.getInputStream();
                 is.close();
             } catch (IOException ioe) {
                 logger.warn("Exception whilst obtaining or closing the inputstream.", ioe);
@@ -158,10 +158,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      * @throws Exception
      */
     protected void doCloseWorkbook() throws Exception {
-    }
-
-    protected Resource getResource() {
-        return this.resource;
     }
 
     public void setResource(final Resource resource) {
