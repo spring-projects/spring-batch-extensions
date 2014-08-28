@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.util.ClassUtils;
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  *
  * @param <T> the type
  */

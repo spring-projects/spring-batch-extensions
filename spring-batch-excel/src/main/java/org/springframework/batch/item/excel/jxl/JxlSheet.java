@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.batch.item.excel.Sheet;
  * {@link org.springframework.batch.item.excel.Sheet} implementation for JXL.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class JxlSheet implements Sheet {
 
@@ -43,6 +43,7 @@ public class JxlSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfRows() {
         return this.delegate.getRows();
     }
@@ -50,6 +51,7 @@ public class JxlSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getHeader() {
         return this.getRow(0);
     }
@@ -57,6 +59,7 @@ public class JxlSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getRow(final int rowNumber) {
         final Cell[] row = this.delegate.getRow(rowNumber);
         return JxlUtils.extractContents(row);
@@ -65,6 +68,7 @@ public class JxlSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return this.delegate.getName();
     }
@@ -72,6 +76,7 @@ public class JxlSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfColumns() {
         return this.delegate.getColumns();
     }

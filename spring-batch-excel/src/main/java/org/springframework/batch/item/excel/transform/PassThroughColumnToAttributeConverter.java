@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,16 @@ package org.springframework.batch.item.excel.transform;
  * {@link ColumnToAttributeConverter} which simply returns the given value.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class PassThroughColumnToAttributeConverter implements ColumnToAttributeConverter {
 
+    @Override
     public String toAttribute(final String column) {
         return column;
     }
 
+    @Override
     public String toColumn(final String attribute) {
         return attribute;
     }

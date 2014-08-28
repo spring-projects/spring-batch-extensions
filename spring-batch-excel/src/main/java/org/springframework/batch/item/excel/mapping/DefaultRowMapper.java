@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * of fields and construction of objects.
  *
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  *
  * @param <T>
  */
@@ -39,6 +39,7 @@ public class DefaultRowMapper<T> implements RowMapper<T>, InitializingBean {
     private RowTokenizer rowTokenizer = new DefaultRowTokenizer();
     private FieldSetMapper<T> fieldSetMapper;
 
+    @Override
     public T mapRow(final Sheet sheet, final String[] row, final int rowNum) throws Exception {
         return this.fieldSetMapper.mapFieldSet(this.rowTokenizer.tokenize(sheet, row));
     }
@@ -56,6 +57,7 @@ public class DefaultRowMapper<T> implements RowMapper<T>, InitializingBean {
         this.rowTokenizer = rowTokenizer;
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.rowTokenizer, "The RowTokenizer must be set");
         Assert.notNull(this.fieldSetMapper, "The FieldSetMapper must be set");

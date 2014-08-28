@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package org.springframework.batch.item.excel;
  * Callback to handle skipped lines. Useful for header/footer processing.
  * 
  * @author Marten Deinum
- * @since 1.1.0
+ * @since 0.5.0
  */
 public interface RowCallbackHandler {
 

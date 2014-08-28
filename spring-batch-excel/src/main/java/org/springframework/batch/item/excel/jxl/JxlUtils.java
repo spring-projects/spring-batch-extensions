@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.List;
  * Class containing utility methods to work with JXL.
  *
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public final class JxlUtils {
 

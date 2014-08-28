@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,13 @@ import java.util.Map;
  * configuration. If a mapping cannot be found it returns the name as is.
  * 
  * @author Marten Deinum
- * @since 1.0.0
+ * @since 0.5.0
  */
 public class MappingColumnToAttributeConverter implements ColumnToAttributeConverter {
 
     private final Map<String, String> mapping = new HashMap<String, String>();
 
+    @Override
     public String toAttribute(final String column) {
         if (this.mapping.containsKey(column)) {
             return this.mapping.get(column);
@@ -38,6 +39,7 @@ public class MappingColumnToAttributeConverter implements ColumnToAttributeConve
         return column;
     }
 
+    @Override
     public String toColumn(final String attribute) {
         if (this.mapping.containsValue(attribute)) {
             for (Map.Entry<String, String> entry : this.mapping.entrySet()) {

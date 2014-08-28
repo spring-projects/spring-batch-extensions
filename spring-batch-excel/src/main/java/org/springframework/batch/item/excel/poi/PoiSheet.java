@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package org.springframework.batch.item.excel.poi;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.batch.item.excel.Sheet;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * Sheet implementation for Apache POI.
  * 
  * @author Marten Deinum
- * @since 1.2.0
+ * @since 0.5.0
  */
 public class PoiSheet implements Sheet {
 
@@ -47,6 +47,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfRows() {
         return this.delegate.getLastRowNum() + 1;
     }
@@ -54,6 +55,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return this.delegate.getSheetName();
     }
@@ -61,6 +63,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getRow(final int rowNumber) {
         if (rowNumber > this.delegate.getLastRowNum()) {
             return null;
@@ -68,9 +71,7 @@ public class PoiSheet implements Sheet {
         final Row row = this.delegate.getRow(rowNumber);
         final List<String> cells = new LinkedList<String>();
 
-        final Iterator<Cell> cellIter = row.iterator();
-        while (cellIter.hasNext()) {
-            final Cell cell = cellIter.next();
+        for (Cell cell : row) {
             switch (cell.getCellType()) {
             case Cell.CELL_TYPE_NUMERIC:
                 cells.add(String.valueOf(cell.getNumericCellValue()));
@@ -82,6 +83,10 @@ public class PoiSheet implements Sheet {
             case Cell.CELL_TYPE_BLANK:
                 cells.add(cell.getStringCellValue());
                 break;
+            case Cell.CELL_TYPE_FORMULA:
+                FormulaEvaluator evaluator = delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                cells.add(evaluator.evaluate(cell).formatAsString());
+                break;
             default:
                 throw new IllegalArgumentException("Cannot handle cells of type " + cell.getCellType());
             }
@@ -92,6 +97,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] getHeader() {
         return this.getRow(0);
     }
@@ -99,6 +105,7 @@ public class PoiSheet implements Sheet {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getNumberOfColumns() {
         final String[] columns = this.getHeader();
         if (columns != null) {
