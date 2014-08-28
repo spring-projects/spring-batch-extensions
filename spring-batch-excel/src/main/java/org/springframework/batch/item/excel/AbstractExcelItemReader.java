@@ -106,9 +106,9 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
             return;
         }
 
-        this.noInput = false;
         this.openExcelFile(this.resource);
         this.openSheet();
+        this.noInput = false;
         if (logger.isDebugEnabled()) {
             logger.debug("Opened workbook ["+this.resource.getFilename()+"] with "+this.getNumberOfSheets()+" sheets.");
         }
