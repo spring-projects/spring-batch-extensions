@@ -9,7 +9,7 @@
     <version>1.3.0.BUILD-SNAPSHOT</version>
 
     <properties>
-        <spring.batch.version>2.2.5.RELEASE</spring.batch.version>
+        <spring.batch.version>3.0.1.RELEASE</spring.batch.version>
         <jxl.version>2.6.12</jxl.version>
         <poi.version>3.10-FINAL</poi.version>
     </properties>
