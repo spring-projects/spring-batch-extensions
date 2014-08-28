@@ -82,4 +82,9 @@ public class JxlUtilsTests {
 
     }
 
+    @Test
+    public void extractingContent() {
+        Assert.assertTrue("[null] should give empty array", JxlUtils.extractContents(null).length == 0);
+    }
+
 }

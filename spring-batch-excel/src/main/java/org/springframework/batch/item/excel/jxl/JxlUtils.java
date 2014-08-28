@@ -18,6 +18,7 @@ package org.springframework.batch.item.excel.jxl;
 
 import jxl.Cell;
 import jxl.Workbook;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public final class JxlUtils {
      * @return true/false
      */
     public static boolean isEmpty(final Cell[] row) {
-        if (row == null || row.length == 0) {
+        if (ObjectUtils.isEmpty(row)) {
             return true;
         }
         for (final Cell cell : row) {
@@ -83,11 +84,13 @@ public final class JxlUtils {
      */
     public static String[] extractContents(final Cell[] row) {
         final List<String> values = new ArrayList<String>();
-        for (final Cell cell : row) {
-            if (!isEmpty(cell)) {
-                values.add(cell.getColumn(), cell.getContents());
-            } else {
-                values.add(cell.getColumn(), "");
+        if (!ObjectUtils.isEmpty(row)) {
+            for (final Cell cell : row) {
+                if (!isEmpty(cell)) {
+                    values.add(cell.getColumn(), cell.getContents());
+                } else {
+                    values.add(cell.getColumn(), "");
+                }
             }
         }
         return values.toArray(new String[values.size()]);
