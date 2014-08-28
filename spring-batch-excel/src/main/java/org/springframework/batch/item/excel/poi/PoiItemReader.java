@@ -16,6 +16,7 @@
 
 package org.springframework.batch.item.excel.poi;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
@@ -49,6 +50,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     @Override
     protected void openExcelFile(final Resource resource) throws Exception {
         this.workbook = WorkbookFactory.create(resource.getInputStream());
+        this.workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
     }
 
 }
