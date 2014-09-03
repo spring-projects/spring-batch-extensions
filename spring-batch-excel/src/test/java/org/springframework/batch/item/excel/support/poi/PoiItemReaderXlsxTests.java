@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.poi;
+package org.springframework.batch.item.excel.support.poi;
 
-import org.springframework.batch.item.excel.AbstractExcelItemReader;
-import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
+import org.springframework.batch.item.excel.support.AbstractExcelItemReader;
+import org.springframework.batch.item.excel.support.AbstractExcelItemReaderTests;
 import org.springframework.core.io.ClassPathResource;
 
 public class PoiItemReaderXlsxTests extends AbstractExcelItemReaderTests {
