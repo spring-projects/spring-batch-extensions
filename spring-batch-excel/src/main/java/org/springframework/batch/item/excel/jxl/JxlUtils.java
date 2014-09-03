@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.item.excel.support.jxl;
+package org.springframework.batch.item.excel.jxl;
 
 import jxl.Cell;
 import jxl.Workbook;

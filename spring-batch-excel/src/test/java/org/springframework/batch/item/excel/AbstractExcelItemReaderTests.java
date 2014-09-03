@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.support;
+package org.springframework.batch.item.excel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,10 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.excel.RowCallbackHandler;
-import org.springframework.batch.item.excel.Sheet;
 import org.springframework.batch.item.excel.mapping.PassThroughRowMapper;
-import org.springframework.batch.item.excel.support.AbstractExcelItemReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
