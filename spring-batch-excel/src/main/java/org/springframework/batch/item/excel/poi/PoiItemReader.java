@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.item.excel.support.poi;
+package org.springframework.batch.item.excel.poi;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.batch.item.excel.support.AbstractExcelItemReader;
+import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.core.io.Resource;
 

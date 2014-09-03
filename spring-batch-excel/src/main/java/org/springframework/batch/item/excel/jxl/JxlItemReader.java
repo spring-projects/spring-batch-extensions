@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.item.excel.support.jxl;
+package org.springframework.batch.item.excel.jxl;
 
 import jxl.Workbook;
 import jxl.read.biff.WorkbookParser;
-import org.springframework.batch.item.excel.support.AbstractExcelItemReader;
+import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ClassUtils;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.support.jxl;
+package org.springframework.batch.item.excel.jxl;
 
 import jxl.Cell;
 import jxl.Workbook;
@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * Tests for {@link org.springframework.batch.item.excel.support.jxl.JxlUtils}.
+ * Tests for {@link org.springframework.batch.item.excel.jxl.JxlUtils}.
  *
  * @author Marten Deinum
  *
@@ -46,7 +46,7 @@ public class JxlUtilsTests {
     }
 
     /**
-     * Test the {@link org.springframework.batch.item.excel.support.jxl.JxlUtils#isEmpty( jxl.Cell)} method.
+     * Test the {@link org.springframework.batch.item.excel.jxl.JxlUtils#isEmpty( jxl.Cell)} method.
      */
     @Test
     public void checkIfCellsAreEmpty() {
