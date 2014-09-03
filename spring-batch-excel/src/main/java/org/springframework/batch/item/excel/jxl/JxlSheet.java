@@ -61,8 +61,12 @@ public class JxlSheet implements Sheet {
      */
     @Override
     public String[] getRow(final int rowNumber) {
-        final Cell[] row = this.delegate.getRow(rowNumber);
-        return JxlUtils.extractContents(row);
+		if (rowNumber < getNumberOfRows()) {
+			final Cell[] row = this.delegate.getRow(rowNumber);
+			return JxlUtils.extractContents(row);
+		} else {
+			return null;
+		}
     }
 
     /**

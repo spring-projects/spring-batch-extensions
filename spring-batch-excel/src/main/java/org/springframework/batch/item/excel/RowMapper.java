@@ -30,12 +30,10 @@ public interface RowMapper<T> {
      * the parameter type T.  The row number represents the number of rows
      * into a {@link Sheet} the current line resides.
      * 
-     * @param sheet the current sheet
-     * @param row to be mapped
-     * @param rowNum of the current row
+     * @param rs the RowSet used for mapping.
      * @return mapped object of type T
      * @throws Exception if error occured while parsing.
      */
-    T mapRow(Sheet sheet, String[] row, int rowNum) throws Exception;
+    T mapRow(RowSet rs) throws Exception;
 
 }

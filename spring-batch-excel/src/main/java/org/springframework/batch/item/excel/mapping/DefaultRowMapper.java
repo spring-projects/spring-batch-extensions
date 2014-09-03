@@ -18,6 +18,7 @@
 package org.springframework.batch.item.excel.mapping;
 
 import org.springframework.batch.item.excel.RowMapper;
+import org.springframework.batch.item.excel.RowSet;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.batch.item.excel.transform.DefaultRowTokenizer;
 import org.springframework.batch.item.excel.transform.RowTokenizer;
@@ -40,8 +41,8 @@ public class DefaultRowMapper<T> implements RowMapper<T>, InitializingBean {
     private FieldSetMapper<T> fieldSetMapper;
 
     @Override
-    public T mapRow(final Sheet sheet, final String[] row, final int rowNum) throws Exception {
-        return this.fieldSetMapper.mapFieldSet(this.rowTokenizer.tokenize(sheet, row));
+    public T mapRow(RowSet rs) throws Exception {
+        return this.fieldSetMapper.mapFieldSet(this.rowTokenizer.tokenize(rs));
     }
 
     public void setFieldSetMapper(final FieldSetMapper<T> fieldSetMapper) {

@@ -24,6 +24,6 @@ package org.springframework.batch.item.excel;
  */
 public interface RowCallbackHandler {
 
-    void handleRow(Sheet sheet, String[] row);
+    void handleRow(RowSet rs);
 
 }
