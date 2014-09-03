@@ -15,6 +15,7 @@
  */
 package org.springframework.batch.item.excel.transform;
 
+import org.springframework.batch.item.excel.RowSet;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.batch.item.file.transform.DefaultFieldSetFactory;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -41,16 +42,15 @@ public class DefaultRowTokenizer implements RowTokenizer, InitializingBean {
     private String attributeForSheetName = null;
 
     @Override
-    public FieldSet tokenize(final Sheet sheet, final String[] row) {
-        String[] values = new String[sheet.getNumberOfColumns()];
-        System.arraycopy(row, 0, values, 0, row.length);
+    public FieldSet tokenize(RowSet rs) {
+        String[] values = rs.getCurrentRow();
 
         if (this.includeSheetName) {
-            values = StringUtils.addStringToArray(values, sheet.getName());
+            values = StringUtils.addStringToArray(values, rs.getMetaData().getSheetName());
         }
 
         if (this.useColumnHeader) {
-            String[] names = sheet.getHeader();
+            String[] names = rs.getMetaData().getColumnNames();
             if (this.includeSheetName) {
                 names = StringUtils.addStringToArray(names, this.attributeForSheetName);
             }

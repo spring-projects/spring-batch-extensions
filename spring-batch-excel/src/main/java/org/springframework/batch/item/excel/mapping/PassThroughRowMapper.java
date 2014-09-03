@@ -16,6 +16,7 @@
 package org.springframework.batch.item.excel.mapping;
 
 import org.springframework.batch.item.excel.RowMapper;
+import org.springframework.batch.item.excel.RowSet;
 import org.springframework.batch.item.excel.Sheet;
 
 /**
@@ -29,8 +30,8 @@ import org.springframework.batch.item.excel.Sheet;
 public class PassThroughRowMapper implements RowMapper<String[]> {
 
     @Override
-    public String[] mapRow(final Sheet sheet, final String[] row, final int rowNum) throws Exception {
-        return row;
+    public String[] mapRow(final RowSet rs) throws Exception {
+        return rs.getCurrentRow();
     }
 
 }

@@ -49,6 +49,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     private RowCallbackHandler skippedRowsCallback;
     private boolean noInput = false;
     private boolean strict = true;
+	private RowSet rs;
 
     public AbstractExcelItemReader() {
         super();
@@ -57,31 +58,29 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     @Override
     protected T doRead() throws Exception {
-        if (this.noInput) {
+        if (this.noInput || this.rs == null) {
             return null;
         }
-        final Sheet sheet = this.getSheet(this.currentSheet);
-        final String[] row = this.readRow(sheet);
-        if (ObjectUtils.isEmpty(row)) {
-            this.currentSheet++;
-            if (this.currentSheet >= this.getNumberOfSheets()) {
-                if (logger.isDebugEnabled() ) {
-                    logger.debug("No more sheets in '" + this.resource.getDescription() + "'.");
-                }
-                return null;
-            } else {
-                this.currentRow = 0;
-                this.openSheet();
-                return this.doRead();
-            }
-        } else {
-            try {
-                return this.rowMapper.mapRow(sheet, row, this.currentRow);
-            } catch (final Exception e) {
-                throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
-                        sheet.getName(), this.currentRow, row);
-            }
-        }
+
+		if (rs.next()) {
+			try {
+				return this.rowMapper.mapRow(rs);
+			} catch (final Exception e) {
+				throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
+						rs.getMetaData().getSheetName(), rs.getCurrentRowIndex(), rs.getCurrentRow());
+			}
+		} else {
+			this.currentSheet++;
+			if (this.currentSheet >= this.getNumberOfSheets()) {
+				if (logger.isDebugEnabled() ) {
+					logger.debug("No more sheets in '" + this.resource.getDescription() + "'.");
+				}
+				return null;
+			} else {
+				this.openSheet();
+				return this.doRead();
+			}
+		}
     }
 
     @Override
@@ -124,13 +123,15 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     private void openSheet() {
         final Sheet sheet = this.getSheet(this.currentSheet);
-        if (logger.isDebugEnabled()) {
+		this.rs = new RowSet(sheet);
+
+		if (logger.isDebugEnabled()) {
             logger.debug("Opening sheet "+sheet.getName()+".");
         }
-        for (int i = 0; i < this.linesToSkip; i++) {
-            final String[] row = this.readRow(sheet);
-            if (this.skippedRowsCallback != null) {
-                this.skippedRowsCallback.handleRow(sheet, row);
+
+		for (int i = 0; i < this.linesToSkip; i++) {
+            if (rs.next() && this.skippedRowsCallback != null) {
+                this.skippedRowsCallback.handleRow(rs);
             }
         }
         if (logger.isDebugEnabled()) {

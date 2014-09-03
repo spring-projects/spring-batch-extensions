@@ -49,8 +49,8 @@ public abstract class AbstractExcelItemReaderTests  {
         this.itemReader.setRowMapper(new PassThroughRowMapper());
         this.itemReader.setSkippedRowsCallback(new RowCallbackHandler() {
 
-            public void handleRow(final Sheet sheet, final String[] row) {
-                logger.info("Skipping: " + StringUtils.arrayToCommaDelimitedString(row));
+            public void handleRow(RowSet rs) {
+                logger.info("Skipping: " + StringUtils.arrayToCommaDelimitedString(rs.getCurrentRow()));
             }
         });
         configureItemReader(this.itemReader);
@@ -70,7 +70,7 @@ public abstract class AbstractExcelItemReaderTests  {
     @Test
     public void readExcelFile() throws Exception {
         assertEquals(3, this.itemReader.getNumberOfSheets());
-        String[] row = null;
+        String[] row;
         do {
             row = (String[]) this.itemReader.read();
             this.logger.debug("Read: " + StringUtils.arrayToCommaDelimitedString(row));
@@ -79,7 +79,7 @@ public abstract class AbstractExcelItemReaderTests  {
             }
         } while (row != null);
         int readCount = (Integer) ReflectionTestUtils.getField(this.itemReader, "currentItemCount" );
-        assertEquals(4320, readCount); // File contains 4321 lines, first is header 4321-1=4320 records read.
+        assertEquals(4321, readCount);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -15,6 +15,7 @@
  */
 package org.springframework.batch.item.excel.transform;
 
+import org.springframework.batch.item.excel.RowSet;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.batch.item.file.transform.FieldSet;
 
@@ -27,5 +28,5 @@ import org.springframework.batch.item.file.transform.FieldSet;
  */
 public interface RowTokenizer {
 
-    FieldSet tokenize(Sheet sheet, String[] row);
+    FieldSet tokenize(RowSet rs);
 }

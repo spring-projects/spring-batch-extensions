@@ -16,9 +16,14 @@
 package org.springframework.batch.item.excel.mapping;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.batch.item.excel.RowSet;
+import org.springframework.batch.item.excel.Sheet;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link PassThroughRowMapper}.
@@ -33,13 +38,12 @@ public class PassThroughRowMapperTests {
     @Test
     public void mapRowShouldReturnSameValues() throws Exception {
         final String[] row = new String[] { "foo", "bar", "baz" };
-
-        assertArrayEquals(row, this.rowMapper.mapRow(null, row, 0));
-    }
-
-    @Test
-    public void mapRowShouldReturnNull() throws Exception {
-        assertNull(this.rowMapper.mapRow(null, null, 0));
+		Sheet sheet = mock(Sheet.class);
+		when(sheet.getRow(0)).thenReturn(row);
+		when(sheet.getNumberOfRows()).thenReturn(1);
+		RowSet rs = new RowSet(sheet);
+		assertTrue(rs.next());
+        assertArrayEquals(row, this.rowMapper.mapRow(rs));
     }
 
 }
