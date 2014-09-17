@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.mapping;
+package org.springframework.batch.item.excel.support.rowset;
 
-import org.springframework.batch.item.excel.RowMapper;
-import org.springframework.batch.item.excel.support.rowset.RowSet;
+import org.springframework.batch.item.excel.Sheet;
 
 /**
- * Pass through {@link RowMapper} useful for passing the orginal String[]
- * back directly rather than a mapped object.
+ * Contract for factories which will construct a {@code RowSet} implementation.
  *
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class PassThroughRowMapper implements RowMapper<String[]> {
+public interface RowSetFactory {
 
-    @Override
-    public String[] mapRow(final RowSet rs) throws Exception {
-        return rs.getCurrentRow();
-    }
-
+    RowSet create(Sheet sheet);
 }

@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.mapping;
-
-import org.springframework.batch.item.excel.RowMapper;
-import org.springframework.batch.item.excel.support.rowset.RowSet;
+package org.springframework.batch.item.excel.support.rowset;
 
 /**
- * Pass through {@link RowMapper} useful for passing the orginal String[]
- * back directly rather than a mapped object.
+ * Interface representing the the metadata associated with an Excel document.
  *
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class PassThroughRowMapper implements RowMapper<String[]> {
+public interface RowSetMetaData {
 
-    @Override
-    public String[] mapRow(final RowSet rs) throws Exception {
-        return rs.getCurrentRow();
-    }
+    String[] getColumnNames();
 
+    String getColumnName(int idx);
+
+    int getColumnCount();
+
+    String getSheetName();
 }

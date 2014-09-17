@@ -22,7 +22,7 @@ import org.springframework.batch.item.excel.Sheet;
 
 /**
  * {@link org.springframework.batch.item.excel.Sheet} implementation for JXL.
- * 
+ *
  * @author Marten Deinum
  * @since 0.5.0
  */
@@ -32,7 +32,7 @@ public class JxlSheet implements Sheet {
 
     /**
      * Constructor which takes the delegate sheet.
-     * 
+     *
      * @param delegate the JXL sheet
      */
     JxlSheet(final jxl.Sheet delegate) {
@@ -52,21 +52,13 @@ public class JxlSheet implements Sheet {
      * {@inheritDoc}
      */
     @Override
-    public String[] getHeader() {
-        return this.getRow(0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String[] getRow(final int rowNumber) {
-		if (rowNumber < getNumberOfRows()) {
-			final Cell[] row = this.delegate.getRow(rowNumber);
-			return JxlUtils.extractContents(row);
-		} else {
-			return null;
-		}
+        if (rowNumber < getNumberOfRows()) {
+            final Cell[] row = this.delegate.getRow(rowNumber);
+            return JxlUtils.extractContents(row);
+        } else {
+            return null;
+        }
     }
 
     /**

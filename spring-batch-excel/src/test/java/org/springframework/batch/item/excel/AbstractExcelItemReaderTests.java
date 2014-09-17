@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.excel.mapping.PassThroughRowMapper;
+import org.springframework.batch.item.excel.support.rowset.RowSet;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractExcelItemReaderTests  {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
     protected AbstractExcelItemReader itemReader;
 

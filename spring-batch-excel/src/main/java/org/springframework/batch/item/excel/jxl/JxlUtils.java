@@ -32,13 +32,15 @@ import java.util.List;
  */
 public final class JxlUtils {
 
-    /** Private constructor to prevent easy instantiation. */
+    /**
+     * Private constructor to prevent easy instantiation.
+     */
     private JxlUtils() {
     }
 
     /**
      * Checks if the given cell is emtpy. The cell is empty if it contains no characters, it will trim spaces.
-
+     *
      * @param cell to check
      * @return true/false
      * @see org.springframework.util.StringUtils#hasText(String)
@@ -68,7 +70,7 @@ public final class JxlUtils {
 
     /**
      * Check if the given workbook has any sheets.
-     * 
+     *
      * @param workbook to check
      * @return true/false
      */
@@ -77,8 +79,8 @@ public final class JxlUtils {
     }
 
     /**
-     * Extract the content from the given row. 
-     * 
+     * Extract the content from the given row.
+     *
      * @param row the row
      * @return the content as String[]
      */

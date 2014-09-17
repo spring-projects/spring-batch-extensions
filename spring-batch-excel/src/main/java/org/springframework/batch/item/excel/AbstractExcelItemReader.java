@@ -17,13 +17,13 @@ package org.springframework.batch.item.excel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.batch.item.excel.support.rowset.*;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +49,8 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     private RowCallbackHandler skippedRowsCallback;
     private boolean noInput = false;
     private boolean strict = true;
-	private RowSet rs;
+    private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
+    private RowSet rs;
 
     public AbstractExcelItemReader() {
         super();
@@ -62,25 +63,25 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
             return null;
         }
 
-		if (rs.next()) {
-			try {
-				return this.rowMapper.mapRow(rs);
-			} catch (final Exception e) {
-				throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
-						rs.getMetaData().getSheetName(), rs.getCurrentRowIndex(), rs.getCurrentRow());
-			}
-		} else {
-			this.currentSheet++;
-			if (this.currentSheet >= this.getNumberOfSheets()) {
-				if (logger.isDebugEnabled() ) {
-					logger.debug("No more sheets in '" + this.resource.getDescription() + "'.");
-				}
-				return null;
-			} else {
-				this.openSheet();
-				return this.doRead();
-			}
-		}
+        if (rs.next()) {
+            try {
+                return this.rowMapper.mapRow(rs);
+            } catch (final Exception e) {
+                throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
+                        rs.getMetaData().getSheetName(), rs.getCurrentRowIndex(), rs.getCurrentRow());
+            }
+        } else {
+            this.currentSheet++;
+            if (this.currentSheet >= this.getNumberOfSheets()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No more sheets in '" + this.resource.getDescription() + "'.");
+                }
+                return null;
+            } else {
+                this.openSheet();
+                return this.doRead();
+            }
+        }
     }
 
     @Override
@@ -92,7 +93,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
                 throw new IllegalStateException("Input resource must exist (reader is in 'strict' mode): "
                         + this.resource);
             }
-            logger.warn("Input resource does not exist '"+this.resource.getDescription()+"'.");
+            logger.warn("Input resource does not exist '" + this.resource.getDescription() + "'.");
             return;
         }
 
@@ -101,7 +102,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
                 throw new IllegalStateException("Input resource must be readable (reader is in 'strict' mode): "
                         + this.resource);
             }
-            logger.warn("Input resource is not readable '"+this.resource.getDescription()+"'.");
+            logger.warn("Input resource is not readable '" + this.resource.getDescription() + "'.");
             return;
         }
 
@@ -109,7 +110,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         this.openSheet();
         this.noInput = false;
         if (logger.isDebugEnabled()) {
-            logger.debug("Opened workbook ["+this.resource.getFilename()+"] with "+this.getNumberOfSheets()+" sheets.");
+            logger.debug("Opened workbook [" + this.resource.getFilename() + "] with " + this.getNumberOfSheets() + " sheets.");
         }
     }
 
@@ -123,19 +124,20 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     private void openSheet() {
         final Sheet sheet = this.getSheet(this.currentSheet);
-		this.rs = new RowSet(sheet);
+        this.rs =rowSetFactory.create(sheet);
 
-		if (logger.isDebugEnabled()) {
-            logger.debug("Opening sheet "+sheet.getName()+".");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Opening sheet " + sheet.getName() + ".");
         }
 
-		for (int i = 0; i < this.linesToSkip; i++) {
+        for (int i = 0; i < this.linesToSkip; i++) {
             if (rs.next() && this.skippedRowsCallback != null) {
                 this.skippedRowsCallback.handleRow(rs);
             }
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("Openend sheet "+sheet.getName()+", with "+sheet.getNumberOfRows()+" rows.");
+            logger.debug("Openend sheet " + sheet.getName() + ", with " + sheet.getNumberOfRows() + " rows.");
         }
 
     }
@@ -197,6 +199,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     public void setRowMapper(final RowMapper<T> rowMapper) {
         this.rowMapper = rowMapper;
+    }
+
+    public void setRowSetFactory(RowSetFactory rowSetFactory) {
+        this.rowSetFactory = rowSetFactory;
     }
 
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {

@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.transform;
+package org.springframework.batch.item.excel.support.rowset;
 
-import org.springframework.batch.item.excel.RowSet;
 import org.springframework.batch.item.excel.Sheet;
-import org.springframework.batch.item.file.transform.FieldSet;
 
 /**
- * Interface that is used by framework to convert a row, represented in a String[], into a
- * {@link org.springframework.batch.item.file.transform.FieldSet}.
- * 
- * @author Marten Deinum 
+ * Contract for extracting column names for a given {@Sheet sheet}.
+ *
+ * @author Marten Deinum
  * @since 0.5.0
  */
-public interface RowTokenizer {
+public interface ColumnNameExtractor {
 
-    FieldSet tokenize(RowSet rs);
+    String[] getColumnNames(Sheet sheet);
+
 }
