@@ -19,7 +19,7 @@ import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
 import org.springframework.core.io.ClassPathResource;
 
-public class PoiItemReaderXlsxTests extends AbstractExcelItemReaderTests {
+public class PoiItemReaderXlsxTest extends AbstractExcelItemReaderTests {
 
     @Override
     protected void configureItemReader(AbstractExcelItemReader itemReader) {

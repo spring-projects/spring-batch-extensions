@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.poi;
+package org.springframework.batch.item.excel.support.rowset;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.item.excel.AbstractExcelItemReader;
-import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
+import java.util.Properties;
 
-public class PoiItemReaderXlsTests extends AbstractExcelItemReaderTests {
+/**
+ * Used by the {@code org.springframework.batch.item.excel.AbstractExcelItemReader} to abstract away
+ * the complexities of the underlying Excel API implementations.
+ *
+ * @author Marten Deinum
+ * @since 0.5.0
+ */
+public interface RowSet {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    RowSetMetaData getMetaData();
 
-    private PoiItemReader itemReader;
+    boolean next();
 
-    @Override
-    protected AbstractExcelItemReader createExcelItemReader() {
-        return new PoiItemReader();
-    }
+    int getCurrentRowIndex();
 
+    String[] getCurrentRow();
+
+    String getColumnValue(int idx);
+
+    Properties getProperties();
 }

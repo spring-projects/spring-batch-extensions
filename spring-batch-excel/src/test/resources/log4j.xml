@@ -26,7 +26,7 @@
     </appender>
 
     <category name="org.springframework.batch">
-        <level value="DEBUG" />
+        <level value="DEBUG"/>
     </category>
 
     <root>

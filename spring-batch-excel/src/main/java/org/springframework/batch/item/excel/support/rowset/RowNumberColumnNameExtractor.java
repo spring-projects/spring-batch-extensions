@@ -12,30 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package org.springframework.batch.item.excel.transform;
+ */
+package org.springframework.batch.item.excel.support.rowset;
+
+import org.springframework.batch.item.excel.Sheet;
 
 /**
- * Convert a column name to an attribute name and vice versa.
- * 
+ * {@code ColumnNameExtractor} which returns the values of a given row (default is 0) as the column
+ * names.
+ *
  * @author Marten Deinum
  * @since 0.5.0
  */
-public interface ColumnToAttributeConverter {
+public class RowNumberColumnNameExtractor implements ColumnNameExtractor {
 
-    /**
-     * Convert a column name to an attribute name.
-     * 
-     * @param column to convert
-     * @return the attribute name
-     */
-    String toAttribute(String column);
+    private int headerRowNumber;
 
-    /**
-     * Convert an attribute name to a column name.
-     * 
-     * @param attribute to convert
-     * @return the column name
-     */
-    String toColumn(String attribute);
+    @Override
+    public String[] getColumnNames(final Sheet sheet) {
+        return sheet.getRow(headerRowNumber);
+    }
 
+    public void setHeaderRowNumber(int headerRowNumber) {
+        this.headerRowNumber = headerRowNumber;
+    }
 }

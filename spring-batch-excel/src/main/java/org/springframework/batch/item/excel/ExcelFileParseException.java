@@ -19,9 +19,9 @@ import org.springframework.batch.item.ParseException;
 
 /**
  * Exception thrown when parsing excel files. The name of the sheet, the row number on that sheet and the
- * name of the excel file can be passed in so that in exception handling we can reuse it. This class only has 
+ * name of the excel file can be passed in so that in exception handling we can reuse it. This class only has
  * simply dependencies to make it is generic as possible.
- * 
+ *
  * @author Marten Deinum
  * @since 0.5.0
  */
@@ -34,16 +34,16 @@ public class ExcelFileParseException extends ParseException {
 
     /**
      * Construct an {@link ExcelFileParseException}.
-     * 
-     * @param message the message
-     * @param cause the root cause
-     * @param filename the name of the excel file
-     * @param sheet the name of the sheet
+     *
+     * @param message   the message
+     * @param cause     the root cause
+     * @param filename  the name of the excel file
+     * @param sheet     the name of the sheet
      * @param rowNumber the row number in the current sheet
-     * @param row the row data as text
+     * @param row       the row data as text
      */
     public ExcelFileParseException(final String message, final Throwable cause, final String filename,
-            final String sheet, final int rowNumber, final String[] row) {
+                                   final String sheet, final int rowNumber, final String[] row) {
         super(message, cause);
         this.filename = filename;
         this.sheet = sheet;

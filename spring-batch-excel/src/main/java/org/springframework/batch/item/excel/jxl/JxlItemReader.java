@@ -28,11 +28,10 @@ import org.springframework.util.ClassUtils;
  * {@link org.springframework.batch.item.ItemReader} implementation which uses the JExcelApi to read an Excel
  * file. It will read the file sheet for sheet and row for row. It is based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
- * 
- * @author Marten Deinum
- * @since 0.5.0
  *
  * @param <T> the type
+ * @author Marten Deinum
+ * @since 0.5.0
  */
 public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
 

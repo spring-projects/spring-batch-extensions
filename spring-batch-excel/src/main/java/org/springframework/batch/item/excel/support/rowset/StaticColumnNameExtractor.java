@@ -13,24 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.transform;
+package org.springframework.batch.item.excel.support.rowset;
+
+import org.springframework.batch.item.excel.Sheet;
 
 /**
- * {@link ColumnToAttributeConverter} which simply returns the given value.
- * 
- * @author Marten Deinum
- * @since 0.5.0
+ * {@code ColumnNameExtractor} implementation which returns a preset String[] to use as
+ *  the column names. Useful for those situations in which an Excel file without a header row
+ *  is read
+ *
+ *  @author Marten Deinum
+ *  @since 0.5.0
  */
-public class PassThroughColumnToAttributeConverter implements ColumnToAttributeConverter {
+public class StaticColumnNameExtractor implements ColumnNameExtractor {
 
-    @Override
-    public String toAttribute(final String column) {
-        return column;
+    private final String[] columnNames;
+
+    public StaticColumnNameExtractor(String[] columnNames) {
+        this.columnNames = columnNames;
     }
 
     @Override
-    public String toColumn(final String attribute) {
-        return attribute;
+    public String[] getColumnNames(Sheet sheet) {
+        return this.columnNames;
     }
 
 }

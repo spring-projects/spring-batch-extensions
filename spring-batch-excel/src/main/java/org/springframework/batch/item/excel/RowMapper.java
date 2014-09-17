@@ -15,21 +15,22 @@
  */
 package org.springframework.batch.item.excel;
 
+import org.springframework.batch.item.excel.support.rowset.RowSet;
+
 /**
  * Map rows from an excel sheet to an object.
- * 
- * @author Marten Deinum
- * @since 0.5.0
  *
  * @param <T>
+ * @author Marten Deinum
+ * @since 0.5.0
  */
 public interface RowMapper<T> {
 
     /**
-     * Implementations must implement this method to map the provided row to 
+     * Implementations must implement this method to map the provided row to
      * the parameter type T.  The row number represents the number of rows
      * into a {@link Sheet} the current line resides.
-     * 
+     *
      * @param rs the RowSet used for mapping.
      * @return mapped object of type T
      * @throws Exception if error occured while parsing.

@@ -28,10 +28,9 @@ import org.springframework.core.io.Resource;
  * file. It will read the file sheet for sheet and row for row. It is based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
+ * @param <T> the type
  * @author Marten Deinum
  * @since 0.5.0
- *
- * @param <T> the type
  */
 public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
