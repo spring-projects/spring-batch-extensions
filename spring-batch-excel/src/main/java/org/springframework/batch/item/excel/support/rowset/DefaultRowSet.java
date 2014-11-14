@@ -56,45 +56,21 @@ public class DefaultRowSet implements RowSet {
         return false;
     }
 
-    /**
-     * The current row index represents the number of rows
-     * into a {@link Sheet} the current line resides
-     */
     @Override
     public int getCurrentRowIndex() {
         return this.currentRowIndex;
     }
 
-    /**
-     * Get the data of the current row.
-     *
-     * @return a String[] for the current data
-     */
     @Override
     public String[] getCurrentRow() {
         return this.currentRow;
     }
 
-    /**
-     * Get the value of the given column
-     *
-     * @param idx index of the column to get, 0 based
-     * @return the value
-     * @throws java.lang.ArrayIndexOutOfBoundsException
-     */
     @Override
     public String getColumnValue(int idx) {
         return currentRow[idx];
     }
 
-    /**
-     * Construct name-value pairs from the column names and string values. Null
-     * values are omitted.
-     *
-     * @return some properties representing the row set.
-     * @throws IllegalStateException if the column name meta data is not
-     *                               available.
-     */
     @Override
     public Properties getProperties() {
         final String[] names = metaData.getColumnNames();

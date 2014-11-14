@@ -25,6 +25,12 @@ import org.springframework.batch.item.excel.Sheet;
  */
 public interface ColumnNameExtractor {
 
+    /**
+     * Retrieves the names of the columns in the given Sheet.
+     *
+     * @param sheet the sheet
+     * @return the column names
+     */
     String[] getColumnNames(Sheet sheet);
 
 }
