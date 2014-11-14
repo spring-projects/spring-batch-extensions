@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * {@link org.springframework.batch.item.ItemReader} implementation which uses the JExcelApi to read an Excel
- * file. It will read the file sheet for sheet and row for row. It is based on
+ * {@link org.springframework.batch.item.ItemReader} implementation to read an Excel
+ * file. It will read the file sheet for sheet and row for row. It is loosy based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
  * @param <T> the type
@@ -112,14 +112,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         if (logger.isDebugEnabled()) {
             logger.debug("Opened workbook [" + this.resource.getFilename() + "] with " + this.getNumberOfSheets() + " sheets.");
         }
-    }
-
-    private String[] readRow(final Sheet sheet) {
-        this.currentRow++;
-        if (this.currentRow < sheet.getNumberOfRows()) {
-            return sheet.getRow(this.currentRow);
-        }
-        return null;
     }
 
     private void openSheet() {
