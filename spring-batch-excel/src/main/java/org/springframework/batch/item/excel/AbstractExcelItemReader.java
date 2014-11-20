@@ -17,7 +17,9 @@ package org.springframework.batch.item.excel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.item.excel.support.rowset.*;
+import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
+import org.springframework.batch.item.excel.support.rowset.RowSet;
+import org.springframework.batch.item.excel.support.rowset.RowSetFactory;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
