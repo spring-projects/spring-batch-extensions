@@ -29,7 +29,9 @@ import java.util.List;
  *
  * @author Marten Deinum
  * @since 0.5.0
+ * @deprecated since JExcelAPI is an abandoned project (no release since 2009, with serious bugs remaining)
  */
+@Deprecated
 public final class JxlUtils {
 
     /**
