@@ -136,27 +136,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     }
 
-    @Override
-    protected final void doClose() throws Exception {
-        doCloseWorkbook();
-        if (this.resource != null) {
-            try {
-                InputStream is = this.resource.getInputStream();
-                is.close();
-            } catch (IOException ioe) {
-                logger.warn("Exception whilst obtaining or closing the inputstream.", ioe);
-            }
-        }
-    }
-
-    /**
-     * Method which can be overriden by subclasses to do cleanup additional resources.
-     *
-     * @throws Exception
-     */
-    protected void doCloseWorkbook() throws Exception {
-    }
-
     public void setResource(final Resource resource) {
         this.resource = resource;
     }
