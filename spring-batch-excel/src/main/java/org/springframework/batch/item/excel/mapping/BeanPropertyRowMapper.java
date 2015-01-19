@@ -39,22 +39,22 @@ import java.util.Set;
  * of the specified mapped target class. The mapped target class must be a
  * top-level class and it must have a default or no-arg constructor.
  *
- * <p>Column values are mapped based on matching the column name as obtained from row set
+ * Column values are mapped based on matching the column name as obtained from row set
  * metadata to public setters for the corresponding properties. The names are matched either
  * directly or by transforming a name separating the parts with underscores to the same name
  * using "camel" case.
  *
- * <p>Mapping is provided for fields in the target class for many common types, e.g.:
+ * Mapping is provided for fields in the target class for many common types, e.g.:
  * String, boolean, Boolean, byte, Byte, short, Short, int, Integer, long, Long,
  * float, Float, double, Double, BigDecimal, {@code java.util.Date}, etc.
  *
- * <p>For 'null' values read from the Excel document, we will attempt to call the setter, but in the case of
+ * For 'null' values read from the Excel document, we will attempt to call the setter, but in the case of
  * Java primitives, this causes a TypeMismatchException. This class can be configured (using the
  * primitivesDefaultedForNullValue property) to trap this exception and use the primitives default value.
  * Be aware that if you use the values from the generated bean to update the database the primitive value
  * will have been set to the primitive's default value instead of null.
  *
- * <p>Please note that this class is designed to provide convenience rather than high performance.
+ * Please note that this class is designed to provide convenience rather than high performance.
  * For best performance, consider using a custom {@link RowMapper} implementation.
  *
  * @author Marten Deinum
