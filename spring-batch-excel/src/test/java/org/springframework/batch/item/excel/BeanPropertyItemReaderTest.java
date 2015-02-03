@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.Player;
-import org.springframework.batch.item.excel.mapping.BeanPropertyRowMapper;
+import org.springframework.batch.item.excel.mapping.BeanWrapperRowMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class BeanPropertyItemReaderTest {
 
         reader = new MockExcelItemReader<Player>(sheet);
 
-        BeanPropertyRowMapper<Player> rowMapper = new BeanPropertyRowMapper<Player>();
+        BeanWrapperRowMapper<Player> rowMapper = new BeanWrapperRowMapper<Player>();
         rowMapper.setTargetType(Player.class);
         rowMapper.afterPropertiesSet();
 
