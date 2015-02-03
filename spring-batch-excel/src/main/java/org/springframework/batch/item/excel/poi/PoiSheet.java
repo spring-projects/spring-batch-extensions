@@ -17,10 +17,12 @@
 package org.springframework.batch.item.excel.poi;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.batch.item.excel.Sheet;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -82,7 +84,12 @@ public class PoiSheet implements Sheet {
             Cell cell = row.getCell(i);
             switch (cell.getCellType()) {
                 case Cell.CELL_TYPE_NUMERIC:
-                    cells.add(String.valueOf(cell.getNumericCellValue()));
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        Date date = cell.getDateCellValue();
+                        cells.add(String.valueOf(date.getTime()));
+                    } else {
+                        cells.add(String.valueOf(cell.getNumericCellValue()));
+                    }
                     break;
                 case Cell.CELL_TYPE_BOOLEAN:
                     cells.add(String.valueOf(cell.getBooleanCellValue()));
