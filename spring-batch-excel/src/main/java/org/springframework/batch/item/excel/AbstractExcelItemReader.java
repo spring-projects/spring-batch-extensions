@@ -27,9 +27,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 /**
  * {@link org.springframework.batch.item.ItemReader} implementation to read an Excel
  * file. It will read the file sheet for sheet and row for row. It is loosy based on
@@ -45,7 +42,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     protected final Log logger = LogFactory.getLog(getClass());
     private Resource resource;
     private int linesToSkip = 0;
-    private int currentRow = 0;
     private int currentSheet = 0;
     private RowMapper<T> rowMapper;
     private RowCallbackHandler skippedRowsCallback;
@@ -59,6 +55,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         this.setName(ClassUtils.getShortName(this.getClass()));
     }
 
+    /**
+     * @return string corresponding to logical record according to
+     * {@link #setRowMapper(RowMapper)} (might span multiple rows in file).
+     */
     @Override
     protected T doRead() throws Exception {
         if (this.noInput || this.rs == null) {
@@ -136,6 +136,11 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
     }
 
+    /**
+     * Public setter for the input resource.
+     *
+     * @param resource the {@code Resource} pointing to the Excelfile
+     */
     public void setResource(final Resource resource) {
         this.resource = resource;
     }
@@ -148,16 +153,31 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      * Set the number of lines to skip. This number is applied to all worksheet
      * in the excel file! default to 0
      *
-     * @param linesToSkip
+     * @param linesToSkip number of lines to skip
      */
     public void setLinesToSkip(final int linesToSkip) {
         this.linesToSkip = linesToSkip;
     }
 
+    /**
+     *
+     * @param sheet the sheet index
+     * @return the sheet or <code>null</code> when no sheet available.
+     */
     protected abstract Sheet getSheet(int sheet);
 
+    /**
+     * The number of sheets in the underlying workbook.
+     *
+     * @return the number of sheets.
+     */
     protected abstract int getNumberOfSheets();
 
+    /**
+     *
+     * @param resource {@code Resource} pointing to the Excel file to read
+     * @throws Exception when the Excel sheet cannot be accessed
+     */
     protected abstract void openExcelFile(Resource resource) throws Exception;
 
     /**
@@ -170,14 +190,28 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         this.strict = strict;
     }
 
+    /**
+     * Public setter for the {@code rowMapper}. Used to map a row read from the underlying Excel workbook.
+     *
+     * @param rowMapper the {@code RowMapper} to use.
+     */
     public void setRowMapper(final RowMapper<T> rowMapper) {
         this.rowMapper = rowMapper;
     }
 
+    /**
+     * Public setter for the <code>rowSetFactory</code>. Used to create a {@code RowSet} implemenation. By default the
+     * {@code DefaultRowSetFactory} is used.
+     *
+     * @param rowSetFactory the {@code RowSetFactory} to use.
+     */
     public void setRowSetFactory(RowSetFactory rowSetFactory) {
         this.rowSetFactory = rowSetFactory;
     }
 
+    /**
+     * @param skippedRowsCallback will be called for each one of the initial skipped lines before any items are read.
+     */
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }

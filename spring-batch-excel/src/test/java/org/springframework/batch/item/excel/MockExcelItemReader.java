@@ -37,4 +37,9 @@ public class MockExcelItemReader<T> extends AbstractExcelItemReader<T> {
     protected void openExcelFile(Resource resource) throws Exception {
 
     }
+
+    @Override
+    protected void doClose() throws Exception {
+        sheets.clear();
+    }
 }

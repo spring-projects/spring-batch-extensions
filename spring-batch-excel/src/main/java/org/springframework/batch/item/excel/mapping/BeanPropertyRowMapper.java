@@ -58,6 +58,7 @@ import java.util.Set;
  * For best performance, consider using a custom {@link RowMapper} implementation.
  *
  * @author Marten Deinum
+ * @param <T> The type
  * @since 0.5.0
  */
 public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware, InitializingBean {
@@ -115,7 +116,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
      * that will be passed into {@link #mapRow(RowSet)}. Typically a
      * prototype scoped bean so that a new instance is returned for each field
      * set mapped.
-     * <p/>
+     *
      * Either this property or the type property must be specified, but not
      * both.
      *
@@ -129,7 +130,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
      * Public setter for the type of bean to create instead of using a prototype
      * bean. An object of this type will be created from its default constructor
      * for every call to {@link #mapRow(RowSet)}.<br>
-     * <p/>
+     *
      * Either this property or the prototype bean name must be specified, but
      * not both.
      *
@@ -187,9 +188,10 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
 
     /**
      * Set whether we're strictly validating that all bean properties have been
-     * mapped from corresponding database fields.
-     * <p>Default is {@code false}, accepting unpopulated properties in the
-     * target bean.
+     * mapped from corresponding database fields. Default is {@code false},
+     * accepting unpopulated properties in the target bean.
+     *
+     * @param checkFullyPopulated true or false
      */
     public void setCheckFullyPopulated(boolean checkFullyPopulated) {
         this.checkFullyPopulated = checkFullyPopulated;
@@ -198,6 +200,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
     /**
      * Return whether we're strictly validating that all bean properties have been
      * mapped from corresponding database fields.
+     *
+     * @return true when resulting bean should be checked
      */
     public boolean isCheckFullyPopulated() {
         return this.checkFullyPopulated;
@@ -206,7 +210,10 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
     /**
      * Set whether we're defaulting Java primitives in the case of mapping a null value
      * from corresponding database fields.
-     * <p>Default is {@code false}, throwing an exception when nulls are mapped to Java primitives.
+     *
+     * Default is {@code false}, throwing an exception when nulls are mapped to Java primitives.
+     *
+     * @param primitivesDefaultedForNullValue should default values be used when read value is {@code null}
      */
     public void setPrimitivesDefaultedForNullValue(boolean primitivesDefaultedForNullValue) {
         this.primitivesDefaultedForNullValue = primitivesDefaultedForNullValue;
@@ -215,6 +222,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
     /**
      * Return whether we're defaulting Java primitives in the case of mapping a null value
      * from corresponding database fields.
+     *
+     * @return {@code true} when default values be used when read value is {@code null}
      */
     public boolean isPrimitivesDefaultedForNullValue() {
         return primitivesDefaultedForNullValue;
@@ -222,7 +231,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
 
     /**
      * Extract the values for all columns in the current row.
-     * <p>Utilizes public setters and result set metadata.
+     *
+     * Utilizes public setters and result set metadata.
      *
      * @see java.sql.ResultSetMetaData
      */
@@ -314,6 +324,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T>, BeanFactoryAware,
      * (with the mapped class specified only once).
      *
      * @param targetType the class that each row should be mapped to
+     * @param <T> the targetType
+     * @return the newly created instance
      */
     public static <T> BeanPropertyRowMapper<T> newInstance(Class<T> targetType) {
         BeanPropertyRowMapper<T> newInstance = new BeanPropertyRowMapper<T>();
