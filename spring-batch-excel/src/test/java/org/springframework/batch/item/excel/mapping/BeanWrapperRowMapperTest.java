@@ -17,19 +17,20 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Created by in329dei on 17-9-2014.
+ * @author Marten Deinum
+ * @since 0.5.0
  */
-public class BeanPropertyRowMapperTest {
+public class BeanWrapperRowMapperTest {
 
     @Test(expected = IllegalStateException.class)
     public void givenNoNameWhenInitCompleteThenIllegalStateShouldOccur() throws Exception {
-        BeanPropertyRowMapper mapper = new BeanPropertyRowMapper();
+        BeanWrapperRowMapper mapper = new BeanWrapperRowMapper();
         mapper.afterPropertiesSet();
     }
 
     @Test
     public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructed() throws Exception {
-        BeanPropertyRowMapper<Player> mapper = new BeanPropertyRowMapper<Player>();
+        BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<Player>();
         mapper.setTargetType(Player.class);
         mapper.afterPropertiesSet();
 
@@ -59,7 +60,7 @@ public class BeanPropertyRowMapperTest {
     public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructedBasedOnPrototype() throws Exception {
 
         ApplicationContext ctx = new AnnotationConfigApplicationContext(TestConfig.class);
-        BeanPropertyRowMapper<Player> mapper = new BeanPropertyRowMapper<Player>();
+        BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<Player>();
         mapper.setPrototypeBeanName("player");
         mapper.setBeanFactory(ctx);
         mapper.afterPropertiesSet();
