@@ -37,6 +37,7 @@ public class PoiSheet implements Sheet {
     private final String name;
 
     private int numberOfColumns = -1;
+    private FormulaEvaluator evaluator;
 
     /**
      * Constructor which takes the delegate sheet.
@@ -91,14 +92,20 @@ public class PoiSheet implements Sheet {
                     cells.add(cell.getStringCellValue());
                     break;
                 case Cell.CELL_TYPE_FORMULA:
-                    FormulaEvaluator evaluator = delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
-                    cells.add(evaluator.evaluate(cell).formatAsString());
+                    cells.add(getFormulaEvaluator().evaluate(cell).formatAsString());
                     break;
                 default:
                     throw new IllegalArgumentException("Cannot handle cells of type " + cell.getCellType());
             }
         }
         return cells.toArray(new String[cells.size()]);
+    }
+
+    private FormulaEvaluator getFormulaEvaluator() {
+        if (this.evaluator == null) {
+            this.evaluator = delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
+        }
+        return this.evaluator;
     }
 
     /**
