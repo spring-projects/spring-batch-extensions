@@ -12,12 +12,29 @@ There are 2 `ItemReaders` one can configure:
 
 Configuration of both readers is the same.
 
+#### XML
+
     <bean id="excelReader" class="org.springframework.batch.item.excel.poi.PoiItemReader">
         <property name="resource" value="/path/to/your/excel/file" />
         <property name="rowMapper">
             <bean class="org.springframework.batch.item.excel.mapping.PassThroughRowMapper" />
         </property>
     </bean>
+
+#### Java Config
+
+    @Bean
+    public PoiItemReader excelReader() {
+        PoiItemReader reader = new PoiItemReader();
+        reader.setResource(new ClassPathResource("/path/to/your/excel/file"));
+        reader.setRowMapper(rowMapper());
+        return reader;
+    }
+
+    @Bean
+    public RowMapper rowMapper() {
+        return new PassThroughRowMapper();
+    }
 
 Each reader takes a `resource` and a `rowMapper`. The `resource` is the location of the excel file to read and the `rowMapper` transforms the rows in excel to an object which you can use in the rest of the process.
 
@@ -44,13 +61,13 @@ Next to the default `ItemReader` implementations there are also 2 `RowMapper` im
 ### PassThroughRowMapper
 Transforms the read row from excel into a `String[]`.
 
-### BeanPropertyRowMapper
+### BeanWrapperRowMapper
 Uses a `BeanWrapper` to convert a given row into an object. Uses the column names of the given `RowSet` to map column to properties of the `targetType` or prototype bean.
 
     <bean id="excelReader" class="org.springframework.batch.item.excel.poi.PoiItemReader">
         <property name="resource" value="/path/to/your/excel/file" />
         <property name="rowMapper">
-            <bean class="org.springframework.batch.item.excel.mapping.BeanPropertyRowMapper">
+            <bean class="org.springframework.batch.item.excel.mapping.BeanWrapperowMapper">
                 <property name="targetType" value="com.your.package.Player" />
             <bean>
         </property>
