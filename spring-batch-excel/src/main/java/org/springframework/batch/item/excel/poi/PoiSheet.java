@@ -33,6 +33,8 @@ import java.util.List;
 public class PoiSheet implements Sheet {
 
     private final org.apache.poi.ss.usermodel.Sheet delegate;
+    private final int numberOfRows;
+    private final String name;
 
     private int numberOfColumns = -1;
 
@@ -44,6 +46,8 @@ public class PoiSheet implements Sheet {
     PoiSheet(final org.apache.poi.ss.usermodel.Sheet delegate) {
         super();
         this.delegate = delegate;
+        this.numberOfRows = this.delegate.getLastRowNum() + 1;
+        this.name=this.delegate.getSheetName();
     }
 
     /**
@@ -51,7 +55,7 @@ public class PoiSheet implements Sheet {
      */
     @Override
     public int getNumberOfRows() {
-        return this.delegate.getLastRowNum() + 1;
+        return this.numberOfRows;
     }
 
     /**
@@ -59,7 +63,7 @@ public class PoiSheet implements Sheet {
      */
     @Override
     public String getName() {
-        return this.delegate.getSheetName();
+        return this.name;
     }
 
     /**
