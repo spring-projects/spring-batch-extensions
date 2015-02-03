@@ -72,7 +72,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
      * it can be closed cleanly on the end of reading the file. This to be able to release the resources used by
      * Apache POI.
      *
-     * @param resource
+     * @param resource the {@code Resource} pointing to the Excel file.
      * @throws Exception is thrown for any errors.
      */
     @Override
