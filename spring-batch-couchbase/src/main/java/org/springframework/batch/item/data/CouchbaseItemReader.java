@@ -130,11 +130,8 @@ public class CouchbaseItemReader<T> extends AbstractPaginatedDataItemReader<T> i
 		hasLength(designDocument, "A design document name is required.");
 		hasLength(view, "A view name is required.");
 		
-		// default value is -1 (unlimited)
-		if(query.getLimit() < 0) {
-			logger.debug("setting default page size to {}", pageSize);
-			query.setLimit(pageSize);
-		}
+		logger.debug("setting limit on query to {}", pageSize);
+		query.setLimit(pageSize);
 	}
 	
 	@Override

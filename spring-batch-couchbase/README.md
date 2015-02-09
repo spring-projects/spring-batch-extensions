@@ -20,7 +20,7 @@ public class ReaderWriterConfig {
 	    reader.setDesignDocument("designDocumentName");
 	    reader.setView("viewName");
 	    reader.setTargetType(ClassToRead.class);
-	    
+	    reader.setPageSize(15);
 	    return reader;
 	}
 	
@@ -38,7 +38,9 @@ public class ReaderWriterConfig {
 	    return writer;
 	}
 	 
+	/*Optional
 	@Bean
+	*/
 	public Query query() {
 	     
 	    Query query = new Query();
@@ -55,8 +57,8 @@ public class ReaderWriterConfig {
 ```
 
 ##### NOTE
-The limit attribute from the Query object will be used for paged requests. Setting the page and pageSize fields (inherited from AbstractPaginatedDataItemReader) will have no effect.
-If the limit attribute is not set on the Query object, then the pageSize (inherited from AbstractPaginatedDataItemReader) will be set as the limit.
+Use the pageSize attribute (inherited from AbstractPaginatedDataItemReader) to set the limit for the data returned by the query.
+If the Query object's limit attribute has been set, it will be overridden by the pageSize attribute to make it consistent with the other reader behaviors.
 
 [reference manual]:http://docs.spring.io/spring-data/couchbase/docs/1.1.1.RELEASE/reference/html/
 [CouchbaseOperations]:http://docs.spring.io/spring-data/couchbase/docs/1.1.1.RELEASE/api/org/springframework/data/couchbase/core/CouchbaseOperations.html
