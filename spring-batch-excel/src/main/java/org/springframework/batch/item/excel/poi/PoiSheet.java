@@ -94,7 +94,7 @@ public class PoiSheet implements Sheet {
         }
         final List<String> cells = new LinkedList<String>();
         
-        for (int i = 0; i < getNumberOfColumns(); i++) {
+        for (int i = 0; i < getNumberOfColumns(rowNumber); i++) {
             Cell cell = row.getCell(i);
             
             if (useDataFormatter) {
@@ -141,8 +141,14 @@ public class PoiSheet implements Sheet {
     @Override
     public int getNumberOfColumns() {
         if (numberOfColumns < 0) {
-            numberOfColumns = this.delegate.getRow(0).getLastCellNum();
+            numberOfColumns = getNumberOfColumns(0);
         }
         return numberOfColumns;
     }    
+
+    private int getNumberOfColumns(int forRow) {
+    	return this.delegate.getRow(forRow).getLastCellNum();
+    }    
+    
+    
 }
