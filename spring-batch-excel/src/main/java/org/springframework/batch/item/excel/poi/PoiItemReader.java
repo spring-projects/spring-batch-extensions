@@ -16,16 +16,16 @@
 
 package org.springframework.batch.item.excel.poi;
 
+import java.io.Closeable;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.core.io.Resource;
-
-import java.io.Closeable;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
 
 /**
  * {@link org.springframework.batch.item.ItemReader} implementation which uses apache POI to read an Excel
@@ -41,7 +41,9 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     private Workbook workbook;
 
     private InputStream workbookStream;
-
+    
+    private boolean useDataFormatter = false;
+    
     @Override
     protected Sheet getSheet(final int sheet) {
         return new PoiSheet(this.workbook.getSheetAt(sheet));
@@ -84,5 +86,13 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         this.workbook = WorkbookFactory.create(workbookStream);
         this.workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
     }
+
+	public boolean isUseDataFormatter() {
+		return useDataFormatter;
+	}
+
+	public void setUseDataFormatter(boolean useDataFormatter) {
+		this.useDataFormatter = useDataFormatter;
+	}
 
 }
