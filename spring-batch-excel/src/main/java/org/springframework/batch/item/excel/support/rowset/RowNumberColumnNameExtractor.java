@@ -36,4 +36,8 @@ public class RowNumberColumnNameExtractor implements ColumnNameExtractor {
     public void setHeaderRowNumber(int headerRowNumber) {
         this.headerRowNumber = headerRowNumber;
     }
+
+	public int getHeaderRowNumber() {
+		return headerRowNumber;
+	}
 }

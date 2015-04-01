@@ -49,6 +49,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     private boolean strict = true;
     private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
     private RowSet rs;
+    private Integer headerRowNumber;
 
     public AbstractExcelItemReader() {
         super();
@@ -199,6 +200,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         this.rowMapper = rowMapper;
     }
 
+    public RowMapper<T> getRowMapper() {
+    	return rowMapper;
+    }
+
     /**
      * Public setter for the <code>rowSetFactory</code>. Used to create a {@code RowSet} implemenation. By default the
      * {@code DefaultRowSetFactory} is used.
@@ -209,10 +214,16 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         this.rowSetFactory = rowSetFactory;
     }
 
+    public RowSetFactory getRowSetFactory() {
+    	return rowSetFactory;
+    }
+
     /**
      * @param skippedRowsCallback will be called for each one of the initial skipped lines before any items are read.
      */
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }
+
+    
 }

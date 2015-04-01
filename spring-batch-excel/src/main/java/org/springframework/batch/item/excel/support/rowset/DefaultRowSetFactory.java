@@ -39,4 +39,8 @@ public class DefaultRowSetFactory implements RowSetFactory {
     public void setColumnNameExtractor(ColumnNameExtractor columnNameExtractor) {
         this.columnNameExtractor = columnNameExtractor;
     }
+
+	public ColumnNameExtractor getColumnNameExtractor() {
+		return columnNameExtractor;
+	}
 }

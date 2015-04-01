@@ -16,16 +16,20 @@
 
 package org.springframework.batch.item.excel.poi;
 
+import java.io.Closeable;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.Sheet;
+import org.springframework.batch.item.excel.support.rowset.ColumnNameExtractor;
+import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
+import org.springframework.batch.item.excel.support.rowset.RowNumberColumnNameExtractor;
+import org.springframework.batch.item.excel.support.rowset.RowSetFactory;
 import org.springframework.core.io.Resource;
-
-import java.io.Closeable;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
 
 /**
  * {@link org.springframework.batch.item.ItemReader} implementation which uses apache POI to read an Excel
@@ -43,7 +47,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     private InputStream workbookStream;
 
     @Override
-    protected Sheet getSheet(final int sheet) {
+    protected Sheet getSheet(final int sheet) {    	
         return new PoiSheet(this.workbook.getSheetAt(sheet));
     }
 
@@ -84,5 +88,26 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         this.workbook = WorkbookFactory.create(workbookStream);
         this.workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
     }
-
+    
+    /**
+     * This method will check if a {@link RowNumberColumnNameExtractor} is set. 
+     * If so it will return the row number where the header is defined. 
+     * 
+     * @return row number for the header
+     */
+    private int getHeaderRowNumber() {
+    	int headerRowNumber = 1;
+    	RowSetFactory rowSetFactory = this.getRowSetFactory();
+    	if (rowSetFactory instanceof DefaultRowSetFactory) {
+    		DefaultRowSetFactory defaultRowSetFactory = (DefaultRowSetFactory) rowSetFactory;
+    		ColumnNameExtractor columnNameExtractor = defaultRowSetFactory.getColumnNameExtractor();
+    		if (columnNameExtractor instanceof RowNumberColumnNameExtractor) {
+    			RowNumberColumnNameExtractor rowNumberColumnNameExtractor = (RowNumberColumnNameExtractor) columnNameExtractor;
+    			headerRowNumber = rowNumberColumnNameExtractor.getHeaderRowNumber();
+    		}
+    	}
+    	return headerRowNumber;
+    }
+    
+    
 }

@@ -16,15 +16,15 @@
 
 package org.springframework.batch.item.excel.poi;
 
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.batch.item.excel.Sheet;
-
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Sheet implementation for Apache POI.
@@ -37,7 +37,7 @@ public class PoiSheet implements Sheet {
     private final org.apache.poi.ss.usermodel.Sheet delegate;
     private final int numberOfRows;
     private final String name;
-
+    
     private int numberOfColumns = -1;
     private FormulaEvaluator evaluator;
 
@@ -80,7 +80,7 @@ public class PoiSheet implements Sheet {
         }
         final List<String> cells = new LinkedList<String>();
 
-        for (int i = 0; i < getNumberOfColumns(); i++) {
+        for (int i = 0; i < getNumberOfColumns(rowNumber); i++) {
             Cell cell = row.getCell(i);
             switch (cell.getCellType()) {
                 case Cell.CELL_TYPE_NUMERIC:
@@ -121,8 +121,13 @@ public class PoiSheet implements Sheet {
     @Override
     public int getNumberOfColumns() {
         if (numberOfColumns < 0) {
-            numberOfColumns = this.delegate.getRow(0).getLastCellNum();
+        	numberOfColumns = getNumberOfColumns(0);
         }
         return numberOfColumns;
     }
+    
+    private int getNumberOfColumns(int forRow) {
+    	return this.delegate.getRow(forRow).getLastCellNum();
+    }    
+
 }

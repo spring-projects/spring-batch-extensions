@@ -15,6 +15,8 @@
  */
 package org.springframework.batch.item.excel;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
@@ -26,8 +28,6 @@ import org.springframework.batch.item.excel.support.rowset.RowSet;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Base class for testing Excel based item readers.
@@ -45,7 +45,7 @@ public abstract class AbstractExcelItemReaderTests  {
     @Before
     public void setup() throws Exception {
         this.itemReader = createExcelItemReader();
-        this.itemReader.setLinesToSkip(1); //First line is column names
+        this.itemReader.setLinesToSkip(2); //First line is empty. Second line is column names.
         this.itemReader.setResource(new ClassPathResource("org/springframework/batch/item/excel/player.xls"));
         this.itemReader.setRowMapper(new PassThroughRowMapper());
         this.itemReader.setSkippedRowsCallback(new RowCallbackHandler() {

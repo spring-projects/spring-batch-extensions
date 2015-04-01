@@ -15,10 +15,12 @@
  */
 package org.springframework.batch.item.excel.poi;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
+import org.springframework.util.StringUtils;
 
 public class PoiItemReaderXlsTest extends AbstractExcelItemReaderTests {
 
@@ -26,5 +28,18 @@ public class PoiItemReaderXlsTest extends AbstractExcelItemReaderTests {
     protected AbstractExcelItemReader createExcelItemReader() {
         return new PoiItemReader();
     }
-
+    
+    @Test
+    public void readNumberOfColumnsFromHeaderRow() throws Exception {
+    	int headerRowNumber = -1;
+    	    		
+    	String[] row;
+        do {
+            row = (String[]) this.itemReader.read();
+            this.logger.debug("Read: " + StringUtils.arrayToCommaDelimitedString(row));
+            if (row != null) {
+                assertEquals(6, row.length);
+            }
+        } while (row != null);
+    }   
 }
