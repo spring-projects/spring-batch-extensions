@@ -46,10 +46,4 @@ public interface Sheet {
      */
     String[] getRow(int rowNumber);
 
-    /**
-     * The number of columns in this sheet.
-     *
-     * @return number of columns
-     */
-    int getNumberOfColumns();
 }

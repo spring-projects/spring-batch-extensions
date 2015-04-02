@@ -79,8 +79,9 @@ public class PoiSheet implements Sheet {
             return null;
         }
         final List<String> cells = new LinkedList<String>();
+        final int numberOfColumns = row.getLastCellNum();
 
-        for (int i = 0; i < getNumberOfColumns(); i++) {
+        for (int i = 0; i < numberOfColumns; i++) {
             Cell cell = row.getCell(i);
             switch (cell.getCellType()) {
                 case Cell.CELL_TYPE_NUMERIC:
@@ -113,16 +114,5 @@ public class PoiSheet implements Sheet {
             this.evaluator = delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
         }
         return this.evaluator;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNumberOfColumns() {
-        if (numberOfColumns < 0) {
-            numberOfColumns = this.delegate.getRow(0).getLastCellNum();
-        }
-        return numberOfColumns;
     }
 }

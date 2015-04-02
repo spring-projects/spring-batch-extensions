@@ -31,8 +31,7 @@ public class DefaultRowSetFactory implements RowSetFactory {
 
     @Override
     public RowSet create(Sheet sheet) {
-        DefaultRowSetMetaData metaData = new DefaultRowSetMetaData(sheet);
-        metaData.setColumnNameExtractor(columnNameExtractor);
+        DefaultRowSetMetaData metaData = new DefaultRowSetMetaData(sheet, columnNameExtractor);
         return new DefaultRowSet(sheet, metaData);
     }
 

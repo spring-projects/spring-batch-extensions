@@ -39,12 +39,4 @@ public class MockSheet implements Sheet {
             return null;
         }
     }
-
-    @Override
-    public int getNumberOfColumns() {
-        if (rows.isEmpty()) {
-            return 0;
-        }
-        return rows.get(0).length;
-    }
 }

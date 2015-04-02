@@ -32,7 +32,6 @@ public class JxlSheet implements Sheet {
 
     private final jxl.Sheet delegate;
     private final int numberOfRows;
-    private final int numberOfColumns;
     private final String name;
 
     /**
@@ -44,7 +43,6 @@ public class JxlSheet implements Sheet {
         super();
         this.delegate = delegate;
         this.numberOfRows = this.delegate.getRows();
-        this.numberOfColumns = this.delegate.getNumberOfImages();
         this.name=this.delegate.getName();
     }
 
@@ -76,13 +74,4 @@ public class JxlSheet implements Sheet {
     public String getName() {
         return this.name;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNumberOfColumns() {
-        return this.numberOfColumns;
-    }
-
 }

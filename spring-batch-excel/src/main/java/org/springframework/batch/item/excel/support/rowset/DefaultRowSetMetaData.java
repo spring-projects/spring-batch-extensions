@@ -30,10 +30,11 @@ public class DefaultRowSetMetaData implements RowSetMetaData {
 
     private final Sheet sheet;
 
-    private ColumnNameExtractor columnNameExtractor;
+    private final ColumnNameExtractor columnNameExtractor;
 
-    DefaultRowSetMetaData(Sheet sheet) {
+    DefaultRowSetMetaData(Sheet sheet, ColumnNameExtractor columnNameExtractor) {
         this.sheet = sheet;
+        this.columnNameExtractor = columnNameExtractor;
     }
 
     @Override
@@ -49,15 +50,11 @@ public class DefaultRowSetMetaData implements RowSetMetaData {
 
     @Override
     public int getColumnCount() {
-        return sheet.getNumberOfColumns();
+        return getColumnNames().length;
     }
 
     @Override
     public String getSheetName() {
         return sheet.getName();
-    }
-
-    public void setColumnNameExtractor(ColumnNameExtractor columnNameExtractor) {
-        this.columnNameExtractor = columnNameExtractor;
     }
 }
