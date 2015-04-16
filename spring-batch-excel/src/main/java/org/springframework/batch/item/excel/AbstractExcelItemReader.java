@@ -133,14 +133,18 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         if (logger.isDebugEnabled()) {
             logger.debug("Openend sheet " + sheet.getName() + ", with " + sheet.getNumberOfRows() + " rows.");
         }
-
     }
 
-    /**
-     * Public setter for the input resource.
-     *
-     * @param resource the {@code Resource} pointing to the Excelfile
-     */
+    protected void doClose() throws Exception {
+        this.currentSheet=0;
+        this.rs=null;
+    }
+
+        /**
+         * Public setter for the input resource.
+         *
+         * @param resource the {@code Resource} pointing to the Excelfile
+         */
     public void setResource(final Resource resource) {
         this.resource = resource;
     }
