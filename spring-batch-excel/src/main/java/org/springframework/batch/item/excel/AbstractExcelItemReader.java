@@ -145,8 +145,8 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      */
     protected void doClose() throws Exception {
         this.currentSheet = 0;
-    	this.rs = null;
-    	this.setCurrentItemCount(0);
+        this.rs = null;
+        this.setCurrentItemCount(0);
     }
 
     /**

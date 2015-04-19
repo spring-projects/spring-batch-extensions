@@ -52,7 +52,7 @@ public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
 
     @Override
     protected void doClose() throws Exception {
-    	super.doClose();
+        super.doClose();
         if (this.workbook != null) {
             this.workbook.close();
         }
