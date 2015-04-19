@@ -163,7 +163,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	 * Solution for:
 	 *   - https://github.com/spring-projects/spring-batch-extensions/issues/11
 	 */
-
 	protected void resetCurrentSheetIndex() {
 		this.currentSheet = 0;
 	}
