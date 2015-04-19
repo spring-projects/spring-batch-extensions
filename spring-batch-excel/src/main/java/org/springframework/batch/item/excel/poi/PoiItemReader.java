@@ -67,6 +67,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         this.workbookStream=null;
 
         super.resetCurrentSheetIndex();
+        super.setCurrentItemCount(0);
     }
 
     /**

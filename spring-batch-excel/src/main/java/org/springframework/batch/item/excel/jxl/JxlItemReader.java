@@ -57,6 +57,7 @@ public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
         }
 
         super.resetCurrentSheetIndex();
+        super.setCurrentItemCount(0);
     }
 
     @Override

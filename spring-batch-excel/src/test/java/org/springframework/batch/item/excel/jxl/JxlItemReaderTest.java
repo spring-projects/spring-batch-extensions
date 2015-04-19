@@ -16,6 +16,9 @@
 
 package org.springframework.batch.item.excel.jxl;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
 
@@ -24,9 +27,25 @@ import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
  */
 public class JxlItemReaderTest extends AbstractExcelItemReaderTests {
 
+    @Before
+    public void setup() throws Exception {
+        super.setup();
+    }
+
+    @After
+    public void after() throws Exception {
+        super.after();
+    }
+
     @Override
     protected AbstractExcelItemReader createExcelItemReader() {
         return new JxlItemReader();
     }
 
+    @Test
+    public void testReusableJxlItemReader() throws Exception {
+    	readExcelFile();
+    	((JxlItemReader) super.itemReader).doClose();
+    	readExcelFile();
+    }
 }

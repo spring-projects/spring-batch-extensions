@@ -15,16 +15,33 @@
  */
 package org.springframework.batch.item.excel.poi;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
 
 public class PoiItemReaderXlsTest extends AbstractExcelItemReaderTests {
+
+    @Before
+    public void setup() throws Exception {
+        super.setup();
+    }
+
+    @After
+    public void after() throws Exception {
+        super.after();
+    }
 
     @Override
     protected AbstractExcelItemReader createExcelItemReader() {
         return new PoiItemReader();
     }
 
+    @Test
+    public void testReusablePoiItemReader() throws Exception {
+    	readExcelFile();
+    	((PoiItemReader) super.itemReader).doClose();
+    	readExcelFile();
+    }
 }

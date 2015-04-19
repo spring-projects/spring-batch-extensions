@@ -57,7 +57,6 @@ public abstract class AbstractExcelItemReaderTests  {
         configureItemReader(this.itemReader);
         this.itemReader.afterPropertiesSet();
         executionContext = new ExecutionContext();
-        this.itemReader.open(executionContext);
     }
 
     protected void configureItemReader(AbstractExcelItemReader itemReader) {
@@ -70,6 +69,7 @@ public abstract class AbstractExcelItemReaderTests  {
 
     @Test
     public void readExcelFile() throws Exception {
+        this.itemReader.open(executionContext);
         assertEquals(3, this.itemReader.getNumberOfSheets());
         String[] row;
         do {
