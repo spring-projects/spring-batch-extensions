@@ -54,6 +54,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
     @Override
     protected void doClose() throws Exception {
+    	super.doClose();
         // As of Apache POI 3.11 there is a close method on the Workbook, prior version
         // lack this method.
         if (workbook instanceof Closeable) {
@@ -65,9 +66,6 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         }
         this.workbook=null;
         this.workbookStream=null;
-
-        super.resetCurrentSheetIndex();
-        super.setCurrentItemCount(0);
     }
 
     /**

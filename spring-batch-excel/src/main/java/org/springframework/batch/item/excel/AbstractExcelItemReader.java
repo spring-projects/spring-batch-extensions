@@ -137,6 +137,19 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     }
 
     /**
+     * Reset the index of the current sheet back to 0.
+     * This allows the reuse of the same reader.
+     *
+     * Solution for:
+     *   - https://github.com/spring-projects/spring-batch-extensions/issues/11
+     */
+    protected void doClose() throws Exception {
+        this.currentSheet = 0;
+    	this.rs = null;
+    	this.setCurrentItemCount(0);
+    }
+
+    /**
      * Public setter for the input resource.
      *
      * @param resource the {@code Resource} pointing to the Excelfile
@@ -154,17 +167,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      */
     protected int getCurrentSheetIndex() {
         return this.currentSheet;
-    }
-
-    /**
-     * Reset the index of the current sheet back to 0.
-     * This allows the reuse of the same reader.
-     *
-     * Solution for:
-     *   - https://github.com/spring-projects/spring-batch-extensions/issues/11
-     */
-    protected void resetCurrentSheetIndex() {
-        this.currentSheet = 0;
     }
 
     /**
