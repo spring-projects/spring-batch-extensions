@@ -55,6 +55,8 @@ public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
         if (this.workbook != null) {
             this.workbook.close();
         }
+
+        super.resetCurrentSheetIndex();
     }
 
     @Override
