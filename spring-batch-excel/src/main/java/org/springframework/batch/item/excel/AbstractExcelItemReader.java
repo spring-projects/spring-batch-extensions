@@ -149,23 +149,23 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         Assert.notNull(this.rowMapper, "RowMapper must be set");
     }
 
-	/**
-	 * @return the index of the current sheet.
-	 */
-	protected int getCurrentSheetIndex() {
-		return this.currentSheet;
-	}
+    /**
+     * @return the index of the current sheet.
+     */
+    protected int getCurrentSheetIndex() {
+        return this.currentSheet;
+    }
 
-	/**
-	 * Reset the index of the current sheet back to 0.
-	 * This allows the reuse of the same reader.
-	 *
-	 * Solution for:
-	 *   - https://github.com/spring-projects/spring-batch-extensions/issues/11
-	 */
-	protected void resetCurrentSheetIndex() {
-		this.currentSheet = 0;
-	}
+    /**
+     * Reset the index of the current sheet back to 0.
+     * This allows the reuse of the same reader.
+     *
+     * Solution for:
+     *   - https://github.com/spring-projects/spring-batch-extensions/issues/11
+     */
+    protected void resetCurrentSheetIndex() {
+        this.currentSheet = 0;
+    }
 
     /**
      * Set the number of lines to skip. This number is applied to all worksheet
