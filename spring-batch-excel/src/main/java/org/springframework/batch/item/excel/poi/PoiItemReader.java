@@ -48,7 +48,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     }
 
     @Override
-    protected int getNumberOfSheets() {
+    public int getNumberOfSheets() {
         return this.workbook.getNumberOfSheets();
     }
 

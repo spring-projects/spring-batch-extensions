@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for mapping different header column to field.
- * @author Jyl-Cristoff
+ * @author Jyl-Cristoff ZOBEIDE
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -15,6 +15,9 @@
  */
 package org.springframework.batch.item.excel;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
@@ -40,15 +43,16 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         ResourceAwareItemReaderItemStream<T>, InitializingBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
-    private Resource resource;
+    protected Resource resource;
     private int linesToSkip = 0;
-    private int currentSheet = 0;
-    private RowMapper<T> rowMapper;
+    protected int currentSheet = 0;
+    protected RowMapper<T> rowMapper;
     private RowCallbackHandler skippedRowsCallback;
-    private boolean noInput = false;
+    protected boolean noInput = false;
     private boolean strict = true;
     private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
-    private RowSet rs;
+    protected RowSet rs;
+    private Map<Integer, Class<? extends T>> sheetMappings = new HashMap<Integer, Class<? extends T>>();
 
     public AbstractExcelItemReader() {
         super();
@@ -116,7 +120,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         }
     }
 
-    private void openSheet() {
+    protected void openSheet() {
         final Sheet sheet = this.getSheet(this.currentSheet);
         this.rs =rowSetFactory.create(sheet);
 
@@ -133,6 +137,14 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         if (logger.isDebugEnabled()) {
             logger.debug("Openend sheet " + sheet.getName() + ", with " + sheet.getNumberOfRows() + " rows.");
         }
+        if (this.sheetMappings.containsKey(this.currentSheet)){
+        	Class<? extends T> type = this.sheetMappings.get(this.currentSheet);
+    		this.rowMapper.setTargetType(type);
+    		
+        	if (logger.isDebugEnabled()) {
+                logger.debug("Openend sheet " + sheet.getName() + ", with target type " + type + " .");
+            }
+    	}
 
     }
 
@@ -171,7 +183,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      *
      * @return the number of sheets.
      */
-    protected abstract int getNumberOfSheets();
+    public abstract int getNumberOfSheets();
 
     /**
      *
@@ -215,4 +227,12 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }
+    
+    /**
+     * Public setter for the {@code sheetMappings}. Used to precise the target type object for a sheet.
+     * @param sheetMappings
+     */
+    public void setSheetMappings(Map<Integer, Class<? extends T>> sheetMappings) {
+		this.sheetMappings = sheetMappings;
+	}
 }
