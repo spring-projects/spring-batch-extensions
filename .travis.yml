@@ -1,0 +1,7 @@
+language: java
+before_install: cd spring-batch-excel
+script: mvn test
+jdk:
+ - openjdk7
+ - oraclejdk7
+
