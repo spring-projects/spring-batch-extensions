@@ -38,7 +38,6 @@ public class PoiSheet implements Sheet {
     private final int numberOfRows;
     private final String name;
 
-    private int numberOfColumns = -1;
     private FormulaEvaluator evaluator;
 
     /**
