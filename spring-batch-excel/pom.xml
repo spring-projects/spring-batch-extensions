@@ -26,8 +26,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.batch.version>3.0.3.RELEASE</spring.batch.version>
-        <jxl.version>2.6.12</jxl.version>
+        <spring.batch.version>3.0.4.RELEASE</spring.batch.version>
         <poi.version>3.11</poi.version>
     </properties>
 
@@ -41,12 +40,6 @@
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-infrastructure</artifactId>
             <version>${spring.batch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jexcelapi</groupId>
-            <artifactId>jxl</artifactId>
-            <version>${jxl.version}</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

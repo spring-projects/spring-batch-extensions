@@ -1,8 +1,5 @@
 package org.springframework.batch.item.excel;
 
-import jxl.Cell;
-import org.springframework.batch.item.excel.jxl.JxlUtils;
-
 import java.util.List;
 
 /**

@@ -218,7 +218,7 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar impl
     /**
      * @param bean
      * @param properties
-     * @return
+     * @return properties
      */
     private Properties getBeanProperties(Object bean, Properties properties) {
 

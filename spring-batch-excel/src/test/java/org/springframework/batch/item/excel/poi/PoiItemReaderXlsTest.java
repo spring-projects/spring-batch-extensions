@@ -34,14 +34,14 @@ public class PoiItemReaderXlsTest extends AbstractExcelItemReaderTests {
     }
 
     @Override
-    protected AbstractExcelItemReader createExcelItemReader() {
-        return new PoiItemReader();
+    protected AbstractExcelItemReader<String[]> createExcelItemReader() {
+        return new PoiItemReader<String[]>();
     }
 
     @Test
     public void testReusablePoiItemReader() throws Exception {
-    	readExcelFile();
-    	((PoiItemReader) super.itemReader).doClose();
-    	readExcelFile();
+        readExcelFile();
+        ((PoiItemReader<String[]>) super.itemReader).doClose();
+        readExcelFile();
     }
 }

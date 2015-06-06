@@ -34,11 +34,11 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Marten Deinum
  */
-public abstract class AbstractExcelItemReaderTests  {
+public abstract class AbstractExcelItemReaderTests {
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
-    protected AbstractExcelItemReader itemReader;
+    protected AbstractExcelItemReader<String[]> itemReader;
 
     private ExecutionContext executionContext;
 
@@ -59,7 +59,7 @@ public abstract class AbstractExcelItemReaderTests  {
         executionContext = new ExecutionContext();
     }
 
-    protected void configureItemReader(AbstractExcelItemReader itemReader) {
+    protected void configureItemReader(AbstractExcelItemReader<String[]> itemReader) {
     }
 
     @After
@@ -85,10 +85,10 @@ public abstract class AbstractExcelItemReaderTests  {
 
     @Test(expected = IllegalArgumentException.class)
     public void testRequiredProperties() throws Exception {
-        final AbstractExcelItemReader reader = createExcelItemReader();
+        final AbstractExcelItemReader<String[]> reader = createExcelItemReader();
         reader.afterPropertiesSet();
     }
 
-    protected abstract AbstractExcelItemReader createExcelItemReader();
+    protected abstract AbstractExcelItemReader<String[]> createExcelItemReader();
 
 }

@@ -24,7 +24,7 @@ public class BeanWrapperRowMapperTest {
 
     @Test(expected = IllegalStateException.class)
     public void givenNoNameWhenInitCompleteThenIllegalStateShouldOccur() throws Exception {
-        BeanWrapperRowMapper mapper = new BeanWrapperRowMapper();
+        BeanWrapperRowMapper<Object> mapper = new BeanWrapperRowMapper<Object>();
         mapper.afterPropertiesSet();
     }
 

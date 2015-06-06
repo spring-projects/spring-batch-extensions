@@ -19,7 +19,7 @@ import org.springframework.batch.item.excel.RowMapper;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
 
 /**
- * Pass through {@link RowMapper} useful for passing the orginal String[]
+ * Pass through {@link RowMapper} useful for passing the original String[]
  * back directly rather than a mapped object.
  *
  * @author Marten Deinum

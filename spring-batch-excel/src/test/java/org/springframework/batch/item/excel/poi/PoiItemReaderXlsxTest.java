@@ -22,12 +22,12 @@ import org.springframework.core.io.ClassPathResource;
 public class PoiItemReaderXlsxTest extends AbstractExcelItemReaderTests {
 
     @Override
-    protected void configureItemReader(AbstractExcelItemReader itemReader) {
+    protected void configureItemReader(AbstractExcelItemReader<String[]> itemReader) {
         itemReader.setResource(new ClassPathResource("org/springframework/batch/item/excel/player.xlsx"));
     }
 
     @Override
-    protected AbstractExcelItemReader createExcelItemReader() {
-        return new PoiItemReader();
+    protected AbstractExcelItemReader<String[]> createExcelItemReader() {
+        return new PoiItemReader<String[]>();
     }
 }
