@@ -1,16 +1,15 @@
 # spring-batch-excel
 
-Spring Batch extension which contains `ItemReader` implementations for Excel. Support for both [JExcel][1] and [Apache POI][2] is available. Simple xls documents can be read with both implementations, however for reading the newer xlsx format [Apache POI][2] is required.
+Spring Batch extension which contains `ItemReader` implementations for Excel. Support for [Apache POI][1] is available only. Simple xls documents can be read with both implementations, however for reading the newer xlsx format [Apache POI][1] is required.
 
 ## Configuration
 
 Next to the [configuration of Spring Batch](http://docs.spring.io/spring-batch/reference/html/configureJob.html) one needs to configure the `ItemReader` for the desired framework.
-There are 2 `ItemReaders` one can configure:
+There is 1 `ItemReader` one can configure:
 
-- `org.springframework.batch.item.excel.jxl.JxlItemReader`
 - `org.springframework.batch.item.excel.poi.PoiItemReader`
 
-Configuration of both readers is the same.
+Configuration of this reader can be achieved as shown below.
 
 #### XML
 
@@ -73,5 +72,4 @@ Uses a `BeanWrapper` to convert a given row into an object. Uses the column name
         </property>
     </bean>
 
-[1]: http://jexcelapi.sourceforge.net
-[2]: http://poi.apache.org
+[1]: http://poi.apache.org
