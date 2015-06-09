@@ -7,15 +7,15 @@ import org.springframework.batch.item.excel.mapping.Column;
  */
 public class Player {
 
+	@Column(name = "identificator")
     private String id;
     private String position;
     private String lastName;
     private String firstName;
-    private double birthYear;
-    private double debutYear;
+    private int birthYear;
+    private int debutYear;
     private String comment;
 
-    @Column(name = "identificator")
     public String getId() {
         return id;
     }
@@ -48,20 +48,20 @@ public class Player {
         this.firstName = firstName;
     }
 
-    public double getBirthYear() {
+    public int getBirthYear() {
         return birthYear;
     }
 
-    public void setBirthYear(double birthYear) {
+    public void setBirthYear(int birthYear) {
         this.birthYear = birthYear;
     }
 
-    public double getDebutYear() {
+    public int getDebutYear() {
         return debutYear;
     }
     
     @Column(name = "beginYear")
-    public void setDebutYear(double debutYear) {
+    public void setDebutYear(int debutYear) {
         this.debutYear = debutYear;
     }
 
