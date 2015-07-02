@@ -31,5 +31,11 @@ public class PassThroughRowMapper implements RowMapper<String[]> {
     public String[] mapRow(final RowSet rs) throws Exception {
         return rs.getCurrentRow();
     }
-
+    
+    /** 
+	 * This class maps to String[] so this method is empty here.
+	 */
+	@Override
+	public void setTargetType(Class<? extends String[]> type) {
+	}
 }

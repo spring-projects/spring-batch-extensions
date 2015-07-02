@@ -66,7 +66,7 @@ public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
     }
 
     @Override
-    protected int getNumberOfSheets() {
+    public int getNumberOfSheets() {
         if (this.workbook == null) {
             throw new IllegalStateException("Workbook file not ready for reading!");
         }

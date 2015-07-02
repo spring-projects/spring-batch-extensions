@@ -29,7 +29,7 @@ public class MockExcelItemReader<T> extends AbstractExcelItemReader<T> {
     }
 
     @Override
-    protected int getNumberOfSheets() {
+    public int getNumberOfSheets() {
         return sheets.size();
     }
 

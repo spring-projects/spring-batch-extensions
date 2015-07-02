@@ -36,5 +36,17 @@ public interface RowMapper<T> {
      * @throws Exception if error occured while parsing.
      */
     T mapRow(RowSet rs) throws Exception;
+    
+    /**
+     * Public setter for the type of bean to create instead of using a prototype
+     * bean. An object of this type will be created from its default constructor
+     * for every call to {@link #mapRow(org.springframework.batch.item.excel.support.rowset.RowSet)}.<br>
+     *
+     * Either this property or the prototype bean name must be specified, but
+     * not both.
+     *
+     * @param type the type to set
+     */
+     void setTargetType(Class<? extends T> type);
 
 }

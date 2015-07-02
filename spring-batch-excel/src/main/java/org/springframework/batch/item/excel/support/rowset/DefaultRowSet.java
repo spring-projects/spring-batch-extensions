@@ -49,11 +49,12 @@ public class DefaultRowSet implements RowSet {
     public boolean next() {
         currentRow = null;
         currentRowIndex++;
-        if (currentRowIndex < sheet.getNumberOfRows()) {
-            currentRow = sheet.getRow(currentRowIndex);
+        if (currentRowIndex < sheet.getNumberOfRows() && (currentRow = sheet.getRow(currentRowIndex)) != null) {
             return true;
         }
-        return false;
+        else{
+        	return false;
+        }
     }
 
     @Override
