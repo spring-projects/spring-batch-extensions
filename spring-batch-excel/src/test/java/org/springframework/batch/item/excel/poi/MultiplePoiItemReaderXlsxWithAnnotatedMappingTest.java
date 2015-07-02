@@ -15,11 +15,10 @@
  */
 package org.springframework.batch.item.excel.poi;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.batch.item.Player;
 import org.springframework.batch.item.Team;
@@ -28,40 +27,53 @@ import org.springframework.batch.item.excel.AbstractExcelItemReaderTests;
 import org.springframework.batch.item.excel.mapping.BeanWrapperRowMapper;
 import org.springframework.core.io.ClassPathResource;
 
-public class MultiplePoiItemReaderXlsxWithAnnotatedMappingTest<T> extends AbstractExcelItemReaderTests {
+public class MultiplePoiItemReaderXlsxWithAnnotatedMappingTest<T> extends
+		AbstractExcelItemReaderTests {
 
 	private Map<Integer, Class<? extends Object>> sheetMappings = new HashMap<Integer, Class<? extends Object>>();
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-    protected void configureItemReader(AbstractExcelItemReader itemReader) {
-        itemReader.setResource(new ClassPathResource("org/springframework/batch/item/excel/multiple.xlsx"));
-        BeanWrapperRowMapper<Player> rowMapper = new BeanWrapperRowMapper<Player>();
-        itemReader.setRowMapper(rowMapper);
-        sheetMappings.put(0, Player.class);
-        sheetMappings.put(1, Team.class);
-        itemReader.setSheetMappings(sheetMappings);
-    }
+	protected void configureItemReader(AbstractExcelItemReader itemReader) {
+		itemReader.setResource(new ClassPathResource(
+				"org/springframework/batch/item/excel/multiple.xlsx"));
+		BeanWrapperRowMapper<Player> rowMapper = new BeanWrapperRowMapper<Player>();
+		itemReader.setRowMapper(rowMapper);
+		sheetMappings.put(0, Player.class);
+		sheetMappings.put(1, Team.class);
+		itemReader.setSheetMappings(sheetMappings);
+	}
 
-    @SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-    protected AbstractExcelItemReader createExcelItemReader() {
-        return new PoiMultipleSheetExcelItemReader();
-    }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Test
-    @Override
-    public void readExcelFile() throws Exception {
-    	
-    	T row;
-    	assertEquals(3, this.itemReader.getNumberOfSheets());
-        for (int i = 0; i < this.itemReader.getNumberOfSheets(); i++) {
-        	do {
-        		row = (T) ((PoiMultipleSheetExcelItemReader)this.itemReader).read(i);
-                this.logger.debug("Read: " + row);
-            } while (row != null);
-		}
-    }
-    
+	protected AbstractExcelItemReader createExcelItemReader() {
+		PoiMultipleSheetExcelItemReader poiMultipleSheetExcelItemReader = new PoiMultipleSheetExcelItemReader();
+		poiMultipleSheetExcelItemReader
+				.setDelegate(new PoiItemReader());
+		return poiMultipleSheetExcelItemReader;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	@Override
+	public void readExcelFile() throws Exception {
+		T row;
+		int countPlayer = 0;
+		int countTeam = 0;
+		do {
+			row = (T) ((PoiMultipleSheetExcelItemReader) this.itemReader)
+					.read();
+			if(row instanceof Player){
+				countPlayer++;
+			}
+			else if(row instanceof Team){
+				countTeam++;
+			}
+			this.logger.debug("Read: " + row);
+		} while (row != null);
+		Assert.assertTrue(countPlayer == 4320);
+		Assert.assertTrue(countTeam == 2);
+		
+	}
+
 }

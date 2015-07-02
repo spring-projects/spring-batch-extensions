@@ -29,6 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * {@link org.springframework.batch.item.ItemReader} implementation to read an Excel
@@ -52,7 +53,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     private boolean strict = true;
     private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
     protected RowSet rs;
-    private Map<Integer, Class<? extends T>> sheetMappings = new HashMap<Integer, Class<? extends T>>();
+    protected Map<Integer, Class<? extends T>> sheetMappings = new HashMap<Integer, Class<? extends T>>();
 
     public AbstractExcelItemReader() {
         super();
@@ -69,7 +70,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
             return null;
         }
 
-        if (rs.next()) {
+        if (rs.next() &&  !isRowEmpty(rs)) {
             try {
                 return this.rowMapper.mapRow(rs);
             } catch (final Exception e) {
@@ -137,15 +138,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         if (logger.isDebugEnabled()) {
             logger.debug("Openend sheet " + sheet.getName() + ", with " + sheet.getNumberOfRows() + " rows.");
         }
-        if (this.sheetMappings.containsKey(this.currentSheet)){
-        	Class<? extends T> type = this.sheetMappings.get(this.currentSheet);
-    		this.rowMapper.setTargetType(type);
-    		
-        	if (logger.isDebugEnabled()) {
-                logger.debug("Openend sheet " + sheet.getName() + ", with target type " + type + " .");
-            }
-    	}
-
     }
 
     /**
@@ -234,5 +226,34 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      */
     public void setSheetMappings(Map<Integer, Class<? extends T>> sheetMappings) {
 		this.sheetMappings = sheetMappings;
+	}
+    
+    /**
+     * The number of columns for a sheet in the underlying workbook.
+     *
+     * @return the number of columns for a sheet.
+     */
+    public int getNumberOfColumnsBySheet(int sheet) {
+		return this.getSheet(sheet).getNumberOfColumns();
+	}
+    
+    /**
+	 * Check if row is empty.
+	 * 
+	 * @param row
+	 * @return
+	 */
+	private static boolean isRowEmpty(RowSet rs) {
+		boolean ret = true;
+		String[] currentRow = rs.getCurrentRow();
+		for (int cellNum = 0; cellNum < currentRow.length; cellNum++) {
+			String cell = currentRow[cellNum];
+			if (!StringUtils.isEmpty(cell)) {
+				ret = false;
+				break;
+			}
+		}
+
+		return ret;
 	}
 }

@@ -15,33 +15,52 @@
  */
 package org.springframework.batch.item.excel.poi;
 
-import org.springframework.batch.item.excel.ExcelFileParseException;
+import org.springframework.batch.item.excel.AbstractExcelItemReader;
+import org.springframework.batch.item.excel.Sheet;
+import org.springframework.core.io.Resource;
 
 /**
  * @author Jyl-Cristoff
  *
  */
-public class PoiMultipleSheetExcelItemReader<T> extends
-		PoiItemReader<T> {
-	
-	public T read(int sheetNumber){
-		if(this.currentSheet != sheetNumber){
-			currentSheet = sheetNumber;
-			this.openSheet();
-		}
-		 if (this.noInput || this.rs == null) {
-	            return null;
-	        }
+public class PoiMultipleSheetExcelItemReader<T> extends AbstractExcelItemReader<T> {
 
-	        if (rs.next()) {
-	            try {
-	                return this.rowMapper.mapRow(rs);
-	            } catch (final Exception e) {
-	                throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
-	                        rs.getMetaData().getSheetName(), rs.getCurrentRowIndex(), rs.getCurrentRow());
-	            }
-	        } 
-	        return null;
+	private PoiItemReader<T> delegate;
+
+	@Override
+	protected Sheet getSheet(int sheetNumber) {
+		Sheet sheet = delegate.getSheet(sheetNumber);
+		if (this.sheetMappings.containsKey(sheetNumber)){
+        	Class<? extends T> type = this.sheetMappings.get(sheetNumber);
+    		this.rowMapper.setTargetType(type);
+    		
+        	if (logger.isDebugEnabled()) {
+                logger.debug("Openend sheet " + sheet.getName() + ", with target type " + type + " .");
+            }
+    	}
+		return sheet;
+	}
+
+	@Override
+	public int getNumberOfSheets() {
+		return delegate.getNumberOfSheets();
+	}
+
+	@Override
+	protected void openExcelFile(Resource resource) throws Exception {
+		this.currentSheet = 0;
+		delegate.openExcelFile(resource);
+		
+	}
+
+	@Override
+	protected void doClose() throws Exception {
+		delegate.doClose();
+		
+	}
+
+	public void setDelegate(PoiItemReader<T> delegate) {
+		this.delegate = delegate;
 	}
 
 }
