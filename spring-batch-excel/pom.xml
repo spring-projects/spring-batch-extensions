@@ -22,7 +22,7 @@
 
     <groupId>org.springframework.batch</groupId>
     <artifactId>spring-batch-excel</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

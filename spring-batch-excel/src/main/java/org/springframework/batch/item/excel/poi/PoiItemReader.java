@@ -45,7 +45,9 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     private Workbook workbook;
 
     private InputStream workbookStream;
-
+    
+    private boolean useDataFormatter = false;
+    
     @Override
     protected Sheet getSheet(final int sheet) {    	
         return new PoiSheet(this.workbook.getSheetAt(sheet));
@@ -109,5 +111,11 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     	return headerRowNumber;
     }
     
-    
+	public boolean isUseDataFormatter() {
+		return useDataFormatter;
+	}
+
+	public void setUseDataFormatter(boolean useDataFormatter) {
+		this.useDataFormatter = useDataFormatter;
+	}
 }
