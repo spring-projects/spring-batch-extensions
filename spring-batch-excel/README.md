@@ -67,7 +67,7 @@ Uses a `BeanWrapper` to convert a given row into an object. Uses the column name
     <bean id="excelReader" class="org.springframework.batch.item.excel.poi.PoiItemReader">
         <property name="resource" value="/path/to/your/excel/file" />
         <property name="rowMapper">
-            <bean class="org.springframework.batch.item.excel.mapping.BeanWrapperowMapper">
+            <bean class="org.springframework.batch.item.excel.mapping.BeanWrapperRowMapper">
                 <property name="targetType" value="com.your.package.Player" />
             <bean>
         </property>
