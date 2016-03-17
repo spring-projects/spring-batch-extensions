@@ -66,6 +66,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         }
 
         if (rs.next()) {
+            //skip all the blank row from which content has been deleted but still a valid row
+            while ( null !=  rs.getCurrentRow() && rs.getCurrentRow().length == 0) {
+                rs.next();
+            }
             try {
                 return this.rowMapper.mapRow(rs);
             } catch (final Exception e) {
