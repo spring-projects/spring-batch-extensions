@@ -17,6 +17,8 @@ package org.springframework.batch.item.excel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.batch.item.ParseException;
+import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
 import org.springframework.batch.item.excel.support.rowset.RowSetFactory;
@@ -43,6 +45,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     private Resource resource;
     private int linesToSkip = 0;
     private int currentSheet = 0;
+    private int endAfterBlankLines = 1;
     private RowMapper<T> rowMapper;
     private RowCallbackHandler skippedRowsCallback;
     private boolean noInput = false;
@@ -54,6 +57,23 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         super();
         this.setName(ClassUtils.getShortName(this.getClass()));
     }
+    
+    @Override
+	public T read() throws Exception, UnexpectedInputException, ParseException {
+        	T item = super.read();
+        	int blankLines = 0;
+        	while (item == null) {
+        		blankLines++;
+        		if (blankLines >= endAfterBlankLines) {
+        			return null;
+        		}
+        		item = super.read();
+        		if (item != null) {
+        			return item;
+        		}
+        	}
+        	return item;
+	}
 
     /**
      * @return string corresponding to logical record according to
@@ -85,6 +105,16 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
             }
         }
     }
+    
+    /**
+	 * On restart this will increment rowSet to where job left off previously
+	 */
+	@Override
+	protected void jumpToItem(final int itemIndex) throws Exception {
+		for (int i = 0; i < itemIndex; i++) {
+			rs.next();
+		}
+	}
 
     @Override
     protected void doOpen() throws Exception {
@@ -219,4 +249,8 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }
+    
+    public void setEndAfterBlankLines(final int endAfterBlankLines) {
+		this.endAfterBlankLines = endAfterBlankLines;
+	}
 }
