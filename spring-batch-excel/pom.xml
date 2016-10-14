@@ -26,7 +26,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.batch.version>3.0.4.RELEASE</spring.batch.version>
+        <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
         <jxl.version>2.6.12</jxl.version>
         <poi.version>3.12</poi.version>
     </properties>
