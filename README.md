@@ -75,7 +75,7 @@ To generate IDEA metadata (.iml and .ipr files), do the following:
 
 ## Contributing
 
-[Pull requests][] are welcome. Please see the [Contributor Guidelines][] for details. 
+[Pull requests][] are welcome. Please see the [Contributor Guidelines](CONTRIBUTING.md) for details. 
 
 ## Staying in touch
 
