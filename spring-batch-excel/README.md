@@ -75,3 +75,6 @@ Uses a `BeanWrapper` to convert a given row into an object. Uses the column name
 
 [1]: http://jexcelapi.sourceforge.net
 [2]: http://poi.apache.org
+
+
+https://jitpack.io/#emeraldjava/spring-batch-extensions/0.5.0
