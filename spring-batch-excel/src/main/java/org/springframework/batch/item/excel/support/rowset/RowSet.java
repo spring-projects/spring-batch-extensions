@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@ import java.util.Properties;
 /**
  * Used by the {@code org.springframework.batch.item.excel.AbstractExcelItemReader} to abstract away
  * the complexities of the underlying Excel API implementations.
- *
+ * 
+ * @param <R> Type used for representing a single row, such as an array
  * @author Marten Deinum
  * @since 0.5.0
  */
-public interface RowSet {
+public interface RowSet<R> {
 
     /**
      * Retrieves the meta data (name of the sheet, number of columns, names) of this row set.
@@ -49,11 +50,11 @@ public interface RowSet {
     int getCurrentRowIndex();
 
     /**
-     * Return the current row as a String[].
+     * Return the current row represented as {@link R}.
      *
-     * @return the row as a String[]
+     * @return the row represented as {@link R}
      */
-    String[] getCurrentRow();
+    R getCurrentRow();
 
     /**
      * Retrieves the value of the indicated column in the current row as a String object.

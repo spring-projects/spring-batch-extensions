@@ -16,6 +16,10 @@
 
 package org.springframework.batch.item.excel.poi;
 
+import java.io.Closeable;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -23,28 +27,36 @@ import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.Sheet;
 import org.springframework.core.io.Resource;
 
-import java.io.Closeable;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
-
 /**
  * {@link org.springframework.batch.item.ItemReader} implementation which uses apache POI to read an Excel
  * file. It will read the file sheet for sheet and row for row. It is based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @param <T> the type
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
+public class PoiItemReader<R,T> extends AbstractExcelItemReader<R,T> {
 
     private Workbook workbook;
 
     private InputStream workbookStream;
+    
+    private final PoiSheetFactory<R> poiSheetFactory;
+
+    public PoiItemReader(PoiSheetFactory<R> poiSheetFactory) {
+        this.poiSheetFactory = poiSheetFactory;
+    }
+    
+    /** Create new instance that represents each row as a string array */
+    public static <T> PoiItemReader<String[], T> newStringArrayItemInstance() {
+        return new PoiItemReader<String[], T>(new StringArrayPoiSheetFactory());
+    }
 
     @Override
-    protected Sheet getSheet(final int sheet) {
-        return new PoiSheet(this.workbook.getSheetAt(sheet));
+    protected Sheet<R> getSheet(final int sheet) {
+        return poiSheetFactory.newPoiSheet(this.workbook.getSheetAt(sheet));
     }
 
     @Override

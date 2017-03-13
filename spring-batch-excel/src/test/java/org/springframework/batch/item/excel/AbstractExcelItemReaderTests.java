@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.excel.mapping.PassThroughRowMapper;
+import org.springframework.batch.item.excel.mapping.StringArrayPassThroughRowMapper;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -47,10 +47,10 @@ public abstract class AbstractExcelItemReaderTests  {
         this.itemReader = createExcelItemReader();
         this.itemReader.setLinesToSkip(1); //First line is column names
         this.itemReader.setResource(new ClassPathResource("org/springframework/batch/item/excel/player.xls"));
-        this.itemReader.setRowMapper(new PassThroughRowMapper());
-        this.itemReader.setSkippedRowsCallback(new RowCallbackHandler() {
+        this.itemReader.setRowMapper(new StringArrayPassThroughRowMapper());
+        this.itemReader.setSkippedRowsCallback(new RowCallbackHandler<String[]>() {
 
-            public void handleRow(RowSet rs) {
+            public void handleRow(RowSet<String[]> rs) {
                 logger.info("Skipping: " + StringUtils.arrayToCommaDelimitedString(rs.getCurrentRow()));
             }
         });

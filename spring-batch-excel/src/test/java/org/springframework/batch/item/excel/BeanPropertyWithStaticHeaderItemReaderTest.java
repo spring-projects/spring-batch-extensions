@@ -1,5 +1,8 @@
 package org.springframework.batch.item.excel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
@@ -7,9 +10,6 @@ import org.springframework.batch.item.Player;
 import org.springframework.batch.item.excel.mapping.BeanWrapperRowMapper;
 import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
 import org.springframework.batch.item.excel.support.rowset.StaticColumnNameExtractor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -33,7 +33,7 @@ public class BeanPropertyWithStaticHeaderItemReaderTest {
 
         reader = new MockExcelItemReader<Player>(sheet);
 
-        BeanWrapperRowMapper<Player> rowMapper = new BeanWrapperRowMapper<Player>();
+        BeanWrapperRowMapper<String[], Player> rowMapper = new BeanWrapperRowMapper<String[], Player>();
         rowMapper.setTargetType(Player.class);
         rowMapper.afterPropertiesSet();
 

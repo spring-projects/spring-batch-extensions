@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@ import org.springframework.batch.item.excel.support.rowset.RowSet;
 /**
  * Map rows from an excel sheet to an object.
  *
- * @param <T> the type
+ * @param <R> Type used for representing a single row, such as an array
+ * @param <T> the type to map to
  * @author Marten Deinum
  * @since 0.5.0
  */
-public interface RowMapper<T> {
+public interface RowMapper<R,T> {
 
     /**
      * Implementations must implement this method to map the provided row to
@@ -35,6 +36,6 @@ public interface RowMapper<T> {
      * @return mapped object of type T
      * @throws Exception if error occured while parsing.
      */
-    T mapRow(RowSet rs) throws Exception;
+    T mapRow(RowSet<R> rs) throws Exception;
 
 }

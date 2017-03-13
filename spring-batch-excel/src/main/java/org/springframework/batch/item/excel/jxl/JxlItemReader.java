@@ -29,6 +29,7 @@ import org.springframework.util.ClassUtils;
  * file. It will read the file sheet for sheet and row for row. It is based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @param <T> the type
  * @author Marten Deinum
  * @since 0.5.0
@@ -36,7 +37,7 @@ import org.springframework.util.ClassUtils;
  * @deprecated since JExcelAPI is an abandoned project (no release since 2009, with serious bugs remaining)
  */
 @Deprecated
-public class JxlItemReader<T> extends AbstractExcelItemReader<T> {
+public class JxlItemReader<R,T> extends AbstractExcelItemReader<R,T> {
 
     private Workbook workbook;
 

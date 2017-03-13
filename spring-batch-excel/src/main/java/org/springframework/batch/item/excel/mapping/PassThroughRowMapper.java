@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,17 @@ import org.springframework.batch.item.excel.RowMapper;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
 
 /**
- * Pass through {@link RowMapper} useful for passing the orginal String[]
+ * Pass through {@link RowMapper} useful for passing the original row
  * back directly rather than a mapped object.
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class PassThroughRowMapper implements RowMapper<String[]> {
+public class PassThroughRowMapper<R> implements RowMapper<R, R> {
 
     @Override
-    public String[] mapRow(final RowSet rs) throws Exception {
+    public R mapRow(final RowSet<R> rs) throws Exception {
         return rs.getCurrentRow();
     }
 
