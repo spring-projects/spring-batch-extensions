@@ -1,8 +1,5 @@
 package org.springframework.batch.item.excel;
 
-import jxl.Cell;
-import org.springframework.batch.item.excel.jxl.JxlUtils;
-
 import java.util.List;
 
 /**
@@ -11,7 +8,7 @@ import java.util.List;
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class MockSheet implements Sheet {
+public class MockSheet implements Sheet<String[]> {
 
     private final List<String[]> rows;
     private final String name;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,23 +32,24 @@ import org.springframework.util.ClassUtils;
  * file. It will read the file sheet for sheet and row for row. It is loosy based on
  * the {@link org.springframework.batch.item.file.FlatFileItemReader}
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @param <T> the type
  * @author Marten Deinum
  * @since 0.5.0
  */
-public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> implements
+public abstract class AbstractExcelItemReader<R,T> extends AbstractItemCountingItemStreamItemReader<T> implements
         ResourceAwareItemReaderItemStream<T>, InitializingBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
     private Resource resource;
     private int linesToSkip = 0;
     private int currentSheet = 0;
-    private RowMapper<T> rowMapper;
-    private RowCallbackHandler skippedRowsCallback;
+    private RowMapper<R,T> rowMapper;
+    private RowCallbackHandler<R> skippedRowsCallback;
     private boolean noInput = false;
     private boolean strict = true;
-    private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
-    private RowSet rs;
+    private RowSetFactory<R> rowSetFactory = (RowSetFactory<R>) new DefaultRowSetFactory();
+    private RowSet<R> rs;
 
     public AbstractExcelItemReader() {
         super();
@@ -117,7 +118,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     }
 
     private void openSheet() {
-        final Sheet sheet = this.getSheet(this.currentSheet);
+        final Sheet<R> sheet = this.getSheet(this.currentSheet);
         this.rs =rowSetFactory.create(sheet);
 
 
@@ -195,7 +196,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      *
      * @param rowMapper the {@code RowMapper} to use.
      */
-    public void setRowMapper(final RowMapper<T> rowMapper) {
+    public void setRowMapper(final RowMapper<R,T> rowMapper) {
         this.rowMapper = rowMapper;
     }
 
@@ -205,14 +206,14 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      *
      * @param rowSetFactory the {@code RowSetFactory} to use.
      */
-    public void setRowSetFactory(RowSetFactory rowSetFactory) {
+    public void setRowSetFactory(RowSetFactory<R> rowSetFactory) {
         this.rowSetFactory = rowSetFactory;
     }
 
     /**
      * @param skippedRowsCallback will be called for each one of the initial skipped lines before any items are read.
      */
-    public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
+    public void setSkippedRowsCallback(final RowCallbackHandler<R> skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }
 }

@@ -1,5 +1,8 @@
 package org.springframework.batch.item.excel.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.batch.item.Player;
 import org.springframework.batch.item.excel.MockSheet;
@@ -10,9 +13,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -30,7 +30,7 @@ public class BeanWrapperRowMapperTest {
 
     @Test
     public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructed() throws Exception {
-        BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<Player>();
+        BeanWrapperRowMapper<String[], Player> mapper = new BeanWrapperRowMapper<String[], Player>();
         mapper.setTargetType(Player.class);
         mapper.afterPropertiesSet();
 
@@ -40,7 +40,7 @@ public class BeanWrapperRowMapperTest {
         MockSheet sheet = new MockSheet("players", rows);
 
 
-        RowSet rs = new DefaultRowSetFactory().create(sheet);
+        RowSet<String[]> rs = new DefaultRowSetFactory().create(sheet);
         rs.next();
         rs.next();
 
@@ -60,7 +60,7 @@ public class BeanWrapperRowMapperTest {
     public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructedBasedOnPrototype() throws Exception {
 
         ApplicationContext ctx = new AnnotationConfigApplicationContext(TestConfig.class);
-        BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<Player>();
+        BeanWrapperRowMapper<String[], Player> mapper = new BeanWrapperRowMapper<String[], Player>();
         mapper.setPrototypeBeanName("player");
         mapper.setBeanFactory(ctx);
         mapper.afterPropertiesSet();
@@ -70,7 +70,7 @@ public class BeanWrapperRowMapperTest {
         rows.add( new String[]{"AbduKa00", "Abdul-Jabbar", "Karim", "rb", "1974", "1996"});
         MockSheet sheet = new MockSheet("players", rows);
 
-        RowSet rs = new DefaultRowSetFactory().create(sheet);
+        RowSet<String[]> rs = new DefaultRowSetFactory().create(sheet);
         rs.next();
         rs.next();
         Player p = mapper.mapRow(rs);

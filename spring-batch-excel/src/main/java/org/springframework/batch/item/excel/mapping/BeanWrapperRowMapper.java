@@ -1,5 +1,9 @@
 package org.springframework.batch.item.excel.mapping;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.springframework.batch.item.excel.RowMapper;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
 import org.springframework.batch.support.DefaultPropertyEditorRegistrar;
@@ -11,10 +15,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.DataBinder;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * {@link RowMapper} implementation based on bean property paths. The
@@ -60,10 +60,11 @@ import java.util.concurrent.ConcurrentMap;
  * match is found. If more than one match is found there will be an error.
  *
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar implements RowMapper<T>, BeanFactoryAware, InitializingBean {
+public class BeanWrapperRowMapper<R,T> extends DefaultPropertyEditorRegistrar implements RowMapper<R,T>, BeanFactoryAware, InitializingBean {
 
     private String name;
 
@@ -155,7 +156,7 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar impl
      * @see org.springframework.batch.item.file.mapping.FieldSetMapper#mapFieldSet(org.springframework.batch.item.file.transform.FieldSet)
      */
     @Override
-    public T mapRow(RowSet rs) throws BindException {
+    public T mapRow(RowSet<R> rs) throws BindException {
         T copy = getBean();
         DataBinder binder = createBinder(copy);
         binder.bind(new MutablePropertyValues(getBeanProperties(copy, rs.getProperties())));

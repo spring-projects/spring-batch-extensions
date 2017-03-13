@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.batch.item.excel.Sheet;
  * @deprecated since JExcelAPI is an abandoned project (no release since 2009, with serious bugs remaining)
  */
 @Deprecated
-public class JxlSheet implements Sheet {
+public class JxlSheet implements Sheet<String[]> {
 
     private final jxl.Sheet delegate;
     private final int numberOfRows;
@@ -40,7 +40,7 @@ public class JxlSheet implements Sheet {
      *
      * @param delegate the JXL sheet
      */
-    JxlSheet(final jxl.Sheet delegate) {
+    public JxlSheet(final jxl.Sheet delegate) {
         super();
         this.delegate = delegate;
         this.numberOfRows = this.delegate.getRows();

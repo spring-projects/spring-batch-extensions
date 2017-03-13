@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.item.excel.support.rowset;
 
-import org.springframework.batch.item.excel.Sheet;
+package org.springframework.batch.item.excel.poi;
 
 /**
- * Contract for factories which will construct a {@code RowSet} implementation.
+ * Implementation of {@link PoiSheetFactory} that will use {@link StringArrayPoiSheet} to represent each row with as a 
+ * {@code String[]}.
  *
- * @param <R> Type used for representing a single row, such as an array
- * @author Marten Deinum
+ * @author Mattias Jiderhamn
  * @since 0.5.0
  */
-public interface RowSetFactory<R> {
+public class StringArrayPoiSheetFactory implements PoiSheetFactory<String[]> {
+    
+    /** Create new {@link PoiSheet} instance */
+    @Override
+    public PoiSheet<String[]> newPoiSheet(org.apache.poi.ss.usermodel.Sheet delegate) {
+        return new StringArrayPoiSheet(delegate);
+    }
 
-    /**
-     * Create a rowset instance.
-     *
-     * @param sheet an Excel sheet.
-     * @return a RowSet instance.
-     */
-    RowSet<R> create(Sheet<R> sheet);
 }

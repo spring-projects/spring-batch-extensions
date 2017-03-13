@@ -31,6 +31,6 @@ public interface ColumnNameExtractor {
      * @param sheet the sheet
      * @return the column names
      */
-    String[] getColumnNames(Sheet sheet);
+    String[] getColumnNames(Sheet<String[]> sheet);
 
 }

@@ -1,15 +1,15 @@
 package org.springframework.batch.item.excel;
 
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 
 /**
  * Created by in329dei on 17-9-2014.
  */
-public class MockExcelItemReader<T> extends AbstractExcelItemReader<T> {
+public class MockExcelItemReader<T> extends AbstractExcelItemReader<String[],T> {
 
 
     private final List<MockSheet> sheets;
@@ -24,7 +24,7 @@ public class MockExcelItemReader<T> extends AbstractExcelItemReader<T> {
     }
 
     @Override
-    protected Sheet getSheet(int sheet) {
+    protected Sheet<String[]> getSheet(int sheet) {
         return sheets.get(sheet);
     }
 

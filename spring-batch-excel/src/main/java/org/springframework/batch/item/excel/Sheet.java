@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ package org.springframework.batch.item.excel;
 /**
  * Interface to wrap different Excel implementations like JExcel, JXL or Apache POI.
  *
+ * @param <R> Type used for representing a single row, such as an array
  * @author Marten Deinum
  * @since 0.5.0
  */
-public interface Sheet {
+public interface Sheet<R> {
 
     /**
      * Get the number of rows in this sheet.
@@ -39,12 +40,12 @@ public interface Sheet {
     String getName();
 
     /**
-     * Get the row as a String[]. Returns null if the row doesn't exist.
+     * Get the row as a {@link R}. Returns null if the row doesn't exist.
      *
      * @param rowNumber the row number to read.
-     * @return a String[] or null
+     * @return a {@link R} or null
      */
-    String[] getRow(int rowNumber);
+    R getRow(int rowNumber);
 
     /**
      * The number of columns in this sheet.

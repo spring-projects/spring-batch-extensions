@@ -28,11 +28,11 @@ import org.springframework.batch.item.excel.Sheet;
  */
 public class DefaultRowSetMetaData implements RowSetMetaData {
 
-    private final Sheet sheet;
+    private final Sheet<String[]> sheet;
 
     private ColumnNameExtractor columnNameExtractor;
 
-    DefaultRowSetMetaData(Sheet sheet) {
+    public DefaultRowSetMetaData(Sheet<String[]> sheet) {
         this.sheet = sheet;
     }
 

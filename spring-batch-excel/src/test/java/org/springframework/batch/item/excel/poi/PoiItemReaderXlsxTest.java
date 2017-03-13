@@ -28,6 +28,6 @@ public class PoiItemReaderXlsxTest extends AbstractExcelItemReaderTests {
 
     @Override
     protected AbstractExcelItemReader createExcelItemReader() {
-        return new PoiItemReader();
+        return PoiItemReader.newStringArrayItemInstance();
     }
 }

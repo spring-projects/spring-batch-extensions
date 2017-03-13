@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package org.springframework.batch.item.excel.mapping;
 
+import java.util.Collections;
+
 import org.junit.Test;
 import org.springframework.batch.item.excel.MockSheet;
 import org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory;
 import org.springframework.batch.item.excel.support.rowset.RowSet;
-
-import java.util.Collections;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,16 +30,16 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Marten Deinum
  */
-public class PassThroughRowMapperTest {
+public class StringArrayPassThroughRowMapperTest {
 
-    private final PassThroughRowMapper rowMapper = new PassThroughRowMapper();
+    private final StringArrayPassThroughRowMapper rowMapper = new StringArrayPassThroughRowMapper();
 
     @Test
     public void mapRowShouldReturnSameValues() throws Exception {
 
         final String[] row = new String[]{"foo", "bar", "baz"};
         MockSheet sheet = new MockSheet("mock", Collections.singletonList( row));
-        RowSet rs = new DefaultRowSetFactory().create(sheet);
+        RowSet<String[]> rs = new DefaultRowSetFactory().create(sheet);
         assertTrue(rs.next());
         assertArrayEquals(row, this.rowMapper.mapRow(rs));
     }

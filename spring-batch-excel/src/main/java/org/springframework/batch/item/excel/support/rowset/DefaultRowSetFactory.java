@@ -25,12 +25,12 @@ import org.springframework.batch.item.excel.Sheet;
  * @author Marten Deinum
  * @since 0.5.0
  */
-public class DefaultRowSetFactory implements RowSetFactory {
+public class DefaultRowSetFactory implements RowSetFactory<String[]> {
 
     private ColumnNameExtractor columnNameExtractor = new RowNumberColumnNameExtractor();
 
     @Override
-    public RowSet create(Sheet sheet) {
+    public RowSet<String[]> create(Sheet<String[]> sheet) {
         DefaultRowSetMetaData metaData = new DefaultRowSetMetaData(sheet);
         metaData.setColumnNameExtractor(columnNameExtractor);
         return new DefaultRowSet(sheet, metaData);
