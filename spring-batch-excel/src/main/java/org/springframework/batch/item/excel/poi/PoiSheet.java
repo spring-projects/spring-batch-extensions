@@ -17,10 +17,12 @@
 package org.springframework.batch.item.excel.poi;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.batch.item.excel.Sheet;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class PoiSheet implements Sheet {
     private final org.apache.poi.ss.usermodel.Sheet delegate;
     private final int numberOfRows;
     private final String name;
+    public static final String CELL_ERROR = "#NA";
 
     private int numberOfColumns = -1;
     private FormulaEvaluator evaluator;
@@ -82,7 +85,12 @@ public class PoiSheet implements Sheet {
             Cell cell = row.getCell(i);
             switch (cell.getCellType()) {
                 case Cell.CELL_TYPE_NUMERIC:
-                    cells.add(String.valueOf(cell.getNumericCellValue()));
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        Date date = cell.getDateCellValue();
+                        cells.add(String.valueOf(date.getTime()));
+                    } else {
+                        cells.add(String.valueOf(cell.getNumericCellValue()));
+                    }
                     break;
                 case Cell.CELL_TYPE_BOOLEAN:
                     cells.add(String.valueOf(cell.getBooleanCellValue()));
@@ -93,6 +101,9 @@ public class PoiSheet implements Sheet {
                     break;
                 case Cell.CELL_TYPE_FORMULA:
                     cells.add(getFormulaEvaluator().evaluate(cell).formatAsString());
+                    break;
+                case Cell.CELL_TYPE_ERROR :
+                    cells.add(CELL_ERROR);
                     break;
                 default:
                     throw new IllegalArgumentException("Cannot handle cells of type " + cell.getCellType());
