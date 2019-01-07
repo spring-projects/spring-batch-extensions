@@ -86,7 +86,11 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         }
 
         if (rs.next()) {
-            try {
+			// skip all the blank row from which content has been deleted but still a valid row
+			while (null != rs.getCurrentRow() && isInvalidValidRow(rs)) {
+				rs.next();
+			}
+			try {
                 return this.rowMapper.mapRow(rs);
             } catch (final Exception e) {
                 throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
@@ -114,6 +118,15 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 		for (int i = 0; i < itemIndex; i++) {
 			rs.next();
 		}
+	}
+
+	private boolean isInvalidValidRow(RowSet rs) {
+		for (String str : rs.getCurrentRow()) {
+			if (str.length() > 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
     @Override
