@@ -215,4 +215,13 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     public void setSkippedRowsCallback(final RowCallbackHandler skippedRowsCallback) {
         this.skippedRowsCallback = skippedRowsCallback;
     }
+        
+          public boolean isValidRow(RowSet rs) {
+		for (String str : rs.getCurrentRow()) {
+			if (str.length() > 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
