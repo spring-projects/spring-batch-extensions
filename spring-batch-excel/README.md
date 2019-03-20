@@ -4,7 +4,7 @@ Spring Batch extension which contains `ItemReader` implementations for Excel. Su
 
 ## Configuration
 
-Next to the [configuration of Spring Batch](http://docs.spring.io/spring-batch/reference/html/configureJob.html) one needs to configure the `ItemReader` for the desired framework.
+Next to the [configuration of Spring Batch](https://docs.spring.io/spring-batch/reference/html/configureJob.html) one needs to configure the `ItemReader` for the desired framework.
 There are 2 `ItemReaders` one can configure:
 
 - `org.springframework.batch.item.excel.jxl.JxlItemReader`
@@ -74,4 +74,4 @@ Uses a `BeanWrapper` to convert a given row into an object. Uses the column name
     </bean>
 
 [1]: http://jexcelapi.sourceforge.net
-[2]: http://poi.apache.org
+[2]: https://poi.apache.org
