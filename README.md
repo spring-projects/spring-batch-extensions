@@ -104,6 +104,6 @@ The Spring Batch Extensions Framework is released under version 2.0 of the [Apac
 [Spring for Apache Hadoop]: https://github.com/spring-projects/spring-hadoop
 [Spring Boot]: https://github.com/spring-projects/spring-boot
 [Spring Tool Suite]: http://spring.io/tools/sts
-[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Apache License]: https://www.apache.org/licenses/LICENSE-2.0
 [Maven]: http://maven.apache.org
 [Contributor Guidelines]: com/spring-projects/spring-batch-extensions/blob/master/CONTRIBUTING.md
