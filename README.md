@@ -91,19 +91,19 @@ The Spring Batch Extensions Framework is released under version 2.0 of the [Apac
 **We look forward to your contributions!!**
 
 [Spring Batch]: https://github.com/spring-projects/spring-batch
-[Spring Batch Project]: http://projects.spring.io/spring-batch/
+[Spring Batch Project]: https://projects.spring.io/spring-batch/
 [Spring organization]: https://github.com/spring-projects
-[spring-batch tag]: http://stackoverflow.com/questions/tagged/spring-batch
-[Stack Overflow]: http://stackoverflow.com/faq
+[spring-batch tag]: https://stackoverflow.com/questions/tagged/spring-batch
+[Stack Overflow]: https://stackoverflow.com/faq
 [Commercial support]: https://www.vmware.com/support/services/vfabric-developer.html
 [GitHub Issue Tracker]: https://github.com/spring-projects/spring-batch-extensions/issues
-[Git]: http://help.github.com/set-up-git-redirect
-[Pull requests]: http://help.github.com/send-pull-requests
+[Git]: https://help.github.com/set-up-git-redirect
+[Pull requests]: https://help.github.com/send-pull-requests
 [Spring Batch Admin]: https://github.com/spring-projects/spring-batch-admin
 [Spring XD]: https://github.com/spring-projects/spring-xd
 [Spring for Apache Hadoop]: https://github.com/spring-projects/spring-hadoop
 [Spring Boot]: https://github.com/spring-projects/spring-boot
-[Spring Tool Suite]: http://spring.io/tools/sts
+[Spring Tool Suite]: https://spring.io/tools/sts
 [Apache License]: https://www.apache.org/licenses/LICENSE-2.0
-[Maven]: http://maven.apache.org
+[Maven]: https://maven.apache.org
 [Contributor Guidelines]: com/spring-projects/spring-batch-extensions/blob/master/CONTRIBUTING.md
