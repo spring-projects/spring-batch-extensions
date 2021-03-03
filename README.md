@@ -6,10 +6,10 @@ This project is part of the [Spring organization][] on GitHub.
 
 ## Available Modules
 
-| Module | Description | Lead |
-| -------|-------------| -----|
-| spring-batch-excel | Support for [Microsoft Excel] | @mdeinum |
-| spring-batch-elasticsearch | Support for [Elasticsearch] | TBA |
+| Module | Description | Lead | Version | CI build |
+| -------|-------------| -----| ------- |----------|
+| spring-batch-excel | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum) | 0.1.0-SNAPSHOT | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml) |
+| spring-batch-elasticsearch | Support for [Elasticsearch] | TBA | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
 
 ## Getting support
 
