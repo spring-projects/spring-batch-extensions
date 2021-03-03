@@ -1,13 +1,16 @@
 package org.springframework.batch.item.excel.mapping;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Helper class for calculating bean property matches, according to.
@@ -66,10 +69,10 @@ final class PropertyMatches {
      * Create a new PropertyMatches instance for the given property.
      */
     private PropertyMatches(String propertyName, Class<?> beanClass, int maxDistance) {
-        this.propertyName = propertyName;
-        this.possibleMatches = calculateMatches(BeanUtils.getPropertyDescriptors(beanClass), maxDistance);
+    	this.propertyName = propertyName;
+    	this.possibleMatches = calculateMatches(beanClass, maxDistance);
+        
     }
-
 
     /**
      * Return the calculated possible matches.
@@ -113,25 +116,51 @@ final class PropertyMatches {
      * Generate possible property alternatives for the given property and
      * class. Internally uses the <code>getStringDistance</code> method, which
      * in turn uses the Levenshtein algorithm to determine the distance between
-     * two Strings.
-     * @param propertyDescriptors the JavaBeans property descriptors to search
+     * two Strings or uses the annotation Column on getter or setter method if presents.
+     * @param JavaBeans property descriptors to search
      * @param maxDistance the maximum distance to accept
      */
-    private String[] calculateMatches(PropertyDescriptor[] propertyDescriptors, int maxDistance) {
+    private String[] calculateMatches(Class<?> beanClass, int maxDistance) {
+    	PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
         List<String> candidates = new ArrayList<String>();
         for (int i = 0; i < propertyDescriptors.length; i++) {
-            if (propertyDescriptors[i].getWriteMethod() != null) {
-                String possibleAlternative = propertyDescriptors[i].getName();
-                int distance = calculateStringDistance(this.propertyName, possibleAlternative);
-                if (distance <= maxDistance) {
-                    candidates.add(possibleAlternative);
-                }
+            PropertyDescriptor propertyDescriptor = propertyDescriptors[i];
+            String possibleAlternative = null;
+            for (Field field: beanClass.getDeclaredFields()) {
+				if(field.getName().equals(propertyDescriptor.getName())){
+					possibleAlternative =  calculeMatchesByAnnotationField(field);
+				}
+			}
+            if(!StringUtils.isEmpty(possibleAlternative)){
+        		candidates.add(possibleAlternative);
+        	}
+            else{
+            	Method writeMethod = propertyDescriptor.getWriteMethod();
+     			if (writeMethod != null) {
+                     possibleAlternative = propertyDescriptor.getName();
+                     int distance = calculateStringDistance(this.propertyName, possibleAlternative);
+                     if (distance <= maxDistance) {
+                         candidates.add(possibleAlternative);
+                     }
+                     else {
+                     	possibleAlternative = calculateMatchesByMethod(writeMethod, propertyDescriptor.getName());
+                     	if(!StringUtils.isEmpty(possibleAlternative)){
+                     		candidates.add(possibleAlternative);
+                     	}
+                     }
+                 }
+     			Method readMethod = propertyDescriptor.getReadMethod();
+     			if (readMethod != null) {
+                     possibleAlternative =  calculateMatchesByMethod(readMethod, propertyDescriptor.getName());
+                     	if(!StringUtils.isEmpty(possibleAlternative)){
+                     		candidates.add(possibleAlternative);
+                     	}
+                 }
             }
         }
         Collections.sort(candidates);
         return StringUtils.toStringArray(candidates);
     }
-
     /**
      * Calculate the distance between the given two Strings
      * according to the Levenshtein algorithm.
@@ -172,4 +201,41 @@ final class PropertyMatches {
 
         return d[s1.length()][s2.length()];
     }
+    
+    /** 
+     * Generate possible property alternative for the given property and
+     * class. Internally uses the annotation Column on getter or setter method if presents.
+     * @param method getter or setter
+     * @param propertyDescriptorName name property descriptor to search
+     * @return the name found
+     */
+    private String calculateMatchesByMethod(Method method, String propertyDescriptorName){
+    	String colunmName = null;
+    	if(method.isAnnotationPresent(Column.class)){
+    		Annotation annotation = method.getAnnotation(Column.class);
+        	Column column = (Column) annotation;
+        	if(column.name().equals(this.propertyName)){
+        		colunmName = propertyDescriptorName;
+        	}
+    	}
+    	
+    	return colunmName;
+    }
+    
+    /**
+     *  Generate possible property alternative for the given field.
+     *  Internally uses the annotation Column on field if presents.
+     * @param field 
+     * @return the name found
+     */
+    private String calculeMatchesByAnnotationField(Field field) {
+		String possibleMatch = null; 
+		Column annotation = field.getAnnotation(Column.class);
+		Column column = (Column) annotation;
+    	if(column != null && column.name().equals(this.propertyName)){
+    		possibleMatch = field.getName(); 
+    	}
+			
+        return possibleMatch;
+	}
 }

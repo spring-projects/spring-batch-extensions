@@ -1,15 +1,18 @@
 package org.springframework.batch.item;
 
+import org.springframework.batch.item.excel.mapping.Column;
+
 /**
  * Created by in329dei on 17-9-2014.
  */
 public class Player {
 
+	@Column(name = "identificator")
     private String id;
     private String position;
     private String lastName;
     private String firstName;
-    private long birthYear;
+    private int birthYear;
     private int debutYear;
     private String comment;
 
@@ -45,18 +48,19 @@ public class Player {
         this.firstName = firstName;
     }
 
-    public long getBirthYear() {
+    public int getBirthYear() {
         return birthYear;
     }
 
-    public void setBirthYear(long birthYear) {
+    public void setBirthYear(int birthYear) {
         this.birthYear = birthYear;
     }
 
     public int getDebutYear() {
         return debutYear;
     }
-
+    
+    @Column(name = "beginYear")
     public void setDebutYear(int debutYear) {
         this.debutYear = debutYear;
     }
@@ -68,4 +72,12 @@ public class Player {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+	@Override
+	public String toString() {
+		return "Player [id=" + id + ", position=" + position + ", lastName="
+				+ lastName + ", firstName=" + firstName + ", birthYear="
+				+ birthYear + ", debutYear=" + debutYear + ", comment="
+				+ comment + "]";
+	}
 }
