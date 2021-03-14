@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.batch.item.excel.support.rowset;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -22,6 +25,7 @@ import java.util.Properties;
  * the complexities of the underlying Excel API implementations.
  *
  * @author Marten Deinum
+ * @author Parikshit Dutta
  * @since 0.5.0
  */
 public interface RowSet {
@@ -42,6 +46,15 @@ public interface RowSet {
     boolean next();
 
     /**
+     * Skip the specified column index in the row.
+     *
+     * @return true if the column is valid, false if there is no column with given index
+     *
+     * @since 0.6.0
+     */
+    boolean skipColumnIndex(int columnIndex);
+
+    /**
      * Returns the current row number
      *
      * @return the current row number
@@ -54,6 +67,19 @@ public interface RowSet {
      * @return the row as a String[]
      */
     String[] getCurrentRow();
+
+    /**
+     * Skip the given column by index and return the current row as a String[].
+     *
+     * @return the row as a String[]
+     *
+     * @since 0.6.0
+     */
+    default String[] getCurrentRow(int ignoreColumnIndex) {
+        List<String> columns = new ArrayList<>(Arrays.asList(getCurrentRow()));
+        columns.remove(ignoreColumnIndex);
+        return columns.toArray(new String[columns.size()]);
+    }
 
     /**
      * Retrieves the value of the indicated column in the current row as a String object.
