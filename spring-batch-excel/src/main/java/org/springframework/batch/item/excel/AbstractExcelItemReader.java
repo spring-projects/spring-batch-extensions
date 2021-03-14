@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.util.ClassUtils;
  *
  * @param <T> the type
  * @author Marten Deinum
+ * @author Parikshit Dutta
  * @since 0.5.0
  */
 public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> implements
@@ -42,6 +43,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
     protected final Log logger = LogFactory.getLog(getClass());
     private Resource resource;
     private int linesToSkip = 0;
+    private int columnIndexToSkip = -1;
     private int currentSheet = 0;
     private RowMapper<T> rowMapper;
     private RowCallbackHandler skippedRowsCallback;
@@ -67,6 +69,9 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
         if (rs.next()) {
             try {
+                if (columnIndexToSkip >= 0) {
+                    rs.skipColumnIndex(columnIndexToSkip);
+                }
                 return this.rowMapper.mapRow(rs);
             } catch (final Exception e) {
                 throw new ExcelFileParseException("Exception parsing Excel file.", e, this.resource.getDescription(),
@@ -120,7 +125,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
         final Sheet sheet = this.getSheet(this.currentSheet);
         this.rs =rowSetFactory.create(sheet);
 
-
         if (logger.isDebugEnabled()) {
             logger.debug("Opening sheet " + sheet.getName() + ".");
         }
@@ -157,6 +161,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
      */
     public void setLinesToSkip(final int linesToSkip) {
         this.linesToSkip = linesToSkip;
+    }
+
+    public void setColumnIndexToSkip(int columnIndexToSkip) {
+        this.columnIndexToSkip = columnIndexToSkip;
     }
 
     /**

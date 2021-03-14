@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
  * Base class for testing Excel based item readers.
  *
  * @author Marten Deinum
+ * @author Parikshit Dutta
  */
 public abstract class AbstractExcelItemReaderTests  {
 
@@ -81,6 +82,15 @@ public abstract class AbstractExcelItemReaderTests  {
         } while (row != null);
         int readCount = (Integer) ReflectionTestUtils.getField(this.itemReader, "currentItemCount" );
         assertEquals(4321, readCount);
+    }
+
+    @Test
+    public void testReadBySkippingColumnByIndex() throws Exception {
+        this.itemReader.setColumnIndexToSkip(0);
+        this.itemReader.afterPropertiesSet();
+
+        String[] row = (String[]) this.itemReader.read();
+        assertEquals(5, row.length);
     }
 
     @Test(expected = IllegalArgumentException.class)

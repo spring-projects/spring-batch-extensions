@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 the original author or authors.
+ * Copyright 2006-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Properties;
  * Default implementation of the {@code RowSet} interface.
  *
  * @author Marten Deinum
+ * @author Parikshit Dutta
  * @since 0.5.0
  *
  * @see org.springframework.batch.item.excel.support.rowset.DefaultRowSetFactory
@@ -35,9 +36,16 @@ public class DefaultRowSet implements RowSet {
     private int currentRowIndex = -1;
     private String[] currentRow;
 
+    private int skipColumnIndex = -1;
+
     DefaultRowSet(Sheet sheet, RowSetMetaData metaData) {
+        this(sheet, metaData, -1);
+    }
+
+    DefaultRowSet(Sheet sheet, RowSetMetaData metaData, int skipColumnIndex) {
         this.sheet = sheet;
         this.metaData = metaData;
+        this.skipColumnIndex = skipColumnIndex;
     }
 
     @Override
@@ -51,6 +59,15 @@ public class DefaultRowSet implements RowSet {
         currentRowIndex++;
         if (currentRowIndex < sheet.getNumberOfRows()) {
             currentRow = sheet.getRow(currentRowIndex);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean skipColumnIndex(int columnIndex) {
+        if (columnIndex >= 0 && currentRow.length > columnIndex) {
+            currentRow = getCurrentRow(columnIndex);
             return true;
         }
         return false;
