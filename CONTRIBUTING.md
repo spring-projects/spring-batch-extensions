@@ -49,7 +49,7 @@ _you should see only 'origin' - which is the fork you created for your own githu
 _you should now see 'upstream' in addition to 'origin' where 'upstream' is the *spring-projects* repository from which releases are built_
 6. `git fetch --all`
 7. `git branch -a`
-_you should see branches on origin as well as upstream, including 'master'_
+_you should see branches on origin as well as upstream, including 'main'_
 
 ## A Day in the Life of a Contributor
 
@@ -60,25 +60,25 @@ _you should see branches on origin as well as upstream, including 'master'_
 * When ready to resolve an issue or to collaborate with others, you can push your branch to origin (your fork), e.g.: `git push origin BATCH-EXT-123`
 * If you want to collaborate with another contributor, have them fork your repository (add it as a remote) and `git fetch <your-username>` to grab your branch. Alternatively, they can use `git fetch --all` to sync their local state with all of their remotes.
 * If you grant that collaborator push access to your repository, they can even apply their changes to your branch.
-* When ready for your contribution to be reviewed for potential inclusion in the master branch of the canonical *spring-batch-extensions* repository (what you know as 'upstream'), issue a pull request to the *spring-batch-extensions* repository (for more detail, see [help documentation][]).
-* The project lead may merge your changes into the upstream master branch as-is, he may keep the pull request open yet add a comment about something that should be modified, or he might reject the pull request by closing it.
-* A prerequisite for any pull request is that it will be cleanly merge-able with the upstream master's current state. **This is the responsibility of any contributor.** If your pull request cannot be applied cleanly, the project lead will most likely add a comment requesting that you make it merge-able. For a full explanation, see the Pro Git section on rebasing: [Git Branching - Rebasing](https://git-scm.com/book/en/v2/Git-Branching-Rebasing). As stated there: "> Often, you’ll do this to make sure your commits apply cleanly on a remote branch — perhaps in a project to which you’re trying to contribute but that you don’t maintain."
+* When ready for your contribution to be reviewed for potential inclusion in the main branch of the canonical *spring-batch-extensions* repository (what you know as 'upstream'), issue a pull request to the *spring-batch-extensions* repository (for more detail, see [help documentation][]).
+* The project lead may merge your changes into the upstream main branch as-is, he may keep the pull request open yet add a comment about something that should be modified, or he might reject the pull request by closing it.
+* A prerequisite for any pull request is that it will be cleanly merge-able with the upstream main's current state. **This is the responsibility of any contributor.** If your pull request cannot be applied cleanly, the project lead will most likely add a comment requesting that you make it merge-able. For a full explanation, see the Pro Git section on rebasing: [Git Branching - Rebasing](https://git-scm.com/book/en/v2/Git-Branching-Rebasing). As stated there: "> Often, you’ll do this to make sure your commits apply cleanly on a remote branch — perhaps in a project to which you’re trying to contribute but that you don’t maintain."
 
 ## Keeping your Local Code in Sync
-* As mentioned above, you should always work on topic branches (since 'master' is a moving target). However, you do want to always keep your own 'origin' master branch in synch with the 'upstream' master.
+* As mentioned above, you should always work on topic branches (since 'main' is a moving target). However, you do want to always keep your own 'origin' main branch in synch with the 'upstream' main.
 * Within your local working directory, you can sync up all remotes' branches with: `git fetch --all`
-* While on your own local master branch: `git pull upstream master` (which is the equivalent of fetching upstream/master and merging that into the branch you are in currently)
+* While on your own local main branch: `git pull upstream main` (which is the equivalent of fetching upstream/main and merging that into the branch you are in currently)
 * Now that you're in synch, switch to the topic branch where you plan to work, e.g.: `git checkout -b BATCH-EXT-123`
 * When you get to a stopping point: `git commit`
-* If changes have occurred on the upstream/master while you were working you can synch again:
-    - Switch back to master: `git checkout master`
-    - Then: `git pull upstream master`
+* If changes have occurred on the upstream/main while you were working you can synch again:
+    - Switch back to main: `git checkout main`
+    - Then: `git pull upstream main`
     - Switch back to the topic branch: `git checkout BATCH-EXT-123` (no -b needed since the branch already exists)
-    - Rebase the topic branch to minimize the distance between it and your recently synchronized master branch: `git rebase master`
+    - Rebase the topic branch to minimize the distance between it and your recently synchronized main branch: `git rebase main`
 (Again, for more detail see the Pro Git section on rebasing: [Git Branching - Rebasing](https://git-scm.com/book/en/v2/Git-Branching-Rebasing))
-* **Note** You cannot rebase if you have already pushed your branch to your remote because you'd be rewriting history (see **'The Perils of Rebasing'** in the article). If you rebase by mistake, you can undo it as discussed [in this stackoverflow discussion](https://stackoverflow.com/questions/134882/undoing-a-git-rebase). Once you have published your branch, you need to merge in the master rather than rebasing.
+* **Note** You cannot rebase if you have already pushed your branch to your remote because you'd be rewriting history (see **'The Perils of Rebasing'** in the article). If you rebase by mistake, you can undo it as discussed [in this stackoverflow discussion](https://stackoverflow.com/questions/134882/undoing-a-git-rebase). Once you have published your branch, you need to merge in the main rather than rebasing.
 * Now, if you issue a pull request, it is much more likely to be merged without conflicts. Most likely, any pull request that would produce conflicts will be deferred until the issuer of that pull request makes these adjustments.
-* Assuming your pull request is merged into the 'upstream' master, you will actually end up pulling that change into your own master eventually, and at that time, you may decide to delete the topic branch from your local repository and your fork (origin) if you pushed it there.
+* Assuming your pull request is merged into the 'upstream' main, you will actually end up pulling that change into your own main eventually, and at that time, you may decide to delete the topic branch from your local repository and your fork (origin) if you pushed it there.
     - to delete the local branch: `git branch -d BATCH-EXT-123`
     - to delete the branch from your origin: `git push origin :BATCH-EXT-123`
 
@@ -104,7 +104,7 @@ This command, will provide the following output, which in this case shows a nice
 * 6177cd39801967cc60c7701c5f553868b943f7ea Initial commit
 ````
 
-If you see intersecting lines, that usually means that you forgot to rebase you branch. As mentioned earlier, **please rebase against master** before issuing a pull request.
+If you see intersecting lines, that usually means that you forgot to rebase you branch. As mentioned earlier, **please rebase against main** before issuing a pull request.
 
 ## Mind the whitespace
 
