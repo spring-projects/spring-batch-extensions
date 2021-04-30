@@ -10,6 +10,7 @@ This project is part of the [Spring organization][] on GitHub.
 | -------|-------------| -----| ------- |----------|
 | spring-batch-excel | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum) | 0.1.0-SNAPSHOT | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml) |
 | spring-batch-elasticsearch | Support for [Elasticsearch] | TBA | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
+| spring-batch-bigquery | Support for [Google BigQuery] | [@dgray16](https://github.com/dgray16) | 0.1.0-SNAPSHOT | [![Spring Batch BigQuery](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml) |
 
 ## Getting support
 
@@ -98,6 +99,7 @@ noted differently for individual extension Modules, but this should be the rare 
 [Spring organization]: https://github.com/spring-projects
 [Microsoft Excel]: https://www.microsoft.com/en-us/microsoft-365/excel
 [Elasticsearch]: https://www.elastic.co
+[Google BigQuery]: https://cloud.google.com/bigquery
 [spring-batch tag]: https://stackoverflow.com/questions/tagged/spring-batch
 [Spring Batch]: https://github.com/spring-projects/spring-batch
 [Spring Boot]: https://github.com/spring-projects/spring-boot
