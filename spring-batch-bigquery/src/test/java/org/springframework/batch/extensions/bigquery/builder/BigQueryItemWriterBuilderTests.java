@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.item.google.bigquery.builder;
+package org.springframework.batch.extensions.bigquery.builder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import org.springframework.batch.extensions.item.google.bigquery.BigQueryItemWriter;
+import org.springframework.batch.extensions.bigquery.BigQueryItemWriter;
 
 class BigQueryItemWriterBuilderTests {
 

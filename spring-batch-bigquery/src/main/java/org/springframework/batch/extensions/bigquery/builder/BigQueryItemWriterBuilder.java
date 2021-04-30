@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.item.google.bigquery.builder;
+package org.springframework.batch.extensions.bigquery.builder;
 
 import java.util.function.Consumer;
 
@@ -23,7 +23,7 @@ import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 
-import org.springframework.batch.extensions.item.google.bigquery.BigQueryItemWriter;
+import org.springframework.batch.extensions.bigquery.BigQueryItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
 /**

@@ -21,7 +21,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.springframework.batch</groupId>
+    <groupId>org.springframework.batch.extensions</groupId>
     <artifactId>spring-batch-bigquery</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 

@@ -21,6 +21,6 @@
  * @author Vova Perebykivskyi
  */
 @NonNullApi
-package org.springframework.batch.extensions.item.google.bigquery;
+package org.springframework.batch.extensions.bigquery;
 
 import org.springframework.lang.NonNullApi;
