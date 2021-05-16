@@ -33,6 +33,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetInfo;
@@ -41,6 +44,7 @@ import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableDataWriteChannel;
 import com.google.cloud.bigquery.TableDefinition;
+import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 import com.google.common.collect.Iterables;
 import org.apache.avro.file.CodecFactory;
@@ -93,7 +97,8 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
      * Used for simple conversion.
      */
     private Converter<T, byte[]> rowMapper;
-
+    private ObjectWriter objectWriter;
+    private Class itemClass;
 
     private BigQuery bigQuery;
 
@@ -138,12 +143,29 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     @Override
     public void write(List<? extends T> items) throws Exception {
         if (CollectionUtils.isNotEmpty(items)) {
+            initializeProperties(items);
+
             if (this.logger.isDebugEnabled()) {
-                this.logger.debug("Mapping data");
+                this.logger.debug(String.format("Mapping %d elements", items.size()));
             }
 
             ByteBuffer byteBuffer = mapDataToBigQueryFormat(items);
             doWriteDataToBigQuery(byteBuffer);
+        }
+    }
+
+    /** Actual type of incoming data can be obtained only in runtime */
+    private synchronized void initializeProperties(List<? extends T> items) {
+        if (Objects.isNull(this.itemClass)) {
+            if (isAvro() || isCsv()) {
+                this.itemClass = Iterables.getFirst(items, null).getClass();
+
+                if (isCsv() && Objects.isNull(this.rowMapper)) {
+                    this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
+                }
+
+                logger.debug("Writer setup is completed");
+            }
         }
     }
 
@@ -242,11 +264,21 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     private Stream<byte[]> getCsvByteArrayStream(List<? extends T> items) {
         return items
                 .stream()
-                .map(this.rowMapper::convert)
+                .map(this::mapItemToCsv)
                 .filter(ArrayUtils::isNotEmpty)
                 .map(String::new)
                 .filter(value -> !ObjectUtils.isEmpty(value))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private byte[] mapItemToCsv(T t) {
+        byte[] result = null;
+        try {
+            result = Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+        } catch (JsonProcessingException e) {
+            logger.error("Error during processing of the line: ", e);
+        }
+        return result;
     }
 
     /**
@@ -256,13 +288,8 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     private Stream<byte[]> getAvroByteArrayStream(List<? extends T> items)
             throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        T firstElement = Iterables.getFirst(items, null);
-        Assert.notNull(firstElement, "Collection is empty");
-
-        Class classType = firstElement.getClass();
-
-        SpecificRecordBase objectInstance = (SpecificRecordBase) classType.getDeclaredConstructor().newInstance();
-        SpecificDatumWriter<? super T> avroWriter = new SpecificDatumWriter<>(classType);
+        SpecificRecordBase objectInstance = (SpecificRecordBase) this.itemClass.getDeclaredConstructor().newInstance();
+        SpecificDatumWriter<? super T> avroWriter = new SpecificDatumWriter<>(this.itemClass);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              DataFileWriter<? super T> avroFileWriter = new DataFileWriter<>(avroWriter)) {
@@ -302,29 +329,30 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        Assert.notNull(this.bigQuery, "BigQuery service must be provided");
+        Assert.notNull(this.writeChannelConfig, "Write channel configuration must be provided");
+
         Assert.isTrue(BooleanUtils.isFalse(isBigtable()), "Google BigTable is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isGoogleSheets()), "Google Sheets is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isDatastore()), "Google Datastore is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isParquet()), "Parquet is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isOrc()), "Orc is not supported");
 
-        Assert.notNull(this.bigQuery, "BigQuery service must be provided");
-        Assert.notNull(this.writeChannelConfig, "Write channel configuration must be provided");
-
         if (BooleanUtils.isFalse(isAvro())) {
             Table table = getTable();
-            if (BooleanUtils.isFalse(BooleanUtils.toBoolean(this.writeChannelConfig.getAutodetect()))) {
+
+            if (BooleanUtils.toBoolean(this.writeChannelConfig.getAutodetect())) {
+                if ((isCsv() || isJson()) && tableHasDefinedSchema(table) && this.logger.isWarnEnabled()) {
+                    this.logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
+                }
+            }
+            else {
                 Assert.notNull(this.writeChannelConfig.getSchema(), "Schema must be provided");
                 if (tableHasDefinedSchema(table)) {
                     Assert.isTrue(
                             table.getDefinition().getSchema().equals(this.writeChannelConfig.getSchema()),
                             "Schema should be the same"
                     );
-                }
-            }
-            else {
-                if ((isCsv() || isJson()) && this.logger.isWarnEnabled() && tableHasDefinedSchema(table)) {
-                    this.logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
                 }
             }
         }
@@ -334,10 +362,6 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
         }
 
         Assert.notNull(this.writeChannelConfig.getFormat(), "Data format must be provided");
-
-        if (isCsv() || isJson()) {
-            Assert.notNull(this.rowMapper, "Row mapper must be provided");
-        }
 
         if (Objects.nonNull(this.datasetInfo)) {
             Assert.isTrue(
@@ -391,11 +415,16 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     }
 
     private void createDataset() {
-        if (Objects.nonNull(this.datasetInfo)) {
-            Dataset foundDataset = this.bigQuery.getDataset(this.writeChannelConfig.getDestinationTable().getDataset());
+        TableId tableId = this.writeChannelConfig.getDestinationTable();
+        String datasetToCheck = tableId.getDataset();
+
+        if (Objects.nonNull(datasetToCheck)) {
+            Dataset foundDataset = this.bigQuery.getDataset(datasetToCheck);
 
             if (Objects.isNull(foundDataset)) {
-                this.bigQuery.create(this.datasetInfo);
+                if (Objects.nonNull(this.datasetInfo)) {
+                    this.bigQuery.create(this.datasetInfo);
+                }
             }
         }
     }

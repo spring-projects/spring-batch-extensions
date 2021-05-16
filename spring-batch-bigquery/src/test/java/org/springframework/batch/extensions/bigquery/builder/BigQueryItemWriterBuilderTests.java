@@ -27,6 +27,7 @@ import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
+import lombok.Value;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
@@ -48,9 +49,10 @@ class BigQueryItemWriterBuilderTests {
     void testCsvWriter() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
         CsvMapper csvMapper = new CsvMapper();
+        DatasetInfo datasetInfo = DatasetInfo.newBuilder(DATASET_NAME).setLocation("europe-west-2").build();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "csv_table"))
+                .newBuilder(TableId.of(datasetInfo.getDatasetId().getDataset(), "csv_table"))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.csv())
                 .build();
@@ -59,7 +61,7 @@ class BigQueryItemWriterBuilderTests {
                 .bigQuery(mockedBigQuery)
                 .rowMapper(dto -> convertDtoToCsvByteArray(csvMapper, dto))
                 .writeChannelConfig(writeConfiguration)
-                .datasetInfo(DatasetInfo.newBuilder(DATASET_NAME).setLocation("europe-west-2").build())
+                .datasetInfo(datasetInfo)
                 .build();
 
         writer.afterPropertiesSet();
@@ -149,13 +151,11 @@ class BigQueryItemWriterBuilderTests {
     }
 
 
-    static class PersonDto {
+    @Value
+    class PersonDto {
 
-        private String name;
+        String name;
 
-        public String getName() {
-            return name;
-        }
     }
 
 }
