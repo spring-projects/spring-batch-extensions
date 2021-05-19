@@ -1,10 +1,12 @@
 # spring-batch-excel
 
-Spring Batch extension which contains an `ItemReader` implementation for Excel based on https://poi.apache.org[Apache POI]. It supports reading both XLS and XLSX files, for the latter there is also (experimental) streaming support.
+Spring Batch extension containing an `ItemReader` implementation for Excel based on https://poi.apache.org[Apache POI]. It supports reading both XLS and XLSX files. For the latter, there is also (experimental) streaming support.
 
 The `PoiItemReader` has the most features but is also the most memory intensive and might lead to memory issues with large XLS(X) sheets.
 
-To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this will only keep the current row in memory and discard it afterwards. Not everything is supported while streaming the XLSX file, it can be that formulas don't get evaluated or lead to an error.
+To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this will only keep the current row in memory and discard it afterward. Not everything is supported while streaming the XLSX file. It can be that formulas don't get evaluated or lead to an error.
+
+NOTE: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
 
 ## Configuration of `PoiItemReader`
 
