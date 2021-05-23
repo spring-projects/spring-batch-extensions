@@ -26,7 +26,7 @@ Additional examples could be found in https://github.com/spring-projects/spring-
 
 ## Configuration properties
 [cols="1,1,4"]
-.Properties for item readers
+.Properties for item writer
 |===
 | Property | Required | Description
 
