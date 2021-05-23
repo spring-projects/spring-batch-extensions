@@ -363,12 +363,16 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
         Assert.notNull(this.writeChannelConfig.getFormat(), "Data format must be provided");
 
-        if (Objects.nonNull(this.datasetInfo)) {
-            Assert.isTrue(
-                    Objects.equals(this.datasetInfo.getDatasetId().getDataset(), this.writeChannelConfig.getDestinationTable().getDataset()),
-                    "Dataset should be configured properly"
-            );
+        String dataset = this.writeChannelConfig.getDestinationTable().getDataset();
+
+        if (Objects.isNull(this.datasetInfo)) {
+            this.datasetInfo = DatasetInfo.newBuilder(dataset).build();
         }
+
+        Assert.isTrue(
+                Objects.equals(this.datasetInfo.getDatasetId().getDataset(), dataset),
+                "Dataset should be configured properly"
+        );
 
         createDataset();
     }

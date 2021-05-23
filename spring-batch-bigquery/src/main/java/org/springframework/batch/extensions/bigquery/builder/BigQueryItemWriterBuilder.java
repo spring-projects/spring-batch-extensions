@@ -72,10 +72,10 @@ public class BigQueryItemWriterBuilder<T> {
         BigQueryItemWriter<T> writer = new BigQueryItemWriter<>();
 
         writer.setRowMapper(this.rowMapper);
-        writer.setDatasetInfo(this.datasetInfo);
-        writer.setJobConsumer(this.jobConsumer);
         writer.setWriteChannelConfig(this.writeChannelConfig);
+        writer.setJobConsumer(this.jobConsumer);
         writer.setBigQuery(this.bigQuery);
+        writer.setDatasetInfo(this.datasetInfo);
 
         return writer;
     }
