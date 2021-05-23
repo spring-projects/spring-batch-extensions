@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.BigQuery;
@@ -157,11 +158,16 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     /** Actual type of incoming data can be obtained only in runtime */
     private synchronized void initializeProperties(List<? extends T> items) {
         if (Objects.isNull(this.itemClass)) {
-            if (isAvro() || isCsv()) {
-                this.itemClass = Iterables.getFirst(items, null).getClass();
+            if (isAvro() || isCsv() || isJson()) {
+                this.itemClass = items.stream().map(Object::getClass).findFirst().orElseThrow(RuntimeException::new);
 
-                if (isCsv() && Objects.isNull(this.rowMapper)) {
-                    this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
+                if (Objects.isNull(this.rowMapper)) {
+                    if (isCsv()) {
+                        this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
+                    }
+                    else if (isJson()) {
+                        this.objectWriter = new ObjectMapper().writerFor(this.itemClass);
+                    }
                 }
 
                 logger.debug("Writer setup is completed");
@@ -241,12 +247,23 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     private Stream<byte[]> getJsonByteArrayStream(List<? extends T> items) {
         return items
                 .stream()
-                .map(this.rowMapper::convert)
+                .map(this::mapItemToCsvOrJson)
                 .filter(ArrayUtils::isNotEmpty)
                 .map(String::new)
                 .map(this::convertToNdJson)
                 .filter(value -> !ObjectUtils.isEmpty(value))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private byte[] mapItemToCsvOrJson(T t) {
+        byte[] result = null;
+        try {
+            result = Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+        }
+        catch (JsonProcessingException e) {
+            logger.error("Error during processing of the line: ", e);
+        }
+        return result;
     }
 
     /**
@@ -264,21 +281,11 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     private Stream<byte[]> getCsvByteArrayStream(List<? extends T> items) {
         return items
                 .stream()
-                .map(this::mapItemToCsv)
+                .map(this::mapItemToCsvOrJson)
                 .filter(ArrayUtils::isNotEmpty)
                 .map(String::new)
                 .filter(value -> !ObjectUtils.isEmpty(value))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private byte[] mapItemToCsv(T t) {
-        byte[] result = null;
-        try {
-            result = Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
-        } catch (JsonProcessingException e) {
-            logger.error("Error during processing of the line: ", e);
-        }
-        return result;
     }
 
     /**
