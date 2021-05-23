@@ -27,7 +27,6 @@ import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
-import lombok.Value;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
@@ -193,11 +192,13 @@ class BigQueryItemWriterBuilderTests {
     }
 
 
-    @Value
     class PersonDto {
 
-        String name;
+        private final String name;
 
+        public PersonDto(String name) {
+            this.name = name;
+        }
     }
 
 }
