@@ -142,7 +142,7 @@ class BigQueryItemWriterBuilderTests {
      * Example how Apache Avro writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
      */
     @Test
-    @Disabled("Not implemented yet")
+    @Disabled("Not yet implemented")
     void testAvroWriter() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
