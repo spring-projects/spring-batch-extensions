@@ -76,7 +76,6 @@ import org.springframework.util.ObjectUtils;
  * <ul>
  *     <li>JSON</li>
  *     <li>CSV</li>
- *     <li>Avro</li>
  * </ul>
  *
  * <p>For example if you generate {@link TableDataWriteChannel} and you {@link TableDataWriteChannel#close()} it,
@@ -159,7 +158,13 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     private synchronized void initializeProperties(List<? extends T> items) {
         if (Objects.isNull(this.itemClass)) {
             if (isAvro() || isCsv() || isJson()) {
-                this.itemClass = items.stream().map(Object::getClass).findFirst().orElseThrow(RuntimeException::new);
+                T firstItem = items.stream().findFirst().orElseThrow(RuntimeException::new);
+                this.itemClass = firstItem.getClass();
+
+                if (isAvro()) {
+                    boolean isAvroClass = SpecificRecordBase.class.isAssignableFrom(this.itemClass);
+                    Assert.isTrue(isAvroClass, "Avro class expected");
+                }
 
                 if (Objects.isNull(this.rowMapper)) {
                     if (isCsv()) {
@@ -230,12 +235,10 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
         else if (isCsv()) {
             byteArrayStream = getCsvByteArrayStream(items);
         }
-        else if (isAvro()) {
-            byteArrayStream = getAvroByteArrayStream(items);
-        }
-        else if (isParquet() || isOrc()) {
+        else if (isParquet() || isOrc() || isAvro()) {
             throw new UnsupportedOperationException("Not supported right now");
             /*byteArrayStream = getHadoopPathByteArrayStream(items);*/
+            /*byteArrayStream = getAvroByteArrayStream(items);*/
         }
 
         return byteArrayStream.collect(Collectors.toList());
@@ -344,6 +347,7 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
         Assert.isTrue(BooleanUtils.isFalse(isDatastore()), "Google Datastore is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isParquet()), "Parquet is not supported");
         Assert.isTrue(BooleanUtils.isFalse(isOrc()), "Orc is not supported");
+        Assert.isTrue(BooleanUtils.isFalse(isAvro()), "Avro is not supported");
 
         if (BooleanUtils.isFalse(isAvro())) {
             Table table = getTable();

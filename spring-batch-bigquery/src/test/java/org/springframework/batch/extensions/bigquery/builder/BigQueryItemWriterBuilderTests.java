@@ -31,6 +31,7 @@ import lombok.Value;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -141,6 +142,7 @@ class BigQueryItemWriterBuilderTests {
      * Example how Apache Avro writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
      */
     @Test
+    @Disabled("Not implemented yet")
     void testAvroWriter() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
