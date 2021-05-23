@@ -82,6 +82,8 @@ import org.springframework.util.ObjectUtils;
  * there is no guarantee that single {@link com.google.cloud.bigquery.Job} will be created.
  *
  * <p>It does not support save state feature. It is thread-safe.
+ * Take into account that BigQuery has rate limits and it is very easy to exceed those in concurrent environment.
+ * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas & Limits</a>
  *
  * @author Vova Perebykivskyi
  * @since 0.1.0
@@ -214,12 +216,17 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
             writeChannel = writer;
         }
         finally {
-            if (this.logger.isDebugEnabled()) {
-                this.logger.debug("Write operation submitted: " + bigQueryWriteCounter.incrementAndGet());
+            String logMessage = "Write operation submitted: " + bigQueryWriteCounter.incrementAndGet();
+
+            if (Objects.nonNull(writeChannel)) {
+                logMessage += " -- Job ID: " + writeChannel.getJob().getJobId().getJob();
+                if (Objects.nonNull(this.jobConsumer)) {
+                    this.jobConsumer.accept(writeChannel.getJob());
+                }
             }
 
-            if (Objects.nonNull(writeChannel) && Objects.nonNull(this.jobConsumer)) {
-                this.jobConsumer.accept(writeChannel.getJob());
+            if (this.logger.isDebugEnabled()) {
+                this.logger.debug(logMessage);
             }
         }
     }
