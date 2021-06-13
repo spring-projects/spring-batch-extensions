@@ -45,9 +45,32 @@ class BigQueryItemWriterBuilderTests {
      * Example how CSV writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
      */
     @Test
-    void testCsvWriter() {
+    void testCsvWriterWithRowMapper() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
         CsvMapper csvMapper = new CsvMapper();
+        DatasetInfo datasetInfo = DatasetInfo.newBuilder(DATASET_NAME).setLocation("europe-west-2").build();
+
+        WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
+                .newBuilder(TableId.of(datasetInfo.getDatasetId().getDataset(), "csv_table"))
+                .setAutodetect(true)
+                .setFormatOptions(FormatOptions.csv())
+                .build();
+
+        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
+                .bigQuery(mockedBigQuery)
+                .rowMapper(dto -> convertDtoToCsvByteArray(csvMapper, dto))
+                .writeChannelConfig(writeConfiguration)
+                .datasetInfo(datasetInfo)
+                .build();
+
+        writer.afterPropertiesSet();
+
+        Assertions.assertNotNull(writer);
+    }
+
+    @Test
+    void testCsvWriterWithCsvMapper() {
+        BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
                 .newBuilder(TableId.of(DATASET_NAME, "csv_table"))
@@ -57,9 +80,7 @@ class BigQueryItemWriterBuilderTests {
 
         BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
                 .bigQuery(mockedBigQuery)
-                .rowMapper(dto -> convertDtoToCsvByteArray(csvMapper, dto))
                 .writeChannelConfig(writeConfiguration)
-                .datasetInfo(DatasetInfo.newBuilder(DATASET_NAME).setLocation("europe-west-2").build())
                 .build();
 
         writer.afterPropertiesSet();
@@ -95,16 +116,14 @@ class BigQueryItemWriterBuilderTests {
         Assertions.assertNotNull(writer);
     }
 
-    /**
-     * Example how Apache Avro writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
-     */
     @Test
-    void testAvroWriter() {
+    void testCsvWriterWithJsonMapper() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "avro_table"))
-                .setFormatOptions(FormatOptions.avro())
+                .newBuilder(TableId.of(DATASET_NAME, "json_table"))
+                .setAutodetect(true)
+                .setFormatOptions(FormatOptions.json())
                 .build();
 
         BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
@@ -149,12 +168,12 @@ class BigQueryItemWriterBuilderTests {
     }
 
 
-    static class PersonDto {
+    class PersonDto {
 
-        private String name;
+        private final String name;
 
-        public String getName() {
-            return name;
+        public PersonDto(String name) {
+            this.name = name;
         }
     }
 

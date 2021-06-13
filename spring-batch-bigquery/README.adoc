@@ -1,0 +1,38 @@
+# spring-batch-bigquery
+
+Spring Batch extension which contains an `ItemWriter` implementation for https://cloud.google.com/bigquery[BigQuery] based on https://github.com/googleapis/java-bigquery[Java BigQuery]. It supports writing https://en.wikipedia.org/wiki/Comma-separated_values[CSV], https://en.wikipedia.org/wiki/JSON[JSON] using https://cloud.google.com/bigquery/docs/batch-loading-data[load jobs].
+
+## Configuration of `BigQueryItemWriter`
+
+Next to the https://docs.spring.io/spring-batch/reference/html/configureJob.html[configuration of Spring Batch] one needs to configure the `BigQueryItemWriter`.
+
+```java
+@Bean
+BigQueryItemWriter<MyDto> bigQueryCsvWriter() {
+    WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
+        .newBuilder(TableId.of("csv_dataset", "csv_table"))
+        .setAutodetect(true)
+        .setFormatOptions(FormatOptions.csv())
+        .build();
+
+    BigQueryItemWriter<MyDto> writer = new BigQueryItemWriterBuilder<MyDto>()
+        .bigQuery(mockedBigQuery)
+        .writeChannelConfig(writeConfiguration)
+        .build();
+}
+```
+
+Additional examples could be found in https://github.com/spring-projects/spring-batch-extensions/blob/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryItemWriterBuilderTests.java[here].
+
+## Configuration properties
+[cols="1,1,4"]
+.Properties for item writer
+|===
+| Property | Required | Description
+
+| `bigQuery` | yes | BigQuery object that provided by BigQuery Java Library. Responsible for connection with BigQuery.
+| `writeChannelConfig` | yes | BigQuery write channel config provided by BigQuery Java Library. Responsible for configuring data type, data channel, jobs that will be sent to BigQuery.
+| `rowMapper` | no | Your own converter that specifies how to convert input CSV / JSON to byte array.
+| `datasetInfo` | no | Your way to customize to how to create BigQuery dataset.
+| `jobConsumer` | no | Your custom handler for BigQuery Job provided by BigQuery Java Library.
+|===
