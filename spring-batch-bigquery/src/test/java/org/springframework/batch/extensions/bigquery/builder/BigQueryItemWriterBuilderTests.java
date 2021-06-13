@@ -30,7 +30,6 @@ import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -125,29 +124,6 @@ class BigQueryItemWriterBuilderTests {
                 .newBuilder(TableId.of(DATASET_NAME, "json_table"))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.json())
-                .build();
-
-        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .writeChannelConfig(writeConfiguration)
-                .build();
-
-        writer.afterPropertiesSet();
-
-        Assertions.assertNotNull(writer);
-    }
-
-    /**
-     * Example how Apache Avro writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
-     */
-    @Test
-    @Disabled("Not yet implemented")
-    void testAvroWriter() {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-
-        WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "avro_table"))
-                .setFormatOptions(FormatOptions.avro())
                 .build();
 
         BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
