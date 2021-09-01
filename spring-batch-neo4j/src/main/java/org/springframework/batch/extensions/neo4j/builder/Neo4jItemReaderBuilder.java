@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.neo4j.ogm.session.SessionFactory;
 
-import org.springframework.batch.item.data.Neo4jItemReader;
+import org.springframework.batch.extensions.neo4j.Neo4jItemReader;
 import org.springframework.util.Assert;
 
 /**

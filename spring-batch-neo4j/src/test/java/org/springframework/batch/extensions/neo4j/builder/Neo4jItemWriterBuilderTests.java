@@ -27,7 +27,7 @@ import org.mockito.junit.MockitoRule;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
-import org.springframework.batch.item.data.Neo4jItemWriter;
+import org.springframework.batch.extensions.neo4j.Neo4jItemWriter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

@@ -19,7 +19,7 @@ package org.springframework.batch.extensions.neo4j.builder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
-import org.springframework.batch.item.data.Neo4jItemWriter;
+import org.springframework.batch.extensions.neo4j.Neo4jItemWriter;
 import org.springframework.util.Assert;
 
 /**
@@ -62,7 +62,7 @@ public class Neo4jItemWriterBuilder<T> {
 	}
 
 	/**
-	 * Validates and builds a {@link org.springframework.batch.item.data.Neo4jItemWriter}.
+	 * Validates and builds a {@link org.springframework.batch.extensions.neo4j.Neo4jItemWriter}.
 	 *
 	 * @return a {@link Neo4jItemWriter}
 	 */
