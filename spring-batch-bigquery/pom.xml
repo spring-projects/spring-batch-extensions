@@ -24,6 +24,9 @@
     <groupId>org.springframework.batch.extensions</groupId>
     <artifactId>spring-batch-bigquery</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <name>Spring Batch BigQuery</name>
+    <description>Spring Batch extension for Google BigQuery</description>
+    <url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery</url>
 
     <developers>
         <developer>
@@ -43,6 +46,8 @@
 
     <scm>
         <url>https://github.com/spring-projects/spring-batch-extensions</url>
+        <connection>git://github.com/spring-projects/spring-batch-extensions.git</connection>
+        <developerConnection>git@github.com:spring-projects/spring-batch-extensions.git</developerConnection>
     </scm>
 
     <properties>
@@ -116,6 +121,34 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+            </plugin>
+
+            <!-- Generate javadoc and source jars -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
