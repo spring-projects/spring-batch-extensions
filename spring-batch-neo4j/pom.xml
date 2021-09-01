@@ -19,7 +19,7 @@
 
     <groupId>org.springframework.batch.extensions</groupId>
     <artifactId>spring-batch-neo4j</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
     <name>Spring Batch Neo4j</name>
     <description>Spring Batch extension for Neo4j</description>
     <url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-neo4j</url>
