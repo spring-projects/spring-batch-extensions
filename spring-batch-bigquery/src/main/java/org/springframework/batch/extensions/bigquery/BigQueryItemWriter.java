@@ -70,7 +70,7 @@ import org.springframework.util.ObjectUtils;
  *
  * <p>It does not support save state feature. It is thread-safe.
  * Take into account that BigQuery has rate limits and it is very easy to exceed those in concurrent environment.
- * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas & Limits</a>
+ * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas &amp; Limits</a>
  *
  * @author Vova Perebykivskyi
  * @since 0.1.0
