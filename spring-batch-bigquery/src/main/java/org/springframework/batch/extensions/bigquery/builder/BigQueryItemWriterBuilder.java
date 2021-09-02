@@ -32,7 +32,7 @@ import org.springframework.core.convert.converter.Converter;
  * @author Vova Perebykivskyi
  * @since 0.1.0
  * @see BigQueryItemWriter
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/master/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/item/google/bigquery/builder/BigQueryItemWriterBuilderTests.java">Examples</a>
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryItemWriterBuilderTests.java">Examples</a>
  */
 public class BigQueryItemWriterBuilder<T> {
 
