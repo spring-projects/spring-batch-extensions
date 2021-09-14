@@ -17,6 +17,7 @@
 package org.springframework.batch.extensions.neo4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -218,7 +219,7 @@ public class Neo4jItemReader<T> extends AbstractPaginatedDataItemReader<T> imple
 			return queryResults.iterator();
 		}
 		else {
-			return new ArrayList<T>().iterator();
+			return Collections.emptyIterator();
 		}
 	}
 }
