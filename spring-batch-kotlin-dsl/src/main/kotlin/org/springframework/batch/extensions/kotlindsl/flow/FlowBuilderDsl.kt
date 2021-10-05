@@ -347,7 +347,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         private var flowBuilder: FlowBuilder<T>? = null
 
         /**
-         * Set step by bean name for transition.
+         * Transition to step by bean name.
          */
         fun stepBean(name: String) {
             val step = this.dslContext.beanFactory.getBean(name, Step::class.java)
@@ -355,7 +355,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set step for transition.
+         * Transition to step.
          */
         fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
             val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
@@ -364,14 +364,14 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set step for transition.
+         * Transition to step.
          */
         fun step(step: Step) {
             this.flowBuilder = this.baseTransitionBuilder.to(step).from(step)
         }
 
         /**
-         * Set step by bean name for transition and set another transition.
+         * Transition to step by bean name and set another transition.
          */
         fun stepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
             val step = this.dslContext.beanFactory.getBean(name, Step::class.java)
@@ -379,7 +379,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set step for transition and set another transition.
+         * Transition to step and set another transition.
          */
         fun step(
             name: String,
@@ -392,7 +392,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set step for transition and set another transition.
+         * Transition to step and set another transition.
          */
         fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
             val baseFlowBuilder = this.baseTransitionBuilder.to(step).from(step)
@@ -402,7 +402,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set flow by bean name for transition.
+         * Transition to flow by bean name.
          */
         fun flowBean(name: String) {
             val flow = this.dslContext.beanFactory.getBean(name, Flow::class.java)
@@ -410,7 +410,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set flow for transition.
+         * Transition to flow.
          */
         fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
             val flowBuilder = FlowBuilder<Flow>(name)
@@ -419,14 +419,14 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set flow for transition.
+         * Transition to flow.
          */
         fun flow(flow: Flow) {
             this.flowBuilder = this.baseTransitionBuilder.to(flow).from(flow)
         }
 
         /**
-         * Set flow by bean name for transition and set another transition.
+         * Transition to flow by bean name and set another transition.
          */
         fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
             val flow = this.dslContext.beanFactory.getBean(name, Flow::class.java)
@@ -434,7 +434,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set flow for transition and set another transition.
+         * Transition to flow and set another transition.
          */
         fun flow(
             name: String,
@@ -447,7 +447,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set flow for transition and set another transition.
+         * Transition to flow and set another transition.
          */
         fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
             val baseFlowBuilder = this.baseTransitionBuilder.to(flow).from(flow)
@@ -457,7 +457,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set decider by bean name for transition and set another transition.
+         * Transition to decider by bean name and set another transition.
          */
         fun deciderBean(
             name: String,
@@ -468,7 +468,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
-         * Set decider for transition and set another transition.
+         * Transition to decider and set another transition.
          */
         fun decider(
             decider: JobExecutionDecider,
