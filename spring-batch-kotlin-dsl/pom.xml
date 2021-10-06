@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.springframework.batch.extensions</groupId>
 	<artifactId>spring-batch-kotlin-dsl</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>Spring Batch Kotlin Dsl</name>
 	<description>Spring Batch extension for Kotlin Dsl</description>
 	<url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-kotlin-dsl</url>
