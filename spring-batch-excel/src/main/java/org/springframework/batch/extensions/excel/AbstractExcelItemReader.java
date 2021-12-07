@@ -107,7 +107,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 			this.rs.next();
 		}
 		try {
-			return (this.rs.getCurrentRow() != null) ? this.rowMapper.mapRow(this.rs) : null;
+			return (this.rs.getCurrentRow() != null) ? this.rowMapper.mapRow(this.rs) : doRead();
 		}
 		catch (Exception ex) {
 			throw new ExcelFileParseException("Exception parsing Excel file.", ex, this.resource.getDescription(),
