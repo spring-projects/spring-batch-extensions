@@ -39,9 +39,8 @@ public interface Sheet extends Iterable<String[]>, AutoCloseable {
 	String getName();
 
 	/**
-	 * Get the row as a {@code String[]}. Returns {@code null} if the row doesn't exist. Can throw an {@code UnsupportedOperationException}
-	 * when the underlying implementation doesn't support indexed access to rows.
-	 *
+	 * Get the row as a {@code String[]}. Returns {@code null} if the row doesn't exist. Can throw an
+	 * {@code UnsupportedOperationException} when the underlying implementation doesn't support indexed access to rows.
 	 * @param rowNumber the row number to read.
 	 * @return a {@code String[]} or {@code null}
 	 */

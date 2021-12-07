@@ -16,8 +16,6 @@
 
 package org.springframework.batch.extensions.excel.streaming;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
