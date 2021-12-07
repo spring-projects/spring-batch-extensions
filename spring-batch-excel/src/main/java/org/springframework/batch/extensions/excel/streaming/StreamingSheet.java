@@ -16,8 +16,6 @@
 
 package org.springframework.batch.extensions.excel.streaming;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +40,13 @@ import org.springframework.batch.extensions.excel.Sheet;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.StaxUtils;
 
-class StreamingSheet implements Sheet, Iterable<String[]>, Closeable {
+/**
+ * {@code Sheet} implementation for Apache POI using the streaming event mode to read the rows.
+ *
+ * @author Marten Deinum
+ * @since 0.1.0
+ */
+class StreamingSheet implements Sheet {
 
 	private final Log logger = LogFactory.getLog(StreamingSheet.class);
 
@@ -143,7 +147,7 @@ class StreamingSheet implements Sheet, Iterable<String[]>, Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() throws Exception {
 		try {
 			this.reader.close();
 		}
