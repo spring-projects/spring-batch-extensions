@@ -50,7 +50,7 @@
 		<!-- Test Dependencies -->
 		<assertj.version>3.18.1</assertj.version>
 		<junit.jupiter.version>5.8.2</junit.jupiter.version>
-		<log4j.version>2.13.3</log4j.version>
+		<log4j.version>2.15.0</log4j.version>
 		<mockito.version>3.11.0</mockito.version>
     </properties>
 
