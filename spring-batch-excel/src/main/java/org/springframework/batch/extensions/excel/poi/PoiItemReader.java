@@ -17,7 +17,6 @@
 package org.springframework.batch.extensions.excel.poi;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.apache.poi.ss.usermodel.Row;
@@ -80,16 +79,14 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 	 */
 	@Override
 	protected void openExcelFile(final Resource resource, String password) throws Exception {
-
-		try {
+		if (resource.isFile()) {
 			File file = resource.getFile();
 			this.workbook = WorkbookFactory.create(file, password, false);
 		}
-		catch (FileNotFoundException ex) {
+		else {
 			this.inputStream = resource.getInputStream();
 			this.workbook = WorkbookFactory.create(this.inputStream, password);
 		}
 		this.workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	}
-
 }
