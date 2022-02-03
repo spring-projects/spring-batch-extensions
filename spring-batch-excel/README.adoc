@@ -91,6 +91,7 @@ public RowMapper rowMapper() {
 | `rowSetFactory` | no | `DefaultRowSetFactory` | For reading rows a `RowSet` abstraction is used. To construct a `RowSet` for the current `Sheet` a `RowSetFactory` is needed. The `DefaultRowSetFactory` constructs a `DefaultRowSet` and `DefaultRowSetMetaData`. For construction of the latter a `ColumnNameExtractor` is needed. At the moment there are 2 implementations
 | `skippedRowsCallback` | no | `null` | When rows are skipped an optional `RowCallbackHandler` is called with the skipped row. This comes in handy when one needs to write the skipped rows to another file or create some logging.
 | `strict` | no | `true` | This controls wether or not an exception is thrown if the file doesn't exists or isn't readable, by default an exception will be thrown.
+| `datesAsIso` | no | `false` | Controls if dates need to be parsed as ISO or to use the format as specified in the excel sheet. *NOTE:* Only for the `PoiItemReader` **not** the `StreamingXlsxReader`!
 |===
 
  - `StaticColumnNameExtractor` uses a preset list of column names.
