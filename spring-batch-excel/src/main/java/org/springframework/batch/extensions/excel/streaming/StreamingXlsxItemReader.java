@@ -17,7 +17,6 @@
 package org.springframework.batch.extensions.excel.streaming;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -63,11 +62,11 @@ public class StreamingXlsxItemReader<T> extends AbstractExcelItemReader<T> {
 
 	@Override
 	protected void openExcelFile(Resource resource, String password) throws Exception {
-		try {
+		if (resource.isFile()) {
 			File file = resource.getFile();
 			this.pkg = OPCPackage.open(file, PackageAccess.READ);
 		}
-		catch (FileNotFoundException ex) {
+		else {
 			this.inputStream = resource.getInputStream();
 			this.pkg = OPCPackage.open(this.inputStream);
 		}
