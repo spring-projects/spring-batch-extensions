@@ -6,12 +6,13 @@ This project is part of the [Spring organization][] on GitHub.
 
 ## Available Modules
 
-| Module | Description | Lead | Version | CI build |
-| -------|-------------| -----| ------- |----------|
-| spring-batch-excel | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum) | 0.1.1 | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml) |
-| spring-batch-elasticsearch | Support for [Elasticsearch] | [@parikshitdutta](https://github.com/parikshitdutta) | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
-| spring-batch-bigquery | Support for [Google BigQuery] | [@dgray16](https://github.com/dgray16) | 0.1.0 | [![Spring Batch BigQuery](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml) |
-| spring-batch-neo4j | Support for [Neo4j] | [@michael-simons](https://github.com/michael-simons) | 0.1.0 | [![Spring Batch Neo4j](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml) |
+| Module                     | Description                   | Lead                                                 | Version | CI build                                                                                                                                                                                                                                                            |
+|----------------------------|-------------------------------|------------------------------------------------------| ------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| spring-batch-excel         | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum)               | 0.1.1 | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml)                         |
+| spring-batch-elasticsearch | Support for [Elasticsearch]   | [@parikshitdutta](https://github.com/parikshitdutta) | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
+| spring-batch-bigquery      | Support for [Google BigQuery] | [@dgray16](https://github.com/dgray16)               | 0.1.0 | [![Spring Batch BigQuery](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml)                |
+| spring-batch-neo4j         | Support for [Neo4j]           | [@michael-simons](https://github.com/michael-simons) | 0.1.0 | [![Spring Batch Neo4j](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml)                         |
+| spring-batch-geode         | Support for [Apache Geode]    | TBA                                                  | 0.1.0-SNAPSHOT | [![Spring Batch Geode](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml)                         |
 
 ## Getting support
 
@@ -105,6 +106,7 @@ noted differently for individual extension Modules, but this should be the rare 
 [Elasticsearch]: https://www.elastic.co
 [Google BigQuery]: https://cloud.google.com/bigquery
 [Neo4j]: https://neo4j.com
+[Apache Geode]: https://geode.apache.org
 [spring-batch tag]: https://stackoverflow.com/questions/tagged/spring-batch
 [Spring Batch]: https://github.com/spring-projects/spring-batch
 [Spring Boot]: https://github.com/spring-projects/spring-boot
