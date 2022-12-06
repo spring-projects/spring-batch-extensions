@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ import com.google.cloud.bigquery.TableDataWriteChannel;
 import com.google.cloud.bigquery.TableDefinition;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
@@ -69,10 +69,10 @@ import org.springframework.util.ObjectUtils;
  * there is no guarantee that single {@link com.google.cloud.bigquery.Job} will be created.
  *
  * <p>It does not support save state feature. It is thread-safe.
- * Take into account that BigQuery has rate limits and it is very easy to exceed those in concurrent environment.
+ * Take into account that BigQuery has rate limits, and it is very easy to exceed those in concurrent environment.
  * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas &amp; Limits</a>
  *
- * @author Vova Perebykivskyi
+ * @author Volodymyr Perebykivskyi
  * @since 0.1.0
  * @see <a href="https://cloud.google.com/bigquery">BigQuery</a>
  * @see <a href="https://github.com/googleapis/java-bigquery">BigQuery Java Client on GitHub</a>
@@ -130,8 +130,9 @@ public class BigQueryItemWriter<T> implements ItemWriter<T>, InitializingBean {
     }
 
     @Override
-    public void write(List<? extends T> items) throws Exception {
-        if (CollectionUtils.isNotEmpty(items)) {
+    public void write(Chunk<? extends T> chunk) throws Exception {
+        if (BooleanUtils.isFalse(chunk.isEmpty())) {
+            List<? extends T> items = chunk.getItems();
             initializeProperties(items);
 
             if (this.logger.isDebugEnabled()) {

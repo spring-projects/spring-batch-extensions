@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * A builder for {@link BigQueryItemWriter}.
  *
- * @author Vova Perebykivskyi
+ * @author Volodymyr Perebykivskyi
  * @since 0.1.0
  * @see BigQueryItemWriter
  * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryItemWriterBuilderTests.java">Examples</a>
