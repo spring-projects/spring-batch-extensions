@@ -44,11 +44,9 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
 	private InputStream inputStream;
 
-	private boolean datesAsIso = false;
-
 	@Override
 	protected Sheet getSheet(final int sheet) {
-		return new PoiSheet(this.workbook.getSheetAt(sheet), this.datesAsIso);
+		return new PoiSheet(this.workbook.getSheetAt(sheet), getDataFormatter());
 	}
 
 	@Override
@@ -92,12 +90,4 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 		this.workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 	}
 
-	/**
-	 * Instead of using the format defined in the Excel sheet, read the date/time fields as an ISO formatted
-	 * string instead. This is by default {@code false} to leave the original behavior.
-	 * @param datesAsIso default {@code false}
-	 */
-	public void setDatesAsIso(boolean datesAsIso) {
-		this.datesAsIso = datesAsIso;
-	}
 }

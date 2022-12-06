@@ -1,4 +1,4 @@
-# spring-batch-excel
+= spring-batch-excel
 
 Spring Batch extension containing an `ItemReader` implementation for Excel based on https://poi.apache.org[Apache POI]. It supports reading both XLS and XLSX files. For the latter, there is also (experimental) streaming support.
 
@@ -8,26 +8,28 @@ To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this w
 
 NOTE: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
 
-## Configuration of `PoiItemReader`
+== Configuration of `PoiItemReader`
 
 Next to the https://docs.spring.io/spring-batch/reference/html/configureJob.html[configuration of Spring Batch] one needs to configure the `PoiItemReader`.
 
 Configuration of can be done in XML or Java Config.
 
-### XML
+=== XML
 
-```xml
+[source,xml]
+----
  <bean id="excelReader" class="org.springframework.batch.extensions.excel.poi.PoiItemReader" scope="step">
      <property name="resource" value="file:/path/to/your/excel/file" />
      <property name="rowMapper">
          <bean class="org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper" />
      </property>
  </bean>
-```
+----
 
-### Java Config
+=== Java Config
 
-```java
+[source,java]
+----
 @Bean
 @StepScope
 public PoiItemReader excelReader() {
@@ -41,32 +43,34 @@ public PoiItemReader excelReader() {
 public RowMapper rowMapper() {
     return new PassThroughRowMapper();
 }
-```
+----
 
-## Configuration of `StreamingXlsxItemReader`
+== Configuration of `StreamingXlsxItemReader`
 
 Configuration can be done in XML or Java Config.
 
-### XML
+=== XML
 
-```xml
+[source,xml]
+----
  <bean id="excelReader" class="org.springframework.batch.extensions.excel.streaming.StreamingXlsxItemReader" scope="step">
      <property name="resource" value="file:/path/to/your/excel/file" />
      <property name="rowMapper">
          <bean class="org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper" />
      </property>
  </bean>
-```
+----
 
-### Java Config
+=== Java Config
 
-```java
+[source,java]
+----
 @Bean
 @StepScope
-public StreamingXlsxItemReader excelReader() {
+public StreamingXlsxItemReader excelReader(RowMapper rowMapper) {
     StreamingXlsxItemReader reader = new StreamingXlsxItemReader();
     reader.setResource(new FileSystemResource("/path/to/your/excel/file"));
-    reader.setRowMapper(rowMapper());
+    reader.setRowMapper(rowMapper);
     return reader;
 }
 
@@ -74,10 +78,10 @@ public StreamingXlsxItemReader excelReader() {
 public RowMapper rowMapper() {
     return new PassThroughRowMapper();
 }
-```
+----
 
 
-## Configuration properties
+== Configuration properties
 [cols="1,1,1,4"]
 .Properties for item readers
 |===
@@ -91,28 +95,30 @@ public RowMapper rowMapper() {
 | `rowSetFactory` | no | `DefaultRowSetFactory` | For reading rows a `RowSet` abstraction is used. To construct a `RowSet` for the current `Sheet` a `RowSetFactory` is needed. The `DefaultRowSetFactory` constructs a `DefaultRowSet` and `DefaultRowSetMetaData`. For construction of the latter a `ColumnNameExtractor` is needed. At the moment there are 2 implementations
 | `skippedRowsCallback` | no | `null` | When rows are skipped an optional `RowCallbackHandler` is called with the skipped row. This comes in handy when one needs to write the skipped rows to another file or create some logging.
 | `strict` | no | `true` | This controls wether or not an exception is thrown if the file doesn't exists or isn't readable, by default an exception will be thrown.
-| `datesAsIso` | no | `false` | Controls if dates need to be parsed as ISO or to use the format as specified in the excel sheet. *NOTE:* Only for the `PoiItemReader` **not** the `StreamingXlsxReader`!
+| `datesAsIso` | no | `false` | Controls if dates need to be parsed as ISO or to use the format as specified in the excel sheet.
+| `userLocale` | no | `null` | Set the `java.util.Locale` to use when formatting dates when there is no explicit format set in the Excel document.
 |===
 
- - `StaticColumnNameExtractor` uses a preset list of column names.
+- `StaticColumnNameExtractor` uses a preset list of column names.
  - `RowNumberColumnNameExtractor` (**the default**) reads a given row (default 0) to determine the column names of the current sheet
 
-## RowMappers
+== RowMappers
 To map a read row a `RowMapper` is needed. Out-of-the-box there are 2 implementations. The `PassThroughRowMapper` and `BeanWrapperRowMapper`.
 
-### PassThroughRowMapper
+=== PassThroughRowMapper
 Transforms the read row from excel into a `String[]`.
 
-### BeanWrapperRowMapper
+=== BeanWrapperRowMapper
 Uses a `BeanWrapper` to convert a given row into an object. Uses the column names of the given `RowSet` to map column to properties of the `targetType` or prototype bean.
 
-```java
+[source,xml]
+----
 <bean id="excelReader" class="org.springframework.batch.extensions.excel.poi.PoiItemReader" scope="step">
     <property name="resource" value="file:/path/to/your/excel/file" />
     <property name="rowMapper">
         <bean class="org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper">
             <property name="targetType" value="com.your.package.Player" />
-        <bean>
+        </bean>
     </property>
 </bean>
-```
+----
