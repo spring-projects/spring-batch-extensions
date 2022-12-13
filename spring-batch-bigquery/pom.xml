@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependent on Spring Batch core -->
-        <java.version>8</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
