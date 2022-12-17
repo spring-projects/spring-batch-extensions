@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.builder;
+package org.springframework.batch.extensions.bigquery.writer.builder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.DatasetInfo;
-import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.apache.commons.logging.Log;
@@ -32,10 +28,10 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.batch.extensions.bigquery.writer.BigQueryCsvItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryCsvItemWriterBuilder;
 
-import org.springframework.batch.extensions.bigquery.BigQueryItemWriter;
-
-class BigQueryItemWriterBuilderTests {
+class BigQueryCsvItemWriterBuilderTests {
 
     private static final String DATASET_NAME = "my_dataset";
 
@@ -56,11 +52,12 @@ class BigQueryItemWriterBuilderTests {
                 .setFormatOptions(FormatOptions.csv())
                 .build();
 
-        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
+        BigQueryCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
                 .bigQuery(mockedBigQuery)
                 .rowMapper(dto -> convertDtoToCsvByteArray(csvMapper, dto))
                 .writeChannelConfig(writeConfiguration)
                 .datasetInfo(datasetInfo)
+                .jobConsumer(job -> this.logger.debug("Job with id: " + job.getJobId() + " is created"))
                 .build();
 
         writer.afterPropertiesSet();
@@ -78,7 +75,7 @@ class BigQueryItemWriterBuilderTests {
                 .setFormatOptions(FormatOptions.csv())
                 .build();
 
-        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
+        BigQueryCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
                 .bigQuery(mockedBigQuery)
                 .writeChannelConfig(writeConfiguration)
                 .build();
@@ -86,62 +83,6 @@ class BigQueryItemWriterBuilderTests {
         writer.afterPropertiesSet();
 
         Assertions.assertNotNull(writer);
-    }
-
-    /**
-     * Example how JSON writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
-     */
-    @Test
-    void testJsonWriter() {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "json_table"))
-                .setFormatOptions(FormatOptions.json())
-                .setSchema(Schema.of(
-                        Field.newBuilder("name", StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build()
-                ))
-                .build();
-
-        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .rowMapper(dto -> convertDtoToJsonByteArray(objectMapper, dto))
-                .writeChannelConfig(writeConfiguration)
-                .jobConsumer(job -> this.logger.debug("Job with id: " + job.getJobId() + " is created"))
-                .build();
-
-        writer.afterPropertiesSet();
-
-        Assertions.assertNotNull(writer);
-    }
-
-    @Test
-    void testCsvWriterWithJsonMapper() {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-
-        WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "json_table"))
-                .setAutodetect(true)
-                .setFormatOptions(FormatOptions.json())
-                .build();
-
-        BigQueryItemWriter<PersonDto> writer = new BigQueryItemWriterBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .writeChannelConfig(writeConfiguration)
-                .build();
-
-        writer.afterPropertiesSet();
-
-        Assertions.assertNotNull(writer);
-    }
-
-    private byte[] convertDtoToJsonByteArray(ObjectMapper objectMapper, PersonDto dto)  {
-        try {
-            return objectMapper.writeValueAsBytes(dto);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private byte[] convertDtoToCsvByteArray(CsvMapper csvMapper, PersonDto dto) {
@@ -168,7 +109,7 @@ class BigQueryItemWriterBuilderTests {
     }
 
 
-    class PersonDto {
+    static class PersonDto {
 
         private final String name;
 

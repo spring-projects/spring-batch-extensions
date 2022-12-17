@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,62 +14,61 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.builder;
-
-import java.util.function.Consumer;
+package org.springframework.batch.extensions.bigquery.writer.builder;
 
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
-
-import org.springframework.batch.extensions.bigquery.BigQueryItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
+import java.util.function.Consumer;
+
 /**
- * A builder for {@link BigQueryItemWriter}.
+ * A builder for {@link BigQueryJsonItemWriter}.
  *
- * @author Vova Perebykivskyi
- * @since 0.1.0
- * @see BigQueryItemWriter
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryItemWriterBuilderTests.java">Examples</a>
+ * @author Volodymyr Perebykivskyi
+ * @since 0.2.0
+ * @see BigQueryJsonItemWriter
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryJsonItemWriterBuilderTests.java">Examples</a>
  */
-public class BigQueryItemWriterBuilder<T> {
+public class BigQueryJsonItemWriterBuilder<T>  {
 
     private Converter<T, byte[]> rowMapper;
-    private Consumer<Job> jobConsumer;
 
+    private Consumer<Job> jobConsumer;
     private DatasetInfo datasetInfo;
     private WriteChannelConfiguration writeChannelConfig;
     private BigQuery bigQuery;
 
-    public BigQueryItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
+    public BigQueryJsonItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
         this.rowMapper = rowMapper;
         return this;
     }
 
-    public BigQueryItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
+    public BigQueryJsonItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
         this.datasetInfo = datasetInfo;
         return this;
     }
 
-    public BigQueryItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
+    public BigQueryJsonItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
         this.jobConsumer = consumer;
         return this;
     }
 
-    public BigQueryItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
+    public BigQueryJsonItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
         this.writeChannelConfig = configuration;
         return this;
     }
 
-    public BigQueryItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
+    public BigQueryJsonItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
         return this;
     }
 
-    public BigQueryItemWriter<T> build() {
-        BigQueryItemWriter<T> writer = new BigQueryItemWriter<>();
+    public BigQueryJsonItemWriter<T> build() {
+        BigQueryJsonItemWriter<T> writer = new BigQueryJsonItemWriter<>();
 
         writer.setRowMapper(this.rowMapper);
         writer.setWriteChannelConfig(this.writeChannelConfig);
