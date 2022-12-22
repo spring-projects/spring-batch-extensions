@@ -16,16 +16,13 @@
 
 package org.springframework.batch.extensions.bigquery.integration.writer.base;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.cloud.RetryOption;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.DatasetInfo;
-import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.JobStatus;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.StandardTableDefinition;
 import com.google.cloud.bigquery.TableDefinition;
 import com.google.cloud.bigquery.TableId;
@@ -35,33 +32,33 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TestConstants;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
 
 public abstract class BaseBigQueryItemWriterTest {
 
-    protected static final String DATASET = "spring_extensions";
+    private static final String TABLE_PATTERN = "%s_%s";
 
     protected final BigQuery bigQuery = BigQueryOptions.getDefaultInstance().getService();
 
-    private static final String TABLE_PATTERN = "%s_%s";
-
     @BeforeEach
     void prepareTest(TestInfo testInfo) {
-        if (Objects.isNull(bigQuery.getDataset(DATASET))) {
-            bigQuery.create(DatasetInfo.of(DATASET));
+        if (Objects.isNull(bigQuery.getDataset(TestConstants.DATASET))) {
+            bigQuery.create(DatasetInfo.of(TestConstants.DATASET));
         }
 
-        if (Objects.isNull(bigQuery.getTable(DATASET, getTableName(testInfo)))) {
+        if (Objects.isNull(bigQuery.getTable(TestConstants.DATASET, getTableName(testInfo)))) {
             TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            bigQuery.create(TableInfo.of(TableId.of(DATASET, getTableName(testInfo)), tableDefinition));
+            bigQuery.create(TableInfo.of(TableId.of(TestConstants.DATASET, getTableName(testInfo)), tableDefinition));
         }
     }
 
     @AfterEach
     void cleanupTest(TestInfo testInfo) {
-        bigQuery.delete(TableId.of(DATASET, getTableName(testInfo)));
+        bigQuery.delete(TableId.of(TestConstants.DATASET, getTableName(testInfo)));
     }
 
     protected String getTableName(TestInfo testInfo) {
@@ -74,30 +71,20 @@ public abstract class BaseBigQueryItemWriterTest {
 
     protected WriteChannelConfiguration generateConfiguration(TestInfo testInfo, FormatOptions formatOptions) {
         return WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET, getTableName(testInfo)))
+                .newBuilder(TableId.of(TestConstants.DATASET, getTableName(testInfo)))
                 .setSchema(PersonDto.getBigQuerySchema())
                 .setAutodetect(false)
                 .setFormatOptions(formatOptions)
                 .build();
     }
 
+    /** TODO check {@link com.google.cloud.bigquery.Job#waitFor(RetryOption...)} */
     protected void waitForJobToFinish(JobId jobId) {
         JobStatus status = bigQuery.getJob(jobId).getStatus();
 
         while (BooleanUtils.isFalse(JobStatus.State.DONE.equals(status.getState()))) {
             status = bigQuery.getJob(jobId).getStatus();
         }
-    }
-
-    @JsonPropertyOrder(value = {"name", "age"})
-    public record PersonDto(String name, Integer age) {
-
-        public static Schema getBigQuerySchema() {
-            Field nameField = Field.newBuilder("name", StandardSQLTypeName.STRING).build();
-            Field ageField = Field.newBuilder("age", StandardSQLTypeName.INT64).build();
-            return Schema.of(nameField, ageField);
-        }
-
     }
 
 }

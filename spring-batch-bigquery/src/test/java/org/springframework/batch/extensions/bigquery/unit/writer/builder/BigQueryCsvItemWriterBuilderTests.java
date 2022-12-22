@@ -27,13 +27,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryCsvItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryCsvItemWriterBuilder;
 
 class BigQueryCsvItemWriterBuilderTests extends AbstractBigQueryTest {
 
-    private static final String DATASET_NAME = "my_dataset";
+    private static final String TABLE = "persons_csv";
 
     private final Log logger = LogFactory.getLog(getClass());
 
@@ -44,10 +46,10 @@ class BigQueryCsvItemWriterBuilderTests extends AbstractBigQueryTest {
     void testCsvWriterWithRowMapper() {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
         CsvMapper csvMapper = new CsvMapper();
-        DatasetInfo datasetInfo = DatasetInfo.newBuilder(DATASET_NAME).setLocation("europe-west-2").build();
+        DatasetInfo datasetInfo = DatasetInfo.newBuilder(TestConstants.DATASET).setLocation("europe-west-2").build();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(datasetInfo.getDatasetId().getDataset(), "csv_table"))
+                .newBuilder(TableId.of(datasetInfo.getDatasetId().getDataset(), TABLE))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.csv())
                 .build();
@@ -70,7 +72,7 @@ class BigQueryCsvItemWriterBuilderTests extends AbstractBigQueryTest {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "csv_table"))
+                .newBuilder(TableId.of(TestConstants.DATASET, TABLE))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.csv())
                 .build();
