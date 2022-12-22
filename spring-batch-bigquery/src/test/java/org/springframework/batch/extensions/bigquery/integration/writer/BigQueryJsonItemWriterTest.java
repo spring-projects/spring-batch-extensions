@@ -18,8 +18,6 @@ package org.springframework.batch.extensions.bigquery.integration.writer;
 
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
@@ -28,35 +26,23 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
+import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.integration.writer.base.BaseBigQueryItemWriterTest;
-import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
-import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
 import org.springframework.batch.item.Chunk;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 @Tag("json")
 public class BigQueryJsonItemWriterTest extends BaseBigQueryItemWriterTest {
 
     @Test
     void test1(TestInfo testInfo) throws Exception {
-        AtomicReference<JobId> jobId = new AtomicReference<>();
+        String tableName = getTableName(testInfo);
+        new BigQueryDataLoader(bigQuery).loadJsonSample(tableName);
+        Chunk<PersonDto> chunk = BigQueryDataLoader.CHUNK;
 
-        BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(bigQuery)
-                .writeChannelConfig(generateConfiguration(testInfo, FormatOptions.json()))
-                .jobConsumer(j -> jobId.set(j.getJobId()))
-                .build();
-
-        writer.afterPropertiesSet();
-
-        Chunk<PersonDto> chunk = Chunk.of(new PersonDto("Viktor", 57), new PersonDto("Nina", 57));
-        writer.write(chunk);
-
-        waitForJobToFinish(jobId.get());
-
-        Dataset dataset = bigQuery.getDataset(DATASET);
-        Table table = bigQuery.getTable(TableId.of(DATASET, getTableName(testInfo)));
+        Dataset dataset = bigQuery.getDataset(TestConstants.DATASET);
+        Table table = bigQuery.getTable(TableId.of(TestConstants.DATASET, tableName));
         TableId tableId = table.getTableId();
         TableResult tableResult = bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(2L));
 

@@ -19,6 +19,4 @@ public abstract class AbstractBigQueryTest {
         return mockedBigQuery;
     }
 
-    public record PersonDto(String name) {}
-
 }

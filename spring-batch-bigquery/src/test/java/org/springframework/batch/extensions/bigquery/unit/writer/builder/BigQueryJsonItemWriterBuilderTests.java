@@ -29,13 +29,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
 
 class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
-
-    private static final String DATASET_NAME = "my_dataset";
 
     private final Log logger = LogFactory.getLog(getClass());
 
@@ -48,7 +48,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "json_table"))
+                .newBuilder(TableId.of(TestConstants.DATASET, "persons_json"))
                 .setFormatOptions(FormatOptions.json())
                 .setSchema(Schema.of(
                         Field.newBuilder("name", StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build()
@@ -72,7 +72,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(DATASET_NAME, "json_table"))
+                .newBuilder(TableId.of(TestConstants.DATASET, "persons_json"))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.json())
                 .build();
