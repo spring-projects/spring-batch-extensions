@@ -32,6 +32,9 @@
  * Take into account that BigQuery has rate limits, and it is very easy to exceed those in concurrent environment.
  * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas &amp; Limits</a>
  *
+ * Also worth mentioning that you should ensure ordering of the fields in DTO that you are going to send to the BigQuery.
+ * In case of CSV/JSON and Jackson consider using {@link com.fasterxml.jackson.annotation.JsonPropertyOrder}.
+ *
  * @author Volodymyr Perebykivskyi
  * @since 0.1.0
  * @see <a href="https://cloud.google.com/bigquery/">Google BigQuery</a>
