@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.unit.base;
+package org.springframework.batch.extensions.bigquery.integration.base;
 
 import com.google.cloud.bigquery.BigQuery;
-import org.mockito.Mockito;
+import com.google.cloud.bigquery.BigQueryOptions;
+import org.junit.jupiter.api.TestInfo;
 
-public abstract class AbstractBigQueryTest {
+import java.lang.reflect.Method;
 
-    protected BigQuery prepareMockedBigQuery() {
-        BigQuery mockedBigQuery = Mockito.mock(BigQuery.class);
+public abstract class BaseBigQueryIntegrationTest {
 
-        Mockito
-                .when(mockedBigQuery.getTable(Mockito.any()))
-                .thenReturn(null);
+    private static final String TABLE_PATTERN = "%s_%s";
 
-        Mockito
-                .when(mockedBigQuery.getDataset(Mockito.anyString()))
-                .thenReturn(null);
+    public final BigQuery bigQuery = BigQueryOptions.getDefaultInstance().getService();
 
-        return mockedBigQuery;
+    protected String getTableName(TestInfo testInfo) {
+        return String.format(
+                TABLE_PATTERN,
+                testInfo.getTags().stream().findFirst().orElseThrow(),
+                testInfo.getTestMethod().map(Method::getName).orElseThrow()
+        );
     }
-
 }

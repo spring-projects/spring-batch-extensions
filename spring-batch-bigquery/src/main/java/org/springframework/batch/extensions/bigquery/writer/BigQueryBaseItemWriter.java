@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Base class that holds shared code for JSON and CSV writers.
+ *
+ * @param <T> your DTO type
+ * @author Volodymyr Perebykivskyi
+ * @since 0.1.0
+ */
 public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
+    /** Logger that can be reused */
     protected final Log logger = LogFactory.getLog(getClass());
     private final AtomicLong bigQueryWriteCounter = new AtomicLong();
+
+    /**
+     * Describes what should be written (format) and its destination (table).
+     */
+    protected WriteChannelConfiguration writeChannelConfig;
 
     /**
      * You can specify here some specific dataset configuration, like location.
@@ -60,25 +73,50 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
      */
     private Consumer<Job> jobConsumer;
 
-    protected WriteChannelConfiguration writeChannelConfig;
     private BigQuery bigQuery;
 
+
+    /**
+     * Fetches table from provided configuration.
+     *
+     * @return {@link Table} that is described in {@link BigQueryBaseItemWriter#writeChannelConfig}
+     */
     protected Table getTable() {
         return this.bigQuery.getTable(this.writeChannelConfig.getDestinationTable());
     }
 
+    /**
+     * Provides additional information about the {@link com.google.cloud.bigquery.Dataset}.
+     *
+     * @param datasetInfo BigQuery dataset info
+     */
     public void setDatasetInfo(DatasetInfo datasetInfo) {
         this.datasetInfo = datasetInfo;
     }
 
+    /**
+     * Callback when {@link Job} will be finished.
+     *
+     * @param consumer your consumer
+     */
     public void setJobConsumer(Consumer<Job> consumer) {
         this.jobConsumer = consumer;
     }
 
+    /**
+     * Describes what should be written (format) and its destination (table).
+     *
+     * @param writeChannelConfig BigQuery channel configuration
+     */
     public void setWriteChannelConfig(WriteChannelConfiguration writeChannelConfig) {
         this.writeChannelConfig = writeChannelConfig;
     }
 
+    /**
+     * BigQuery service, responsible for API calls.
+     *
+     * @param bigQuery BigQuery service
+     */
     public void setBigQuery(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
     }
@@ -153,6 +191,11 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         return this.bigQuery.writer(this.writeChannelConfig);
     }
 
+    /**
+     * Performs common validation for CSV and JSON types.
+     *
+     * @param formatSpecificChecks supplies type-specific validation
+     */
     protected void baseAfterPropertiesSet(Supplier<Void> formatSpecificChecks) {
         Assert.notNull(this.bigQuery, "BigQuery service must be provided");
         Assert.notNull(this.writeChannelConfig, "Write channel configuration must be provided");
@@ -220,14 +263,13 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         return FormatOptions.datastoreBackup().getType().equals(this.writeChannelConfig.getFormat());
     }
 
-    protected boolean isCsv() {
-        return FormatOptions.csv().getType().equals(this.writeChannelConfig.getFormat());
-    }
-
-    protected boolean isJson() {
-        return FormatOptions.json().getType().equals(this.writeChannelConfig.getFormat());
-    }
-
+    /**
+     * Schema can be computed on BigQuery side during upload,
+     * so it is good to know when schema is supplied by user manually.
+     *
+     * @param table BigQuery table
+     * @return {@code true} if BigQuery {@link Table} has schema already described
+     */
     protected boolean tableHasDefinedSchema(Table table) {
         return Optional
                 .ofNullable(table)
@@ -237,7 +279,20 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
                 .isPresent();
     }
 
+    /**
+     * Method that setting up metadata about chunk that is being processed. In reality is called once.
+     *
+     * @param items current chunk
+     */
     protected abstract void doInitializeProperties(List<? extends T> items);
+
+    /**
+     * Converts chunk into byte array.
+     * Each data type should be converted with respect to its specification.
+     *
+     * @param items current chunk
+     * @return {@link List<byte[]>} converted list of byte arrays
+     */
     protected abstract List<byte[]> convertObjectsToByteArrays(List<? extends T> items);
 
 }

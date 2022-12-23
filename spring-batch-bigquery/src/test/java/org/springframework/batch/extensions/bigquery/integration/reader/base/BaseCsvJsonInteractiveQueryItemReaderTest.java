@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.integration.writer.base;
+package org.springframework.batch.extensions.bigquery.integration.reader.base;
 
 import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.StandardTableDefinition;
@@ -30,7 +30,7 @@ import org.springframework.batch.extensions.bigquery.integration.base.BaseBigQue
 
 import java.util.Objects;
 
-public abstract class BaseBigQueryItemWriterTest extends BaseBigQueryIntegrationTest {
+public abstract class BaseCsvJsonInteractiveQueryItemReaderTest extends BaseBigQueryIntegrationTest {
 
     @BeforeEach
     void prepareTest(TestInfo testInfo) {
@@ -38,9 +38,11 @@ public abstract class BaseBigQueryItemWriterTest extends BaseBigQueryIntegration
             bigQuery.create(DatasetInfo.of(TestConstants.DATASET));
         }
 
-        if (Objects.isNull(bigQuery.getTable(TestConstants.DATASET, getTableName(testInfo)))) {
+        String tableName = getTableName(testInfo);
+
+        if (Objects.isNull(bigQuery.getTable(TestConstants.DATASET, tableName))) {
             TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            bigQuery.create(TableInfo.of(TableId.of(TestConstants.DATASET, getTableName(testInfo)), tableDefinition));
+            bigQuery.create(TableInfo.of(TableId.of(TestConstants.DATASET, tableName), tableDefinition));
         }
     }
 

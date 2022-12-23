@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,25 @@ import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryCsvI
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
 import org.springframework.batch.item.Chunk;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 public class BigQueryDataLoader {
 
-    public static final Chunk<PersonDto> CHUNK = Chunk.of(
-            new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26)
-    );
+    /** Order must be defined so later executed queries results could be predictable */
+    private static final List<PersonDto> PERSONS = Stream
+            .of(new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26))
+            .sorted(Comparator.comparing(PersonDto::name))
+            .toList();
+
+    public static final Chunk<PersonDto> CHUNK = new Chunk<>(PERSONS);
 
     private final BigQuery bigQuery;
 
     public BigQueryDataLoader(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
-    }
-
-
-    public void loadCsvSample() throws Exception {
-        loadCsvSample(TestConstants.PERSONS_TABLE);
     }
 
     public void loadCsvSample(String tableName) throws Exception {

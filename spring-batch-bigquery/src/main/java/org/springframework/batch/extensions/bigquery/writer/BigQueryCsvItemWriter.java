@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * CSV writer for BigQuery.
+ *
+ * @param <T> your DTO type
+ * @author Volodymyr Perebykivskyi
+ * @since 0.2.0
+ * @see <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV</a>
+ */
 public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implements InitializingBean {
 
-    protected Converter<T, byte[]> rowMapper;
-    protected ObjectWriter objectWriter;
-    protected Class itemClass;
+    private Converter<T, byte[]> rowMapper;
+    private ObjectWriter objectWriter;
+    private Class itemClass;
 
     /**
      * Actual type of incoming data can be obtained only in runtime
@@ -55,6 +63,11 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
         }
     }
 
+    /**
+     * Row mapper which transforms single BigQuery row into desired type.
+     *
+     * @param rowMapper your row mapper
+     */
     public void setRowMapper(Converter<T, byte[]> rowMapper) {
         this.rowMapper = rowMapper;
     }
@@ -96,7 +109,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
         });
     }
 
-    protected byte[] mapItemToCsv(T t) {
+    private byte[] mapItemToCsv(T t) {
         byte[] result = null;
         try {
             result = Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
