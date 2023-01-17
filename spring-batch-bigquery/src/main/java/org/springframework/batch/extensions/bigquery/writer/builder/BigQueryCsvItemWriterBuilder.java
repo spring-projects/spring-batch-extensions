@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import java.util.function.Consumer;
 /**
  * A builder for {@link BigQueryCsvItemWriter}.
  *
+ * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see BigQueryCsvItemWriter
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryCsvItemWriterBuilderTests.java">Examples</a>
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/builder/BigQueryCsvItemWriterBuilderTests.java">Examples</a>
  */
 public class BigQueryCsvItemWriterBuilder<T>  {
 
@@ -42,31 +42,71 @@ public class BigQueryCsvItemWriterBuilder<T>  {
     private WriteChannelConfiguration writeChannelConfig;
     private BigQuery bigQuery;
 
+    /**
+     * Row mapper which transforms single BigQuery row into desired type.
+     *
+     * @param rowMapper your row mapper
+     * @return {@link BigQueryCsvItemWriterBuilder}
+     * @see BigQueryCsvItemWriter#setRowMapper(Converter)
+     */
     public BigQueryCsvItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
         this.rowMapper = rowMapper;
         return this;
     }
 
+    /**
+     * Provides additional information about the {@link com.google.cloud.bigquery.Dataset}.
+     *
+     * @param datasetInfo BigQuery dataset info
+     * @return {@link BigQueryCsvItemWriterBuilder}
+     * @see BigQueryCsvItemWriter#setDatasetInfo(DatasetInfo)
+     */
     public BigQueryCsvItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
         this.datasetInfo = datasetInfo;
         return this;
     }
 
+    /**
+     * Callback when {@link Job} will be finished.
+     *
+     * @param consumer your consumer
+     * @return {@link BigQueryCsvItemWriterBuilder}
+     * @see BigQueryCsvItemWriter#setJobConsumer(Consumer)
+     */
     public BigQueryCsvItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
         this.jobConsumer = consumer;
         return this;
     }
 
+    /**
+     * Describes what should be written (format) and its destination (table).
+     *
+     * @param configuration BigQuery channel configuration
+     * @return {@link BigQueryCsvItemWriterBuilder}
+     * @see BigQueryCsvItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
+     */
     public BigQueryCsvItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
         this.writeChannelConfig = configuration;
         return this;
     }
 
+    /**
+     * BigQuery service, responsible for API calls.
+     *
+     * @param bigQuery BigQuery service
+     * @return {@link BigQueryCsvItemWriterBuilder}
+     * @see BigQueryCsvItemWriter#setBigQuery(BigQuery)
+     */
     public BigQueryCsvItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
         return this;
     }
 
+    /**
+     * Please do not forget about {@link BigQueryCsvItemWriter#afterPropertiesSet()}.
+     *
+     * @return {@link BigQueryCsvItemWriter}
+     */
     public BigQueryCsvItemWriter<T> build() {
         BigQueryCsvItemWriter<T> writer = new BigQueryCsvItemWriter<>();
 

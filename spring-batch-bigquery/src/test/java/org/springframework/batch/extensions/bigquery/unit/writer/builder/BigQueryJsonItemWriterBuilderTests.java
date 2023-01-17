@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,8 @@ import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJson
 
 class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
 
+    private static final String TABLE = "persons_json";
+
     private final Log logger = LogFactory.getLog(getClass());
 
     /**
@@ -48,7 +50,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, "persons_json"))
+                .newBuilder(TableId.of(TestConstants.DATASET, TABLE))
                 .setFormatOptions(FormatOptions.json())
                 .setSchema(Schema.of(
                         Field.newBuilder("name", StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build()
@@ -59,7 +61,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
                 .bigQuery(mockedBigQuery)
                 .rowMapper(dto -> convertDtoToJsonByteArray(objectMapper, dto))
                 .writeChannelConfig(writeConfiguration)
-                .jobConsumer(job -> this.logger.debug("Job with id: " + job.getJobId() + " is created"))
+                .jobConsumer(job -> this.logger.debug("Job with id: {}" + job.getJobId() + " is created"))
                 .build();
 
         writer.afterPropertiesSet();
@@ -72,7 +74,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, "persons_json"))
+                .newBuilder(TableId.of(TestConstants.DATASET, TABLE))
                 .setAutodetect(true)
                 .setFormatOptions(FormatOptions.json())
                 .build();

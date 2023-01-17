@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,19 @@
 
 package org.springframework.batch.extensions.bigquery.common;
 
-public class TestConstants {
+import com.google.cloud.bigquery.FieldValueList;
+import org.springframework.core.convert.converter.Converter;
+
+public final class TestConstants {
 
     private TestConstants() {}
 
     public static final String DATASET = "spring_batch_extensions";
-    public static final String PERSONS_TABLE = "persons";
+    public static final String NAME = "name";
+    public static final String AGE = "age";
+
+    public static final Converter<FieldValueList, PersonDto> PERSON_MAPPER = res -> new PersonDto(
+            res.get(NAME).getStringValue(), Long.valueOf(res.get(AGE).getLongValue()).intValue()
+    );
 
 }

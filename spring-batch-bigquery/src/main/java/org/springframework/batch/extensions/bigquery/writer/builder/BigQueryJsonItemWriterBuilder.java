@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import java.util.function.Consumer;
 /**
  * A builder for {@link BigQueryJsonItemWriter}.
  *
+ * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see BigQueryJsonItemWriter
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/builder/BigQueryJsonItemWriterBuilderTests.java">Examples</a>
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/builder/BigQueryJsonItemWriterBuilderTests.java">Examples</a>
  */
 public class BigQueryJsonItemWriterBuilder<T>  {
 
@@ -42,31 +42,71 @@ public class BigQueryJsonItemWriterBuilder<T>  {
     private WriteChannelConfiguration writeChannelConfig;
     private BigQuery bigQuery;
 
+    /**
+     * Converts your DTO into byte array.
+     *
+     * @param rowMapper your mapping
+     * @return {@link BigQueryJsonItemWriter}
+     * @see BigQueryJsonItemWriter#setRowMapper(Converter)
+     */
     public BigQueryJsonItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
         this.rowMapper = rowMapper;
         return this;
     }
 
+    /**
+     * Provides additional information about the {@link com.google.cloud.bigquery.Dataset}.
+     *
+     * @param datasetInfo BigQuery dataset info
+     * @return {@link BigQueryJsonItemWriter}
+     * @see BigQueryJsonItemWriter#setDatasetInfo(DatasetInfo)
+     */
     public BigQueryJsonItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
         this.datasetInfo = datasetInfo;
         return this;
     }
 
+    /**
+     * Callback when {@link Job} will be finished.
+     *
+     * @param consumer your consumer
+     * @return {@link BigQueryJsonItemWriter}
+     * @see BigQueryJsonItemWriter#setJobConsumer(Consumer)
+     */
     public BigQueryJsonItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
         this.jobConsumer = consumer;
         return this;
     }
 
+    /**
+     * Describes what should be written (format) and its destination (table).
+     *
+     * @param configuration BigQuery channel configuration
+     * @return {@link BigQueryJsonItemWriter}
+     * @see BigQueryJsonItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
+     */
     public BigQueryJsonItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
         this.writeChannelConfig = configuration;
         return this;
     }
 
+    /**
+     * BigQuery service, responsible for API calls.
+     *
+     * @param bigQuery BigQuery service
+     * @return {@link BigQueryJsonItemWriter}
+     * @see BigQueryJsonItemWriter#setBigQuery(BigQuery)
+     */
     public BigQueryJsonItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
         return this;
     }
 
+    /**
+     * Please do not forget about {@link BigQueryJsonItemWriter#afterPropertiesSet()}.
+     *
+     * @return {@link BigQueryJsonItemWriter}
+     */
     public BigQueryJsonItemWriter<T> build() {
         BigQueryJsonItemWriter<T> writer = new BigQueryJsonItemWriter<>();
 
