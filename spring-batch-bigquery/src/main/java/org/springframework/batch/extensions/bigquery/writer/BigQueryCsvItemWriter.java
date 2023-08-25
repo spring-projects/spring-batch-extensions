@@ -30,6 +30,7 @@ import org.springframework.util.ObjectUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +81,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
                 .map(this::mapItemToCsv)
                 .filter(ArrayUtils::isNotEmpty)
                 .map(String::new)
-                .filter(value -> !ObjectUtils.isEmpty(value))
+                .filter(Predicate.not(ObjectUtils::isEmpty))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8))
                 .collect(Collectors.toList());
     }
@@ -110,14 +111,13 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
     }
 
     private byte[] mapItemToCsv(T t) {
-        byte[] result = null;
         try {
-            result = Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+            return Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
         }
         catch (JsonProcessingException e) {
             logger.error("Error during processing of the line: ", e);
+            return null;
         }
-        return result;
     }
 
 }
