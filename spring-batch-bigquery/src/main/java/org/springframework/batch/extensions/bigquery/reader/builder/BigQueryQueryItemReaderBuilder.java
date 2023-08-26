@@ -20,21 +20,21 @@ import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.batch.extensions.bigquery.reader.BigQueryInteractiveQueryItemReader;
+import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
 import java.util.Objects;
 
 /**
- * A builder for {@link BigQueryInteractiveQueryItemReader}.
+ * A builder for {@link BigQueryQueryItemReader}.
  *
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
  * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/reader/builder/BigQueryInteractiveQueryItemReaderBuilderTests.java">Examples</a>
  */
-public class BigQueryInteractiveQueryItemReaderBuilder<T> {
+public class BigQueryQueryItemReaderBuilder<T> {
 
     private BigQuery bigQuery;
     private String query;
@@ -45,10 +45,10 @@ public class BigQueryInteractiveQueryItemReaderBuilder<T> {
      * BigQuery service, responsible for API calls.
      *
      * @param bigQuery BigQuery service
-     * @return {@link BigQueryInteractiveQueryItemReaderBuilder}
-     * @see BigQueryInteractiveQueryItemReader#setBigQuery(BigQuery)
+     * @return {@link BigQueryQueryItemReaderBuilder}
+     * @see BigQueryQueryItemReader#setBigQuery(BigQuery)
      */
-    public BigQueryInteractiveQueryItemReaderBuilder<T> bigQuery(BigQuery bigQuery) {
+    public BigQueryQueryItemReaderBuilder<T> bigQuery(BigQuery bigQuery) {
         this.bigQuery = bigQuery;
         return this;
     }
@@ -60,10 +60,10 @@ public class BigQueryInteractiveQueryItemReaderBuilder<T> {
      * because BigQuery charges you for the amount of data that is being processed.
      *
      * @param query your query to run
-     * @return {@link BigQueryInteractiveQueryItemReaderBuilder}
-     * @see BigQueryInteractiveQueryItemReader#setJobConfiguration(QueryJobConfiguration)
+     * @return {@link BigQueryQueryItemReaderBuilder}
+     * @see BigQueryQueryItemReader#setJobConfiguration(QueryJobConfiguration)
      */
-    public BigQueryInteractiveQueryItemReaderBuilder<T> query(String query) {
+    public BigQueryQueryItemReaderBuilder<T> query(String query) {
         this.query = query;
         return this;
     }
@@ -72,10 +72,10 @@ public class BigQueryInteractiveQueryItemReaderBuilder<T> {
      * Row mapper which transforms single BigQuery row into desired type.
      *
      * @param rowMapper your row mapper
-     * @return {@link BigQueryInteractiveQueryItemReaderBuilder}
-     * @see BigQueryInteractiveQueryItemReader#setRowMapper(Converter)
+     * @return {@link BigQueryQueryItemReaderBuilder}
+     * @see BigQueryQueryItemReader#setRowMapper(Converter)
      */
-    public BigQueryInteractiveQueryItemReaderBuilder<T> rowMapper(Converter<FieldValueList, T> rowMapper) {
+    public BigQueryQueryItemReaderBuilder<T> rowMapper(Converter<FieldValueList, T> rowMapper) {
         this.rowMapper = rowMapper;
         return this;
     }
@@ -84,21 +84,21 @@ public class BigQueryInteractiveQueryItemReaderBuilder<T> {
      * Specifies query to run, destination table, etc.
      *
      * @param jobConfiguration BigQuery job configuration
-     * @return {@link BigQueryInteractiveQueryItemReaderBuilder}
-     * @see BigQueryInteractiveQueryItemReader#setJobConfiguration(QueryJobConfiguration)
+     * @return {@link BigQueryQueryItemReaderBuilder}
+     * @see BigQueryQueryItemReader#setJobConfiguration(QueryJobConfiguration)
      */
-    public BigQueryInteractiveQueryItemReaderBuilder<T> jobConfiguration(QueryJobConfiguration jobConfiguration) {
+    public BigQueryQueryItemReaderBuilder<T> jobConfiguration(QueryJobConfiguration jobConfiguration) {
         this.jobConfiguration = jobConfiguration;
         return this;
     }
 
     /**
-     * Please do not forget about {@link BigQueryInteractiveQueryItemReader#afterPropertiesSet()}.
+     * Please do not forget about {@link BigQueryQueryItemReader#afterPropertiesSet()}.
      *
-     * @return {@link BigQueryInteractiveQueryItemReader}
+     * @return {@link BigQueryQueryItemReader}
      */
-    public BigQueryInteractiveQueryItemReader<T> build() {
-        BigQueryInteractiveQueryItemReader<T> reader = new BigQueryInteractiveQueryItemReader<>();
+    public BigQueryQueryItemReader<T> build() {
+        BigQueryQueryItemReader<T> reader = new BigQueryQueryItemReader<>();
 
         reader.setBigQuery(this.bigQuery);
         reader.setRowMapper(this.rowMapper);

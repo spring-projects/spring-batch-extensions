@@ -25,8 +25,8 @@ import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.integration.reader.base.BaseCsvJsonInteractiveQueryItemReaderTest;
-import org.springframework.batch.extensions.bigquery.reader.BigQueryInteractiveQueryItemReader;
-import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryInteractiveQueryItemReaderBuilder;
+import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
+import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryQueryItemReaderBuilder;
 import org.springframework.batch.item.Chunk;
 
 @Tag("csv")
@@ -38,7 +38,7 @@ public class BigQueryInteractiveQueryCsvItemReaderTest extends BaseCsvJsonIntera
         new BigQueryDataLoader(bigQuery).loadCsvSample(tableName);
         Chunk<PersonDto> chunk = BigQueryDataLoader.CHUNK;
 
-        BigQueryInteractiveQueryItemReader<PersonDto> reader = new BigQueryInteractiveQueryItemReaderBuilder<PersonDto>()
+        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
                 .bigQuery(bigQuery)
                 .query(String.format("SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2", tableName))
                 .rowMapper(TestConstants.PERSON_MAPPER)
