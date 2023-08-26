@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.integration.reader;
+package org.springframework.batch.extensions.bigquery.integration.reader.batch;
 
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.TableId;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -25,23 +27,29 @@ import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.integration.reader.base.BaseCsvJsonInteractiveQueryItemReaderTest;
-import org.springframework.batch.extensions.bigquery.reader.BigQueryInteractiveQueryItemReader;
-import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryInteractiveQueryItemReaderBuilder;
+import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
+import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryQueryItemReaderBuilder;
 import org.springframework.batch.item.Chunk;
 
-@Tag("json")
-public class BigQueryInteractiveQueryJsonItemReaderTest extends BaseCsvJsonInteractiveQueryItemReaderTest {
+@Tag("csv")
+public class BigQueryBatchQueryCsvItemReaderTest extends BaseCsvJsonInteractiveQueryItemReaderTest {
 
     @Test
-    void interactiveQueryTest1(TestInfo testInfo) throws Exception {
+    void batchQueryTest1(TestInfo testInfo) throws Exception {
         String tableName = getTableName(testInfo);
-        new BigQueryDataLoader(bigQuery).loadJsonSample(tableName);
+        new BigQueryDataLoader(bigQuery).loadCsvSample(tableName);
         Chunk<PersonDto> chunk = BigQueryDataLoader.CHUNK;
 
-        BigQueryInteractiveQueryItemReader<PersonDto> reader = new BigQueryInteractiveQueryItemReaderBuilder<PersonDto>()
+        QueryJobConfiguration jobConfiguration = QueryJobConfiguration
+                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2")
+                .setDestinationTable(TableId.of(TestConstants.DATASET, tableName))
+                .setPriority(QueryJobConfiguration.Priority.BATCH)
+                .build();
+
+        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
                 .bigQuery(bigQuery)
-                .query(String.format("SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2", tableName))
                 .rowMapper(TestConstants.PERSON_MAPPER)
+                .jobConfiguration(jobConfiguration)
                 .build();
 
         reader.afterPropertiesSet();

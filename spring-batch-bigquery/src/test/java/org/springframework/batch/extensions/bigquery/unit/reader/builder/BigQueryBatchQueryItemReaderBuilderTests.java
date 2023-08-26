@@ -23,26 +23,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
-import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
 import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryQueryItemReaderBuilder;
+import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 
-class BigQueryInteractiveQueryItemReaderBuilderTests extends AbstractBigQueryTest {
-
-    @Test
-    void testSimpleQueryItemReader() {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .query("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1")
-                .rowMapper(TestConstants.PERSON_MAPPER)
-                .build();
-
-        reader.afterPropertiesSet();
-
-        Assertions.assertNotNull(reader);
-    }
+class BigQueryBatchQueryItemReaderBuilderTests extends AbstractBigQueryTest {
 
     @Test
     void testCustomQueryItemReader() {
@@ -51,6 +36,7 @@ class BigQueryInteractiveQueryItemReaderBuilderTests extends AbstractBigQueryTes
         QueryJobConfiguration jobConfiguration = QueryJobConfiguration
                 .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 2")
                 .setDestinationTable(TableId.of(TestConstants.DATASET, "persons_duplicate"))
+                .setPriority(QueryJobConfiguration.Priority.BATCH)
                 .build();
 
         BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()

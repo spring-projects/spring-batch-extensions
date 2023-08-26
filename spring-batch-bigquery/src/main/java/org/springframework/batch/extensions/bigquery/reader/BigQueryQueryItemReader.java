@@ -43,9 +43,10 @@ import java.util.Objects;
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
  * @see <a href="https://cloud.google.com/bigquery/docs/running-queries#queries">Interactive queries</a>
+ * @see <a href="https://cloud.google.com/bigquery/docs/running-queries#batch">Batch queries</a>
  * @see <a href="https://cloud.google.com/bigquery/quotas#concurrent_rate_interactive_queries">Concurrency limits</a>
  */
-public class BigQueryInteractiveQueryItemReader<T> implements ItemReader<T>, InitializingBean {
+public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBean {
 
     private final Log logger = LogFactory.getLog(getClass());
 
