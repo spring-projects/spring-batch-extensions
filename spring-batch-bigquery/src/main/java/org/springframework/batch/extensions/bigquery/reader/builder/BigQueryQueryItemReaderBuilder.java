@@ -33,6 +33,7 @@ import java.util.Objects;
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
  * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/reader/builder/BigQueryInteractiveQueryItemReaderBuilderTests.java">Examples</a>
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/reader/builder/BigQueryBatchQueryItemReaderBuilderTests.java">Examples</a>
  */
 public class BigQueryQueryItemReaderBuilder<T> {
 
