@@ -35,7 +35,7 @@ import org.springframework.batch.item.Chunk;
 public class BigQueryBatchQueryJsonItemReaderTest extends BaseCsvJsonInteractiveQueryItemReaderTest {
 
     @Test
-    void interactiveQueryTest1(TestInfo testInfo) throws Exception {
+    void batchQueryTest1(TestInfo testInfo) throws Exception {
         String tableName = getTableName(testInfo);
         new BigQueryDataLoader(bigQuery).loadJsonSample(tableName);
         Chunk<PersonDto> chunk = BigQueryDataLoader.CHUNK;
