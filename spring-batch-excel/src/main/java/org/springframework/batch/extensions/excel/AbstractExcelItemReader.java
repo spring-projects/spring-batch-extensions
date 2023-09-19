@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2021 the original author or authors.
+ * Copyright 2006-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.springframework.batch.extensions.excel;
 
+import java.util.Locale;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.usermodel.DataFormatter;
 
 import org.springframework.batch.extensions.excel.support.rowset.DefaultRowSetFactory;
 import org.springframework.batch.extensions.excel.support.rowset.RowSet;
@@ -64,6 +67,12 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	private RowSet rs;
 
 	private String password;
+
+	private boolean datesAsIso = false;
+
+	private Locale userLocale;
+
+	private DataFormatter dataFormatter;
 
 	public AbstractExcelItemReader() {
 		super();
@@ -213,6 +222,16 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.rowMapper, "RowMapper must be set");
+		if (this.datesAsIso) {
+			this.dataFormatter = (this.userLocale != null) ? new IsoFormattingDateDataFormatter(this.userLocale) : new IsoFormattingDateDataFormatter();
+		}
+		else {
+			this.dataFormatter = (this.userLocale != null) ? new DataFormatter(this.userLocale) : new DataFormatter();
+		}
+	}
+
+	protected DataFormatter getDataFormatter() {
+		return this.dataFormatter;
 	}
 
 	/**
@@ -295,4 +314,20 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 		this.password = password;
 	}
 
+	/**
+	 * Instead of using the format defined in the Excel sheet, read the date/time fields as an ISO formatted
+	 * string instead. This is by default {@code false} to leave the original behavior.
+	 * @param datesAsIso default {@code false}
+	 */
+	public void setDatesAsIso(boolean datesAsIso) {
+		this.datesAsIso = datesAsIso;
+	}
+
+	/**
+	 * The {@code Locale} to use when reading sheets. Defaults to the platform default as set by Java.
+	 * @param userLocale the {@code Locale} to use, default {@code null}
+	 */
+	public void setUserLocale(Locale userLocale) {
+		this.userLocale = userLocale;
+	}
 }

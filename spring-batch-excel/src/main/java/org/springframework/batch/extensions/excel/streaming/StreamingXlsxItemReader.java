@@ -87,7 +87,7 @@ public class StreamingXlsxItemReader<T> extends AbstractExcelItemReader<T> {
 		while (iter.hasNext()) {
 			InputStream is = iter.next();
 			String name = iter.getSheetName();
-			this.sheets.add(new StreamingSheet(name, is, sharedStrings, styles));
+			this.sheets.add(new StreamingSheet(name, is, sharedStrings, styles, getDataFormatter()));
 		}
 
 		if (this.logger.isTraceEnabled()) {
