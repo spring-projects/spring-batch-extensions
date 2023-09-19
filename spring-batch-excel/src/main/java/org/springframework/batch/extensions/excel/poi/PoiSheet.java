@@ -16,17 +16,13 @@
 
 package org.springframework.batch.extensions.excel.poi;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.poi.ss.formula.ConditionalFormattingEvaluator;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -42,12 +38,8 @@ import org.springframework.lang.Nullable;
 class PoiSheet implements Sheet {
 
 	private final DataFormatter dataFormatter;
-
 	private final org.apache.poi.ss.usermodel.Sheet delegate;
-	private final boolean datesAsIso;
-
 	private final int numberOfRows;
-
 	private final String name;
 
 	private FormulaEvaluator evaluator;
@@ -55,15 +47,14 @@ class PoiSheet implements Sheet {
 	/**
 	 * Constructor which takes the delegate sheet.
 	 * @param delegate the apache POI sheet
-	 * @param datesAsIso should we format the dates as ISO or use the Excel formatting instead
+	 * @param dataFormatter the {@code DataFormatter} to use.
 	 */
-	PoiSheet(final org.apache.poi.ss.usermodel.Sheet delegate, boolean datesAsIso) {
+	PoiSheet(final org.apache.poi.ss.usermodel.Sheet delegate, DataFormatter dataFormatter) {
 		super();
 		this.delegate = delegate;
-		this.datesAsIso = datesAsIso;
 		this.numberOfRows = this.delegate.getLastRowNum() + 1;
 		this.name = this.delegate.getSheetName();
-		this.dataFormatter = this.datesAsIso ? new IsoFormattingDateDataFormatter() : new DataFormatter();
+		this.dataFormatter = dataFormatter;
 	}
 
 	/**
@@ -142,33 +133,4 @@ class PoiSheet implements Sheet {
 		};
 	}
 
-	/**
-	 * Specialized subclass for additionally formatting the date into an ISO date/time.
-	 *
-	 * @author Marten Deinum
-	 * @see DateTimeFormatter#ISO_OFFSET_DATE_TIME
-	 */
-	private static class IsoFormattingDateDataFormatter extends DataFormatter {
-
-		@Override
-		public String formatCellValue(Cell cell, FormulaEvaluator evaluator, ConditionalFormattingEvaluator cfEvaluator) {
-			if (cell == null) {
-				return "";
-			}
-
-			CellType cellType = cell.getCellType();
-			if (cellType == CellType.FORMULA) {
-				if (evaluator == null) {
-					return cell.getCellFormula();
-				}
-				cellType = evaluator.evaluateFormulaCell(cell);
-			}
-
-			if (cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell, cfEvaluator)) {
-				LocalDateTime value = cell.getLocalDateTimeCellValue();
-				return (value != null) ? value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) : "";
-			}
-			return super.formatCellValue(cell, evaluator, cfEvaluator);
-		}
-	}
 }

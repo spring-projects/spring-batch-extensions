@@ -28,6 +28,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
@@ -64,11 +65,11 @@ class StreamingSheet implements Sheet {
 
 	private int colCount;
 
-	StreamingSheet(String name, InputStream is, SharedStrings sharedStrings, Styles styles) {
+	StreamingSheet(String name, InputStream is, SharedStrings sharedStrings, Styles styles, DataFormatter dataFormatter) {
 		this.name = name;
 		this.is = is;
 		this.contentHandler = new ValueRetrievingContentsHandler();
-		this.sheetHandler = new XSSFSheetXMLHandler(styles, sharedStrings, this.contentHandler, false);
+		this.sheetHandler = new XSSFSheetXMLHandler(styles, sharedStrings, this.contentHandler, dataFormatter, false);
 
 		try {
 			this.reader = StaxUtils.createDefensiveInputFactory().createXMLStreamReader(is);
