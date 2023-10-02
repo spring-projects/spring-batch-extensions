@@ -8,6 +8,8 @@ To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this w
 
 NOTE: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
 
+*Compatibility:* Spring Batch Excel is compatible with Spring Batch 4.3 and 5.0/5.1.
+
 == Configuration of `PoiItemReader`
 
 Next to the https://docs.spring.io/spring-batch/reference/html/configureJob.html[configuration of Spring Batch] one needs to configure the `PoiItemReader`.
