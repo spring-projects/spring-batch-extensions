@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2021 the original author or authors.
+ * Copyright 2006-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package org.springframework.batch.extensions.excel.poi;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -88,7 +88,7 @@ class PoiSheet implements Sheet {
 		if (row == null) {
 			return null;
 		}
-		final List<String> cells = new LinkedList<>();
+		final List<String> cells = new ArrayList<>();
 		final int numberOfColumns = row.getLastCellNum();
 
 		for (int i = 0; i < numberOfColumns; i++) {
