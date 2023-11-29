@@ -51,7 +51,7 @@
 
         <!-- Dependent on Spring Batch core -->
         <java.version>17</java.version>
-        <logback.version>1.4.11</logback.version>
+        <logback.version>1.4.12</logback.version>
     </properties>
 
     <dependencies>
