@@ -1,9 +1,11 @@
 <configuration>
+    <import class="ch.qos.logback.core.status.NopStatusListener"/>
+    <import class="ch.qos.logback.core.ConsoleAppender"/>
 
-    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <statusListener class="NopStatusListener"/>
 
     <!-- Send debug messages to System.out -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ConsoleAppender">
         <!-- By default, encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %yellow(%-5level) %magenta(%logger{5}) : %msg%n</pattern>
