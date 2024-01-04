@@ -16,23 +16,28 @@
 
 package org.springframework.batch.extensions.neo4j.builder;
 
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-
+import org.neo4j.driver.Driver;
 import org.springframework.batch.extensions.neo4j.Neo4jItemWriter;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
 import org.springframework.util.Assert;
 
 /**
  * A builder implementation for the {@link Neo4jItemWriter}
  *
+ * @param <T> type of the entity to write
+ *
  * @author Glenn Renfro
+ * @author Gerrit Meier
  * @see Neo4jItemWriter
  */
 public class Neo4jItemWriterBuilder<T> {
 
 	private boolean delete = false;
 
-	private SessionFactory sessionFactory;
+	private Neo4jTemplate neo4jTemplate;
+	private Driver neo4jDriver;
+	private Neo4jMappingContext neo4jMappingContext;
 
 	/**
 	 * Boolean flag indicating whether the writer should save or delete the item at write
@@ -49,14 +54,36 @@ public class Neo4jItemWriterBuilder<T> {
 	}
 
 	/**
-	 * Establish the session factory that will be used to create {@link Session} instances
+	 * Establish the session factory that will be used to create {@link Neo4jTemplate} instances
 	 * for interacting with Neo4j.
-	 * @param sessionFactory sessionFactory to be used.
+	 * @param neo4jTemplate neo4jTemplate to be used.
 	 * @return The current instance of the builder
-	 * @see Neo4jItemWriter#setSessionFactory(SessionFactory)
+	 * @see Neo4jItemWriter#setNeo4jTemplate(Neo4jTemplate)
 	 */
-	public Neo4jItemWriterBuilder<T> sessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
+	public Neo4jItemWriterBuilder<T> neo4jTemplate(Neo4jTemplate neo4jTemplate) {
+		this.neo4jTemplate = neo4jTemplate;
+
+		return this;
+	}
+
+	/**
+	 * Set the preconfigured Neo4j driver to be used within the built writer instance.
+	 * @param neo4jDriver preconfigured Neo4j driver instance
+	 * @return The current instance of the builder
+	 */
+	public Neo4jItemWriterBuilder<T> neo4jDriver(Driver neo4jDriver) {
+		this.neo4jDriver = neo4jDriver;
+
+		return this;
+	}
+
+	/**
+	 * Set the Neo4jMappingContext to be used within the built writer instance.
+	 * @param neo4jMappingContext initialized Neo4jMappingContext instance
+	 * @return The current instance of the builder
+	 */
+	public Neo4jItemWriterBuilder<T> neo4jMappingContext(Neo4jMappingContext neo4jMappingContext) {
+		this.neo4jMappingContext = neo4jMappingContext;
 
 		return this;
 	}
@@ -67,10 +94,15 @@ public class Neo4jItemWriterBuilder<T> {
 	 * @return a {@link Neo4jItemWriter}
 	 */
 	public Neo4jItemWriter<T> build() {
-		Assert.notNull(sessionFactory, "sessionFactory is required.");
+		Assert.notNull(neo4jTemplate, "neo4jTemplate is required.");
+		Assert.notNull(neo4jDriver, "neo4jDriver is required.");
+		Assert.notNull(neo4jMappingContext, "neo4jMappingContext is required.");
 		Neo4jItemWriter<T> writer = new Neo4jItemWriter<>();
 		writer.setDelete(this.delete);
-		writer.setSessionFactory(this.sessionFactory);
+		writer.setNeo4jTemplate(this.neo4jTemplate);
+		writer.setNeo4jDriver(this.neo4jDriver);
+		writer.setNeo4jMappingContext(this.neo4jMappingContext);
+
 		return writer;
 	}
 }

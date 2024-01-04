@@ -16,79 +16,116 @@
 
 package org.springframework.batch.extensions.neo4j.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.neo4j.cypherdsl.core.Cypher;
+import org.neo4j.cypherdsl.core.Functions;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.ExecutableQuery;
 import org.springframework.batch.extensions.neo4j.Neo4jItemWriter;
+import org.springframework.batch.item.Chunk;
+import org.springframework.data.mapping.IdentifierAccessor;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.data.neo4j.core.mapping.IdDescription;
+import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
+import org.springframework.data.neo4j.core.mapping.Neo4jPersistentEntity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Glenn Renfro
+ * @author Gerrit Meier
  */
 public class Neo4jItemWriterBuilderTests {
 
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule().silent();
+	private Neo4jTemplate neo4jTemplate;
 
-	@Mock
-	private SessionFactory sessionFactory;
-	@Mock
-	private Session session;
+	private Driver neo4jDriver;
+
+	private Neo4jMappingContext neo4jMappingContext;
+
+	@BeforeEach
+	void setup() {
+		neo4jDriver = mock(Driver.class);
+		neo4jTemplate = mock(Neo4jTemplate.class);
+		neo4jMappingContext = mock(Neo4jMappingContext.class);
+	}
 
 	@Test
-	public void testBasicWriter() throws Exception{
+	public void testBasicWriter() {
 		Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
-				.sessionFactory(this.sessionFactory)
+				.neo4jTemplate(this.neo4jTemplate)
+				.neo4jDriver(this.neo4jDriver)
+				.neo4jMappingContext(this.neo4jMappingContext)
 				.build();
-		List<String> items = new ArrayList<>();
-		items.add("foo");
-		items.add("bar");
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
+		Chunk<String> items = Chunk.of("foo", "bar");
 		writer.write(items);
 
-		verify(this.session).save("foo");
-		verify(this.session).save("bar");
-		verify(this.session, never()).delete("foo");
-		verify(this.session, never()).delete("bar");
+		verify(this.neo4jTemplate).saveAll(items.getItems());
+		verify(this.neo4jDriver, never()).executableQuery(anyString());
 	}
 
 	@Test
-	public void testBasicDelete() throws Exception{
-		Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>().delete(true).sessionFactory(this.sessionFactory).build();
-		List<String> items = new ArrayList<>();
-		items.add("foo");
-		items.add("bar");
+	public void testBasicDelete() {
+		Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
+				.delete(true)
+				.neo4jMappingContext(this.neo4jMappingContext)
+				.neo4jTemplate(this.neo4jTemplate)
+				.neo4jDriver(neo4jDriver)
+				.build();
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
+		// needs some mocks to create the testable environment
+		Neo4jPersistentEntity<?> persistentEntity = mock(Neo4jPersistentEntity.class);
+		IdentifierAccessor identifierAccessor = mock(IdentifierAccessor.class);
+		IdDescription idDescription = mock(IdDescription.class);
+		ExecutableQuery executableQuery = mock(ExecutableQuery.class);
+		when(identifierAccessor.getRequiredIdentifier()).thenReturn("someId");
+		when(idDescription.asIdExpression(anyString())).thenReturn(Functions.id(Cypher.anyNode()));
+		when(executableQuery.withParameters(any())).thenReturn(executableQuery);
+		when(persistentEntity.getIdentifierAccessor(any())).thenReturn(identifierAccessor);
+		when(persistentEntity.getPrimaryLabel()).thenReturn("SomeLabel");
+		when(persistentEntity.getIdDescription()).thenReturn(idDescription);
+		when(this.neo4jMappingContext.getNodeDescription(any(Class.class))).thenAnswer(invocationOnMock -> persistentEntity);
+		when(this.neo4jDriver.executableQuery(anyString())).thenReturn(executableQuery);
+
+		Chunk<String> items = Chunk.of("foo", "bar");
+
 		writer.write(items);
 
-		verify(this.session).delete("foo");
-		verify(this.session).delete("bar");
-		verify(this.session, never()).save("foo");
-		verify(this.session, never()).save("bar");
+		verify(this.neo4jDriver, times(2)).executableQuery(anyString());
+		verify(this.neo4jTemplate, never()).save(items);
 	}
 
 	@Test
-	public void testNoSessionFactory() {
+	public void testNoNeo4jDriver() {
+		try {
+			new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jMappingContext(neo4jMappingContext).build();
+			fail("Neo4jTemplate was not set but exception was not thrown.");
+		} catch (IllegalArgumentException iae) {
+			assertEquals("neo4jDriver is required.", iae.getMessage());
+		}
+	}
+
+	@Test
+	public void testNoMappingContextFactory() {
+		try {
+			new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jDriver(neo4jDriver).build();
+			fail("Neo4jTemplate was not set but exception was not thrown.");
+		} catch (IllegalArgumentException iae) {
+			assertEquals("neo4jMappingContext is required.", iae.getMessage());
+		}
+	}
+
+	@Test
+	public void testNoNeo4jTemplate() {
 		try {
 			new Neo4jItemWriterBuilder<String>().build();
-			fail("SessionFactory was not set but exception was not thrown.");
+			fail("Neo4jTemplate was not set but exception was not thrown.");
 		} catch (IllegalArgumentException iae) {
-			assertEquals("sessionFactory is required.", iae.getMessage());
+			assertEquals("neo4jTemplate is required.", iae.getMessage());
 		}
 	}
 
