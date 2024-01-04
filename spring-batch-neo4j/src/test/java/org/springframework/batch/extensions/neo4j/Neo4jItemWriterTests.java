@@ -16,134 +16,471 @@
 
 package org.springframework.batch.extensions.neo4j;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.internal.verification.Times;
+import org.neo4j.cypherdsl.core.Cypher;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.ExecutableQuery;
+import org.neo4j.driver.QueryConfig;
+import org.neo4j.driver.Record;
+import org.springframework.batch.item.Chunk;
+import org.springframework.data.mapping.Association;
+import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.model.BasicPersistentEntity;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConverter;
+import org.springframework.data.neo4j.core.mapping.*;
+import org.springframework.data.util.TypeInformation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 public class Neo4jItemWriterTests {
 
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule().silent();
+	private Neo4jItemWriter<MyEntity> writer;
 
-	private Neo4jItemWriter<String> writer;
+	private Neo4jTemplate neo4jTemplate;
+	private Driver neo4jDriver;
+	private Neo4jMappingContext neo4jMappingContext;
 
-	@Mock
-	private SessionFactory sessionFactory;
-	@Mock
-	private Session session;
+	@BeforeEach
+	void setup() {
+		neo4jTemplate = mock(Neo4jTemplate.class);
+		neo4jDriver = mock(Driver.class);
+		neo4jMappingContext = mock(Neo4jMappingContext.class);
+	}
 
 	@Test
-	public void testAfterPropertiesSet() throws Exception{
+	public void testAfterPropertiesSet() {
 
 		writer = new Neo4jItemWriter<>();
 
 		try {
 			writer.afterPropertiesSet();
-			fail("SessionFactory was not set but exception was not thrown.");
+			fail("Neo4jTemplate was not set but exception was not thrown.");
 		} catch (IllegalStateException iae) {
-			assertEquals("A SessionFactory is required", iae.getMessage());
+			assertEquals("A Neo4jTemplate is required", iae.getMessage());
 		} catch (Throwable t) {
 			fail("Wrong exception was thrown.");
 		}
 
-		writer.setSessionFactory(this.sessionFactory);
+		writer.setNeo4jTemplate(this.neo4jTemplate);
 
-		writer.afterPropertiesSet();
+		try {
+			writer.afterPropertiesSet();
+			fail("Neo4jMappingContext was not set but exception was not thrown.");
+		} catch (IllegalStateException iae) {
+			assertEquals("A Neo4jMappingContext is required", iae.getMessage());
+		} catch (Throwable t) {
+			fail("Wrong exception was thrown.");
+		}
 
-		writer = new Neo4jItemWriter<>();
+		writer.setNeo4jMappingContext(this.neo4jMappingContext);
 
-		writer.setSessionFactory(this.sessionFactory);
+		try {
+			writer.afterPropertiesSet();
+			fail("Neo4jDriver was not set but exception was not thrown.");
+		} catch (IllegalStateException iae) {
+			assertEquals("A Neo4j driver is required", iae.getMessage());
+		} catch (Throwable t) {
+			fail("Wrong exception was thrown.");
+		}
+
+		writer.setNeo4jDriver(this.neo4jDriver);
 
 		writer.afterPropertiesSet();
 	}
 
 	@Test
-	public void testWriteNullSession() throws Exception {
-
+	public void testWriteNoItems() {
 		writer = new Neo4jItemWriter<>();
 
-		writer.setSessionFactory(this.sessionFactory);
+		writer.setNeo4jTemplate(this.neo4jTemplate);
+		writer.setNeo4jDriver(this.neo4jDriver);
+		writer.setNeo4jMappingContext(this.neo4jMappingContext);
 		writer.afterPropertiesSet();
 
-		writer.write(null);
+		writer.write(Chunk.of());
 
-		verifyNoInteractions(this.session);
+		verifyNoInteractions(this.neo4jTemplate);
 	}
 
 	@Test
-	public void testWriteNullWithSession() throws Exception {
+	public void testWriteItems() {
 		writer = new Neo4jItemWriter<>();
 
-		writer.setSessionFactory(this.sessionFactory);
+		writer.setNeo4jTemplate(this.neo4jTemplate);
+		writer.setNeo4jDriver(this.neo4jDriver);
+		writer.setNeo4jMappingContext(this.neo4jMappingContext);
 		writer.afterPropertiesSet();
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		writer.write(null);
+		writer.write(Chunk.of(new MyEntity("foo"), new MyEntity("bar")));
 
-		verifyNoInteractions(this.session);
+		verify(this.neo4jTemplate).saveAll(List.of(new MyEntity("foo"), new MyEntity("bar")));
 	}
 
 	@Test
-	public void testWriteNoItemsWithSession() throws Exception {
+	public void testDeleteItems() {
+		TypeInformation<MyEntity> typeInformation = TypeInformation.of(MyEntity.class);
+		NodeDescription<MyEntity> entity = new TestEntity<>(typeInformation);
+		when(neo4jMappingContext.getNodeDescription(MyEntity.class)).thenAnswer(invocationOnMock -> entity);
+		when(neo4jDriver.executableQuery(anyString())).thenReturn(new ExecutableQuery() {
+			@Override
+			public ExecutableQuery withParameters(Map<String, Object> parameters) {
+				return this;
+			}
+
+			@Override
+			public ExecutableQuery withConfig(QueryConfig config) {
+				return null;
+			}
+
+			@Override
+			public <A, R, T> T execute(Collector<Record, A, R> recordCollector, ResultFinisher<R, T> resultFinisher) {
+				return null;
+			}
+		});
+
 		writer = new Neo4jItemWriter<>();
 
-		writer.setSessionFactory(this.sessionFactory);
+		writer.setNeo4jTemplate(this.neo4jTemplate);
+		writer.setNeo4jDriver(this.neo4jDriver);
+		writer.setNeo4jMappingContext(this.neo4jMappingContext);
 		writer.afterPropertiesSet();
-
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		writer.write(new ArrayList<>());
-
-		verifyNoInteractions(this.session);
-	}
-
-	@Test
-	public void testWriteItemsWithSession() throws Exception {
-		writer = new Neo4jItemWriter<>();
-
-		writer.setSessionFactory(this.sessionFactory);
-		writer.afterPropertiesSet();
-
-		List<String> items = new ArrayList<>();
-		items.add("foo");
-		items.add("bar");
-
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		writer.write(items);
-
-		verify(this.session).save("foo");
-		verify(this.session).save("bar");
-	}
-
-	@Test
-	public void testDeleteItemsWithSession() throws Exception {
-		writer = new Neo4jItemWriter<>();
-
-		writer.setSessionFactory(this.sessionFactory);
-		writer.afterPropertiesSet();
-
-		List<String> items = new ArrayList<>();
-		items.add("foo");
-		items.add("bar");
 
 		writer.setDelete(true);
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		writer.write(items);
+		Chunk<MyEntity> myEntities = Chunk.of(new MyEntity("id1"), new MyEntity("id2"));
+		writer.write(myEntities);
 
-		verify(this.session).delete("foo");
-		verify(this.session).delete("bar");
+		verify(this.neo4jDriver, new Times(2)).executableQuery("MATCH (MyEntity) WHERE MyEntity.idField = $id DETACH DELETE MyEntity");
+	}
+
+	private static class MyEntity {
+		public final String idField;
+
+		private MyEntity(String idField) {
+			this.idField = idField;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) return true;
+			if (object == null || getClass() != object.getClass()) return false;
+			MyEntity myEntity = (MyEntity) object;
+			return Objects.equals(idField, myEntity.idField);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(idField);
+		}
+	}
+
+	private static class TestEntity<T> extends BasicPersistentEntity<T, Neo4jPersistentProperty>
+			implements Neo4jPersistentEntity<T> {
+
+		public TestEntity(TypeInformation<T> information) {
+			super(information);
+			addPersistentProperty(new Neo4jPersistentProperty() {
+				@Override
+				public Neo4jPersistentPropertyConverter<?> getOptionalConverter() {
+					return null;
+				}
+
+				@Override
+				public boolean isEntityWithRelationshipProperties() {
+					return false;
+				}
+
+				@Override
+				public PersistentEntity<?, Neo4jPersistentProperty> getOwner() {
+					return null;
+				}
+
+				@Override
+				public String getName() {
+					return "idField";
+				}
+
+				@Override
+				public Class<?> getType() {
+					return String.class;
+				}
+
+				@Override
+				public TypeInformation<?> getTypeInformation() {
+					return TypeInformation.of(String.class);
+				}
+
+				@Override
+				public Iterable<? extends TypeInformation<?>> getPersistentEntityTypeInformation() {
+					return null;
+				}
+
+				@Override
+				public Method getGetter() {
+					return null;
+				}
+
+				@Override
+				public Method getSetter() {
+					return null;
+				}
+
+				@Override
+				public Method getWither() {
+					return null;
+				}
+
+				@Override
+				public Field getField() {
+					try {
+						return MyEntity.class.getField("idField");
+					} catch (NoSuchFieldException e) {
+						throw new RuntimeException(e);
+					}
+				}
+
+				@Override
+				public String getSpelExpression() {
+					return null;
+				}
+
+				@Override
+				public Association<Neo4jPersistentProperty> getAssociation() {
+					return null;
+				}
+
+				@Override
+				public boolean isEntity() {
+					return false;
+				}
+
+				@Override
+				public boolean isIdProperty() {
+					return true;
+				}
+
+				@Override
+				public boolean isVersionProperty() {
+					return false;
+				}
+
+				@Override
+				public boolean isCollectionLike() {
+					return false;
+				}
+
+				@Override
+				public boolean isMap() {
+					return false;
+				}
+
+				@Override
+				public boolean isArray() {
+					return false;
+				}
+
+				@Override
+				public boolean isTransient() {
+					return false;
+				}
+
+				@Override
+				public boolean isWritable() {
+					return true;
+				}
+
+				@Override
+				public boolean isReadable() {
+					return true;
+				}
+
+				@Override
+				public boolean isImmutable() {
+					return false;
+				}
+
+				@Override
+				public boolean isAssociation() {
+					return false;
+				}
+
+				@Override
+				public Class<?> getComponentType() {
+					return null;
+				}
+
+				@Override
+				public Class<?> getRawType() {
+					return String.class;
+				}
+
+				@Override
+				public Class<?> getMapValueType() {
+					return null;
+				}
+
+				@Override
+				public Class<?> getActualType() {
+					return String.class;
+				}
+
+				@Override
+				public <A extends Annotation> A findAnnotation(Class<A> annotationType) {
+					return null;
+				}
+
+				@Override
+				public <A extends Annotation> A findPropertyOrOwnerAnnotation(Class<A> annotationType) {
+					return null;
+				}
+
+				@Override
+				public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
+					return false;
+				}
+
+				@Override
+				public boolean usePropertyAccess() {
+					return false;
+				}
+
+				@Override
+				public Class<?> getAssociationTargetType() {
+					return null;
+				}
+
+				@Override
+				public TypeInformation<?> getAssociationTargetTypeInformation() {
+					return null;
+				}
+
+				@Override
+				public String getFieldName() {
+					return null;
+				}
+
+				@Override
+				public String getPropertyName() {
+					return null;
+				}
+
+				@Override
+				public boolean isInternalIdProperty() {
+					return false;
+				}
+
+				@Override
+				public boolean isRelationship() {
+					return false;
+				}
+
+				@Override
+				public boolean isComposite() {
+					return false;
+				}
+			});
+		}
+
+		@Override
+		public Optional<Neo4jPersistentProperty> getDynamicLabelsProperty() {
+			return Optional.empty();
+		}
+
+		@Override
+		public boolean isRelationshipPropertiesEntity() {
+			return false;
+		}
+
+		@Override
+		public String getPrimaryLabel() {
+			return "MyEntity";
+		}
+
+		@Override
+		public String getMostAbstractParentLabel(NodeDescription<?> mostAbstractNodeDescription) {
+			return null;
+		}
+
+		@Override
+		public List<String> getAdditionalLabels() {
+			return null;
+		}
+
+		@Override
+		public Class<T> getUnderlyingClass() {
+			return null;
+		}
+
+		@Override
+		public IdDescription getIdDescription() {
+			return IdDescription.forAssignedIds(Cypher.name("thing"), "idField");
+		}
+
+		@Override
+		public Collection<GraphPropertyDescription> getGraphProperties() {
+			return null;
+		}
+
+		@Override
+		public Collection<GraphPropertyDescription> getGraphPropertiesInHierarchy() {
+			return null;
+		}
+
+		@Override
+		public Optional<GraphPropertyDescription> getGraphProperty(String fieldName) {
+			return Optional.empty();
+		}
+
+		@Override
+		public Collection<RelationshipDescription> getRelationships() {
+			return null;
+		}
+
+		@Override
+		public Collection<RelationshipDescription> getRelationshipsInHierarchy(Predicate<PropertyFilter.RelaxedPropertyPath> propertyPredicate) {
+			return null;
+		}
+
+		@Override
+		public void addChildNodeDescription(NodeDescription<?> child) {
+
+		}
+
+		@Override
+		public Collection<NodeDescription<?>> getChildNodeDescriptionsInHierarchy() {
+			return null;
+		}
+
+		@Override
+		public void setParentNodeDescription(NodeDescription<?> parent) {
+
+		}
+
+		@Override
+		public NodeDescription<?> getParentNodeDescription() {
+			return null;
+		}
+
+		@Override
+		public boolean containsPossibleCircles(Predicate<PropertyFilter.RelaxedPropertyPath> includeField) {
+			return false;
+		}
+
+		@Override
+		public boolean describesInterface() {
+			return false;
+		}
 	}
 }
