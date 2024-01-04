@@ -28,9 +28,12 @@ Neo4jItemWriter<User> writer = new Neo4jItemWriterBuilder<User>()
 
 ## Minimal Spring Boot example
 
-With a Spring Boot application containing the additional dependencies `spring-boot-starter-neo4j` and `spring-batch-neo4j`,
-the following _build.gradle_ dependency definition is the minimal needed. 
-Please note the exclusion for Spring JDBC from the `spring-boot-starter-batch` to avoid any need for JDBC-based connections.
+Additional to the already existing dependencies in a new Spring Boot application,
+`spring-boot-starter-data-neo4j`, `spring-batch-neo4j` and the `spring-boot-starter-batch` are needed 
+but `spring-jdbc` and `spring-boot-starter-jdbc` must be explicitly excluded.
+The exclusions are mandatory to avoid any need for JDBC-based connections, like JDBC URI etc.
+
+See the following _build.gradle_ dependency definition for a minimal example.
 
 ```groovy
 dependencies {
@@ -45,6 +48,8 @@ dependencies {
     testImplementation 'org.springframework.batch:spring-batch-test'
 }
 ```
+
+An example of the usage can be seen in the following example, implementing the `CommandLineRunner` interface.
 
 ```java
 @SpringBootApplication
