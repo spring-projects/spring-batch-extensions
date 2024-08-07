@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.excel.poi;
+package org.springframework.batch.extensions.excel.streaming;
 
 import java.util.Locale;
 
@@ -26,18 +26,16 @@ import org.springframework.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-public class PoiItemReaderTypesTest {
+class StreamingXlsxTypesTests {
 
 	@Test
-	public void shouldBeAbleToReadMultipleTypes() throws Exception {
-		var reader = new PoiItemReader<String[]>();
-		reader.setResource(new ClassPathResource("types.xls"));
+	void shouldBeAbleToReadMultipleTypes() throws Exception {
+		var reader = new StreamingXlsxItemReader<String[]>();
+		reader.setResource(new ClassPathResource("types.xlsx"));
 		reader.setRowMapper(new PassThroughRowMapper());
 		reader.setLinesToSkip(1); // Skip header
 		reader.setUserLocale(Locale.US); // Use a Locale to not be dependent on environment
 		reader.afterPropertiesSet();
-
 
 		reader.open(new ExecutionContext());
 
@@ -49,9 +47,9 @@ public class PoiItemReaderTypesTest {
 	}
 
 	@Test
-	public void shouldBeAbleToReadMultipleTypesWithDatesAsIso() throws Exception {
-		var reader = new PoiItemReader<String[]>();
-		reader.setResource(new ClassPathResource("types.xls"));
+	void shouldBeAbleToReadMultipleTypesWithDatesAsIso() throws Exception {
+		var reader = new StreamingXlsxItemReader<String[]>();
+		reader.setResource(new ClassPathResource("types.xlsx"));
 		reader.setRowMapper(new PassThroughRowMapper());
 		reader.setLinesToSkip(1); // Skip header
 		reader.setUserLocale(Locale.US); // Use a Locale to not be dependent on environment
@@ -66,4 +64,5 @@ public class PoiItemReaderTypesTest {
 		assertThat(row2).containsExactly("2", "2.5", "2023-08-08T00:00:00", "1899-12-31T11:12:13", "2023-08-08T11:12:13", "world hello");
 
 	}
+
 }

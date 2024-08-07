@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2006-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper;
+import org.springframework.batch.extensions.excel.support.rowset.DefaultRowSetFactory;
+import org.springframework.batch.extensions.excel.support.rowset.StaticColumnNameExtractor;
 import org.springframework.batch.item.ExecutionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,16 +34,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Marten Deinum
  * @since 0.1.0
  */
-public class BeanPropertyItemReaderTest {
+class BeanPropertyWithStaticHeaderItemReaderTests {
 
 	private MockExcelItemReader<Player> reader;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() {
 		ExecutionContext executionContext = new ExecutionContext();
 
 		List<String[]> rows = new ArrayList<>();
-		rows.add(new String[] { "id", "lastName", "firstName", "position", "birthYear", "debutYear" });
 		rows.add(new String[] { "AbduKa00", "Abdul-Jabbar", "Karim", "rb", "1974", "1996" });
 		rows.add(new String[] { "AbduRa00", "Abdullah", "Rabih", "rb", "1975", "1999" });
 		MockSheet sheet = new MockSheet("players", rows);
@@ -52,15 +53,18 @@ public class BeanPropertyItemReaderTest {
 		rowMapper.setTargetType(Player.class);
 		rowMapper.afterPropertiesSet();
 
-		this.reader.setLinesToSkip(1); // Skip first row as that is the header
 		this.reader.setRowMapper(rowMapper);
 
+		DefaultRowSetFactory factory = new DefaultRowSetFactory();
+		factory.setColumnNameExtractor(new StaticColumnNameExtractor(
+				new String[] { "id", "lastName", "firstName", "position", "birthYear", "debutYear" }));
+		this.reader.setRowSetFactory(factory);
 		this.reader.afterPropertiesSet();
 		this.reader.open(executionContext);
 	}
 
 	@Test
-	public void readandMapPlayers() throws Exception {
+	void readAndMapPlayers() throws Exception {
 		Player p1 = this.reader.read();
 		Player p2 = this.reader.read();
 		Player p3 = this.reader.read();
@@ -86,6 +90,7 @@ public class BeanPropertyItemReaderTest {
 		softly.assertThat(1999).isEqualTo(p2.getDebutYear());
 
 		softly.assertAll();
+
 	}
 
 }

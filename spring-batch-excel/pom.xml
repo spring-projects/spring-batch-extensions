@@ -167,7 +167,7 @@
 					<dependency>
 						<groupId>io.spring.javaformat</groupId>
 						<artifactId>spring-javaformat-checkstyle</artifactId>
-						<version>0.0.35</version>
+						<version>0.0.42</version>
 					</dependency>
 				</dependencies>
 				<executions>

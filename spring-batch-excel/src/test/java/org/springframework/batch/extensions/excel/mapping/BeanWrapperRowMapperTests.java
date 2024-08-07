@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Scope;
  * @author Marten Deinum
  * @since 0.1.0
  */
-public class BeanWrapperRowMapperTest {
+class BeanWrapperRowMapperTests {
 
 	@Test
-	public void givenNoNameWhenInitCompleteThenIllegalStateShouldOccur() {
+	void givenNoNameWhenInitCompleteThenIllegalStateShouldOccur() {
 		Assertions.assertThatThrownBy(() -> {
 			BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<>();
 			mapper.afterPropertiesSet();
@@ -48,7 +48,7 @@ public class BeanWrapperRowMapperTest {
 	}
 
 	@Test
-	public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructed() throws Exception {
+	void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructed() throws Exception {
 		BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<>();
 		mapper.setTargetType(Player.class);
 		mapper.afterPropertiesSet();
@@ -78,7 +78,7 @@ public class BeanWrapperRowMapperTest {
 	}
 
 	@Test
-	public void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructedBasedOnPrototype() throws Exception {
+	void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructedBasedOnPrototype() throws Exception {
 
 		ApplicationContext ctx = new AnnotationConfigApplicationContext(TestConfig.class);
 		BeanWrapperRowMapper<Player> mapper = ctx.getBean("playerRowMapper", BeanWrapperRowMapper.class);
