@@ -81,7 +81,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 	protected void openExcelFile(final Resource resource, String password) throws Exception {
 		if (resource.isFile()) {
 			File file = resource.getFile();
-			this.workbook = WorkbookFactory.create(file, password, false);
+			this.workbook = WorkbookFactory.create(file, password, true);
 		}
 		else {
 			this.inputStream = resource.getInputStream();
