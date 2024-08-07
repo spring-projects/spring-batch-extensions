@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Marten Deinum
  * @since 0.1.0
  */
-public class PoiItemReaderWithErrorsTest {
+class PoiItemReaderWithErrorsTests {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private PoiItemReader<String[]> itemReader;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() {
 		this.itemReader = new PoiItemReader<>();
 		this.itemReader.setResource(new ClassPathResource("errors.xlsx"));
 		this.itemReader.setLinesToSkip(1); // First line is column names
@@ -55,7 +55,7 @@ public class PoiItemReaderWithErrorsTest {
 	}
 
 	@Test
-	public void readExcelFileWithBlankRow() throws Exception {
+	void readExcelFileWithBlankRow() throws Exception {
 		assertThat(this.itemReader.getNumberOfSheets()).isEqualTo(1);
 		String[] row;
 		String[] lastRow = null;

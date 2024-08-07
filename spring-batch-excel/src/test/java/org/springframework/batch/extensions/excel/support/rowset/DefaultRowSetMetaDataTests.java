@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Marten Deinum
  * @since 0.1.0
  */
-public class DefaultRowSetMetaDataTest {
+class DefaultRowSetMetaDataTests {
 
 	private static final String[] COLUMNS = { "col1", "col2", "col3" };
 
@@ -45,14 +45,14 @@ public class DefaultRowSetMetaDataTest {
 	private ColumnNameExtractor columnNameExtractor;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.sheet = Mockito.mock(Sheet.class);
 		this.columnNameExtractor = Mockito.mock(ColumnNameExtractor.class);
 		this.rowSetMetaData = new DefaultRowSetMetaData(this.sheet, this.columnNameExtractor);
 	}
 
 	@Test
-	public void shouldReturnColumnsFromColumnNameExtractor() {
+	void shouldReturnColumnsFromColumnNameExtractor() {
 
 		given(this.columnNameExtractor.getColumnNames(this.sheet)).willReturn(COLUMNS);
 
@@ -65,7 +65,7 @@ public class DefaultRowSetMetaDataTest {
 	}
 
 	@Test
-	public void shouldGetAndReturnNameOfTheSheet() {
+	void shouldGetAndReturnNameOfTheSheet() {
 
 		given(this.sheet.getName()).willReturn("testing123");
 

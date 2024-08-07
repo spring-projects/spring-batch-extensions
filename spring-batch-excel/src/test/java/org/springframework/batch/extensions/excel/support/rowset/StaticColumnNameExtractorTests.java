@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2021 the original author or authors.
+ * Copyright 2006-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Marten Deinum
  * @since 0.1.0
  */
-public class StaticColumnNameExtractorTest {
+class StaticColumnNameExtractorTests {
 
 	private static final String[] COLUMNS = { "col1", "col2", "col3", "foo", "bar" };
 
 	@Test
-	public void shouldReturnSameHeadersAsPassedIn() {
+	void shouldReturnSameHeadersAsPassedIn() {
 
 		StaticColumnNameExtractor columnNameExtractor = new StaticColumnNameExtractor(COLUMNS);
 		String[] names = columnNameExtractor.getColumnNames(null);
@@ -39,7 +39,7 @@ public class StaticColumnNameExtractorTest {
 	}
 
 	@Test
-	public void shouldReturnACopyOfTheHeaders() {
+	void shouldReturnACopyOfTheHeaders() {
 
 		StaticColumnNameExtractor columnNameExtractor = new StaticColumnNameExtractor(COLUMNS);
 		String[] names = columnNameExtractor.getColumnNames(null);
