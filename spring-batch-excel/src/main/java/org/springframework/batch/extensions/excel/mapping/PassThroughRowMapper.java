@@ -29,7 +29,7 @@ import org.springframework.batch.extensions.excel.support.rowset.RowSet;
 public class PassThroughRowMapper implements RowMapper<String[]> {
 
 	@Override
-	public String[] mapRow(final RowSet rs) throws Exception {
+	public String[] mapRow(final RowSet rs) {
 		return rs.getCurrentRow();
 	}
 

@@ -50,12 +50,12 @@ public class MockExcelItemReader<T> extends AbstractExcelItemReader<T> {
 	}
 
 	@Override
-	protected void openExcelFile(Resource resource, String password) throws Exception {
+	protected void openExcelFile(Resource resource, String password) {
 
 	}
 
 	@Override
-	protected void doClose() throws Exception {
+	protected void doClose() {
 		this.sheets.clear();
 	}
 

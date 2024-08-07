@@ -140,11 +140,10 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar
 
 	/**
 	 * Check that precisely one of type or prototype bean name is specified.
-	 * @throws IllegalStateException if neither is set or both properties are set.
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.state(this.name != null || this.type != null, "Either name or type must be provided.");
 		Assert.state(this.name == null || this.type == null, "Both name and type cannot be specified together.");
 	}

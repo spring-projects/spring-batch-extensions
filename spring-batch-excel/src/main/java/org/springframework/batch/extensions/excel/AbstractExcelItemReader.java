@@ -132,7 +132,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	 */
 	@Override
 	protected void jumpToItem(final int itemIndex) {
-		RowMapper<T> current = this.rowMapper;
+		var current = this.rowMapper;
 		this.rowMapper = (rs) -> null;
 		try {
 			for (int i = 0; i < itemIndex; i++) {
@@ -145,8 +145,8 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	}
 
 	private boolean isInvalidValidRow(RowSet rs) {
-		for (String str : rs.getCurrentRow()) {
-			if (str.length() > 0) {
+		for (var str : rs.getCurrentRow()) {
+			if (!str.isEmpty()) {
 				return false;
 			}
 		}
@@ -220,7 +220,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 		this.resource = resource;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.rowMapper, "RowMapper must be set");
 		if (this.datesAsIso) {
 			this.dataFormatter = (this.userLocale != null) ? new IsoFormattingDateDataFormatter(this.userLocale) : new IsoFormattingDateDataFormatter();
