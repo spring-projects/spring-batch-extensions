@@ -28,7 +28,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 /**
- * Specialized subclass for additionally formatting the date into an ISO date/time.
+ * Specialized subclass for formatting the date into an ISO date/time and ignore the format as given in the Excel file.
  *
  * @author Marten Deinum
  *
@@ -42,6 +42,15 @@ public class IsoFormattingDateDataFormatter extends DataFormatter {
 
 	public IsoFormattingDateDataFormatter(Locale locale) {
 		super(locale);
+	}
+
+	@Override
+	public String formatRawCellContents(double value, int formatIndex, String formatString, boolean use1904Windowing) {
+		if (DateUtil.isADateFormat(formatIndex, formatString) && DateUtil.isValidExcelDate(value)) {
+			return super.formatRawCellContents(value, formatIndex, "yyyy-MM-ddTHH:mm:ss",
+					use1904Windowing);
+		}
+		return super.formatRawCellContents(value, formatIndex, formatString, use1904Windowing);
 	}
 
 	@Override
@@ -60,7 +69,7 @@ public class IsoFormattingDateDataFormatter extends DataFormatter {
 
 		if (cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell, cfEvaluator)) {
 			LocalDateTime value = cell.getLocalDateTimeCellValue();
-			return (value != null) ? value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) : "";
+			return (value != null) ? value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "";
 		}
 		return super.formatCellValue(cell, evaluator, cfEvaluator);
 	}
