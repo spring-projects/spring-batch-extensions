@@ -51,7 +51,7 @@
 		<assertj.version>3.18.1</assertj.version>
 		<junit.jupiter.version>5.10.2</junit.jupiter.version>
 		<slf4j.version>1.7.36</slf4j.version>
-		<mockito.version>3.12.4</mockito.version>
+		<mockito.version>5.12.0</mockito.version>
     </properties>
 
 	<developers>
