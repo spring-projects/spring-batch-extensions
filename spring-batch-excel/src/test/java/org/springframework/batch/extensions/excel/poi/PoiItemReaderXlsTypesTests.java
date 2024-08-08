@@ -27,7 +27,7 @@ import org.springframework.core.io.ClassPathResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-class PoiItemReaderTypesTests {
+class PoiItemReaderXlsTypesTests {
 
 	@Test
 	void shouldBeAbleToReadMultipleTypes() throws Exception {
@@ -37,7 +37,6 @@ class PoiItemReaderTypesTests {
 		reader.setLinesToSkip(1); // Skip header
 		reader.setUserLocale(Locale.US); // Use a Locale to not be dependent on environment
 		reader.afterPropertiesSet();
-
 
 		reader.open(new ExecutionContext());
 
@@ -62,8 +61,7 @@ class PoiItemReaderTypesTests {
 
 		var row1 = reader.read();
 		var row2 = reader.read();
-		assertThat(row1).containsExactly("1", "1.0", "2024-05-12T00:00:00", "1899-12-31T13:14:55", "2024-05-12T13:14:55", "hello world");
-		assertThat(row2).containsExactly("2", "2.5", "2023-08-08T00:00:00", "1899-12-31T11:12:13", "2023-08-08T11:12:13", "world hello");
-
+		assertThat(row1).containsExactly("1", "1.0", "2024-05-12", "13:14:55", "2024-05-12T13:14:55", "hello world");
+		assertThat(row2).containsExactly("2", "2.5", "2023-08-08", "11:12:13", "2023-08-08T11:12:13", "world hello");
 	}
 }

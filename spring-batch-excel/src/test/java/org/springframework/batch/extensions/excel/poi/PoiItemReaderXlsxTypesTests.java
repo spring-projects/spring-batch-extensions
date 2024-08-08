@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.excel.streaming;
+package org.springframework.batch.extensions.excel.poi;
 
 import java.util.Locale;
 
@@ -26,11 +26,11 @@ import org.springframework.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StreamingXlsxTypesTests {
+class PoiItemReaderXlsxTypesTests {
 
 	@Test
 	void shouldBeAbleToReadMultipleTypes() throws Exception {
-		var reader = new StreamingXlsxItemReader<String[]>();
+		var reader = new PoiItemReader<String[]>();
 		reader.setResource(new ClassPathResource("types.xlsx"));
 		reader.setRowMapper(new PassThroughRowMapper());
 		reader.setLinesToSkip(1); // Skip header
@@ -47,8 +47,8 @@ class StreamingXlsxTypesTests {
 
 	@Test
 	void shouldBeAbleToReadMultipleTypesWithDatesAsIso() throws Exception {
-		var reader = new StreamingXlsxItemReader<String[]>();
-		reader.setResource(new ClassPathResource("types.xlsx"));
+		var reader = new PoiItemReader<String[]>();
+		reader.setResource(new ClassPathResource("types.xls"));
 		reader.setRowMapper(new PassThroughRowMapper());
 		reader.setLinesToSkip(1); // Skip header
 		reader.setUserLocale(Locale.US); // Use a Locale to not be dependent on environment
