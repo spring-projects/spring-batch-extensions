@@ -25,14 +25,13 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.ExcelNumberFormat;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 /**
  * Specialized subclass for formatting the date into an ISO date/time and ignore the format as given in the Excel file.
  *
  * @author Marten Deinum
- *
- * @see DateTimeFormatter#ISO_OFFSET_DATE_TIME
  */
 public class IsoFormattingDateDataFormatter extends DataFormatter {
 
@@ -46,9 +45,10 @@ public class IsoFormattingDateDataFormatter extends DataFormatter {
 
 	@Override
 	public String formatRawCellContents(double value, int formatIndex, String formatString, boolean use1904Windowing) {
+
 		if (DateUtil.isADateFormat(formatIndex, formatString) && DateUtil.isValidExcelDate(value)) {
-			return super.formatRawCellContents(value, formatIndex, "yyyy-MM-ddTHH:mm:ss",
-					use1904Windowing);
+			String formatToUse = determineFormat(formatIndex);
+			return super.formatRawCellContents(value, formatIndex, formatToUse, use1904Windowing);
 		}
 		return super.formatRawCellContents(value, formatIndex, formatString, use1904Windowing);
 	}
@@ -60,17 +60,34 @@ public class IsoFormattingDateDataFormatter extends DataFormatter {
 		}
 
 		CellType cellType = cell.getCellType();
-		if (cellType == CellType.FORMULA) {
-			if (evaluator == null) {
-				return cell.getCellFormula();
-			}
-			cellType = evaluator.evaluateFormulaCell(cell);
+		if (cellType == CellType.FORMULA && useCachedValuesForFormulaCells()) {
+			cellType = cell.getCachedFormulaResultType();
 		}
 
-		if (cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell, cfEvaluator)) {
+		if (cellType != CellType.STRING && DateUtil.isCellDateFormatted(cell, cfEvaluator)) {
+			String formatToUse = determineFormat(ExcelNumberFormat.from(cell, cfEvaluator).getIdx());
 			LocalDateTime value = cell.getLocalDateTimeCellValue();
-			return (value != null) ? value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "";
+			return (value != null) ? value.format(DateTimeFormatter.ofPattern(formatToUse)) : "";
 		}
 		return super.formatCellValue(cell, evaluator, cfEvaluator);
+	}
+
+	/**
+	 * Determine the format to use for either date, time of datetime. Based on the internal formats used by Excel.
+	 * 14, 15, 16, 17 are dates only
+	 * 18, 19, 20, 21 are times only
+	 * anything else is interpreted as a datetime, including custom formats that might be in use!
+	 * @param formatIndex the format index from excel.
+	 * @return the format to use, never {@code null}.
+	 */
+
+	private String determineFormat(int formatIndex) {
+		if (formatIndex >= 14 && formatIndex < 18) {
+			return "yyyy-MM-dd";
+		}
+		else if (formatIndex >= 18 && formatIndex < 22) {
+			return "HH:mm:ss";
+		}
+		return "yyyy-MM-dd'T'HH:mm:ss";
 	}
 }
