@@ -1,0 +1,18 @@
+projects:
+  - id: batch-test
+    datasets:
+      - id: spring_batch_extensions
+        tables:
+          - id: csv
+            columns:
+              - name: name
+                type: STRING
+                mode: REQUIRED
+              - name: age
+                type: INTEGER
+                mode: REQUIRED
+            data:
+              - name: Volodymyr
+                age: 27
+              - name: Oleksandra
+                age: 26

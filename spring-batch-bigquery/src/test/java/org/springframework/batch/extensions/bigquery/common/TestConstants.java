@@ -26,6 +26,8 @@ public final class TestConstants {
     public static final String DATASET = "spring_batch_extensions";
     public static final String NAME = "name";
     public static final String AGE = "age";
+    public static final String CSV = "csv";
+    public static final String JSON = "json";
 
     public static final Converter<FieldValueList, PersonDto> PERSON_MAPPER = res -> new PersonDto(
             res.get(NAME).getStringValue(), Long.valueOf(res.get(AGE).getLongValue()).intValue()

@@ -14,57 +14,59 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.common;
+package org.springframework.batch.extensions.bigquery.gcloud.writer;
 
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.WriteChannelConfiguration;
+import com.google.cloud.bigquery.*;
+import org.junit.jupiter.api.*;
+import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
+import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryCsvItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryCsvItemWriterBuilder;
-import org.springframework.batch.item.Chunk;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
-public class BigQueryDataLoader {
+class BigQueryGcloudCsvItemWriterTest extends BaseBigQueryGcloudItemWriterTest {
 
-    /** Order must be defined so later executed queries results could be predictable */
-    private static final List<PersonDto> PERSONS = Stream
-            .of(new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26))
-            .sorted(Comparator.comparing(PersonDto::name))
-            .toList();
+    @BeforeAll
+    static void prepareTest() {
+        if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
+            BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
+        }
 
-    public static final Chunk<PersonDto> CHUNK = new Chunk<>(PERSONS);
-
-    private final BigQuery bigQuery;
-
-    public BigQueryDataLoader(BigQuery bigQuery) {
-        this.bigQuery = bigQuery;
+        if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.CSV) == null) {
+            TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
+            BIG_QUERY.create(TableInfo.of(TableId.of(TestConstants.DATASET, TestConstants.CSV), tableDefinition));
+        }
     }
 
-    public void loadCsvSample(String tableName) throws Exception {
+    @AfterAll
+    static void cleanup() {
+        BIG_QUERY.delete(TableId.of(TestConstants.DATASET, TestConstants.CSV));
+    }
+
+    @Test
+    void testWriteCsv() throws Exception {
         AtomicReference<Job> job = new AtomicReference<>();
 
         WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, tableName))
+                .newBuilder(TableId.of(TestConstants.DATASET, TestConstants.CSV))
                 .setSchema(PersonDto.getBigQuerySchema())
                 .setAutodetect(false)
                 .setFormatOptions(FormatOptions.csv())
                 .build();
 
         BigQueryCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
-                .bigQuery(bigQuery)
+                .bigQuery(BIG_QUERY)
                 .writeChannelConfig(channelConfiguration)
                 .jobConsumer(job::set)
                 .build();
 
         writer.afterPropertiesSet();
-        writer.write(CHUNK);
+        writer.write(BigQueryDataLoader.CHUNK);
         job.get().waitFor();
+
+        verifyResults(TestConstants.CSV);
     }
 
 }
