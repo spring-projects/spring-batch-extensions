@@ -27,6 +27,7 @@ import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemRea
 import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryQueryItemReaderBuilder;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 
+// TODO verify all corner cases of afterPropertiesSet
 class BigQueryBatchQueryItemReaderBuilderTests extends AbstractBigQueryTest {
 
     @Test

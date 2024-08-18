@@ -14,49 +14,35 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.integration.writer;
+package org.springframework.batch.extensions.bigquery.gcloud.writer;
 
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.Table;
-import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
-import org.springframework.batch.extensions.bigquery.integration.writer.base.BaseBigQueryItemWriterTest;
-import org.springframework.batch.item.Chunk;
+import org.springframework.batch.extensions.bigquery.gcloud.base.BaseBigQueryGcloudIntegrationTest;
 
-@Tag("csv")
-class BigQueryCsvItemWriterTest extends BaseBigQueryItemWriterTest {
+abstract class BaseBigQueryGcloudItemWriterTest extends BaseBigQueryGcloudIntegrationTest {
 
-    @Test
-    void test1(TestInfo testInfo) throws Exception {
-        String tableName = getTableName(testInfo);
-        new BigQueryDataLoader(bigQuery).loadCsvSample(tableName);
-        Chunk<PersonDto> chunk = BigQueryDataLoader.CHUNK;
-
-        Dataset dataset = bigQuery.getDataset(TestConstants.DATASET);
-        Table table = bigQuery.getTable(TableId.of(TestConstants.DATASET, tableName));
+    protected void verifyResults(String tableName) {
+        Dataset dataset = BIG_QUERY.getDataset(TestConstants.DATASET);
+        Table table = BIG_QUERY.getTable(TableId.of(TestConstants.DATASET, tableName));
         TableId tableId = table.getTableId();
-        TableResult tableResult = bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(2L));
+        TableResult tableResult = BIG_QUERY.listTableData(tableId, BigQuery.TableDataListOption.pageSize(2L));
 
         Assertions.assertNotNull(dataset.getDatasetId());
         Assertions.assertNotNull(tableId);
-        Assertions.assertEquals(chunk.size(), tableResult.getTotalRows());
+        Assertions.assertEquals(BigQueryDataLoader.CHUNK.size(), tableResult.getTotalRows());
 
         tableResult
                 .getValues()
                 .forEach(field -> {
                     Assertions.assertTrue(
-                            chunk.getItems().stream().map(PersonDto::name).anyMatch(name -> field.get(0).getStringValue().equals(name))
+                            BigQueryDataLoader.CHUNK.getItems().stream().map(PersonDto::name).anyMatch(name -> field.get(0).getStringValue().equals(name))
                     );
 
-                    boolean ageCondition = chunk
+                    boolean ageCondition = BigQueryDataLoader.CHUNK
                             .getItems()
                             .stream()
                             .map(PersonDto::age)

@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.integration.base;
+package org.springframework.batch.extensions.bigquery.gcloud.base;
 
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
-import org.junit.jupiter.api.TestInfo;
 
-import java.lang.reflect.Method;
-
-public abstract class BaseBigQueryIntegrationTest {
-
-    private static final String TABLE_PATTERN = "%s_%s";
-
-    public final BigQuery bigQuery = BigQueryOptions.getDefaultInstance().getService();
-
-    protected String getTableName(TestInfo testInfo) {
-        return String.format(
-                TABLE_PATTERN,
-                testInfo.getTags().iterator().next(),
-                testInfo.getTestMethod().map(Method::getName).orElseThrow()
-        );
-    }
+public abstract class BaseBigQueryGcloudIntegrationTest {
+    protected static final BigQuery BIG_QUERY = BigQueryOptions.getDefaultInstance().getService();
 }

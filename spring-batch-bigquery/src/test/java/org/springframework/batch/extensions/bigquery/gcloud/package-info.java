@@ -25,4 +25,4 @@
  *
  * @see <a href="https://cloud.google.com/bigquery/docs/quickstarts/quickstart-client-libraries#before-you-begin">Authentication</a>
  */
-package org.springframework.batch.extensions.bigquery.integration;
+package org.springframework.batch.extensions.bigquery.gcloud;
