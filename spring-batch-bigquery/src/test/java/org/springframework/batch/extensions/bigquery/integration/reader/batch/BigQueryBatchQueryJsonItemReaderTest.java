@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.batch.extensions.bigquery.integration.reader.batch;
 
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableId;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ import org.springframework.batch.extensions.bigquery.reader.builder.BigQueryQuer
 import org.springframework.batch.item.Chunk;
 
 @Tag("json")
-public class BigQueryBatchQueryJsonItemReaderTest extends BaseCsvJsonInteractiveQueryItemReaderTest {
+class BigQueryBatchQueryJsonItemReaderTest extends BaseCsvJsonInteractiveQueryItemReaderTest {
 
     @Test
     void batchQueryTest1(TestInfo testInfo) throws Exception {
@@ -64,11 +63,11 @@ public class BigQueryBatchQueryJsonItemReaderTest extends BaseCsvJsonInteractive
 
         Assertions.assertNotNull(actualFirstPerson);
         Assertions.assertEquals(expectedFirstPerson.name(), actualFirstPerson.name());
-        Assertions.assertEquals(expectedFirstPerson.age().compareTo(actualFirstPerson.age()), NumberUtils.INTEGER_ZERO);
+        Assertions.assertEquals(0, expectedFirstPerson.age().compareTo(actualFirstPerson.age()));
 
         Assertions.assertNotNull(actualSecondPerson);
         Assertions.assertEquals(expectedSecondPerson.name(), actualSecondPerson.name());
-        Assertions.assertEquals(expectedSecondPerson.age().compareTo(actualSecondPerson.age()), NumberUtils.INTEGER_ZERO);
+        Assertions.assertEquals(0, expectedSecondPerson.age().compareTo(actualSecondPerson.age()));
 
         Assertions.assertNull(actualThirdPerson);
     }

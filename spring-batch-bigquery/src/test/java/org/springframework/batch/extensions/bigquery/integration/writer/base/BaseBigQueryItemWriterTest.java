@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,15 @@ import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.integration.base.BaseBigQueryIntegrationTest;
 
-import java.util.Objects;
-
 public abstract class BaseBigQueryItemWriterTest extends BaseBigQueryIntegrationTest {
 
     @BeforeEach
     void prepareTest(TestInfo testInfo) {
-        if (Objects.isNull(bigQuery.getDataset(TestConstants.DATASET))) {
+        if (bigQuery.getDataset(TestConstants.DATASET) == null) {
             bigQuery.create(DatasetInfo.of(TestConstants.DATASET));
         }
 
-        if (Objects.isNull(bigQuery.getTable(TestConstants.DATASET, getTableName(testInfo)))) {
+        if (bigQuery.getTable(TestConstants.DATASET, getTableName(testInfo)) == null) {
             TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
             bigQuery.create(TableInfo.of(TableId.of(TestConstants.DATASET, getTableName(testInfo)), tableDefinition));
         }

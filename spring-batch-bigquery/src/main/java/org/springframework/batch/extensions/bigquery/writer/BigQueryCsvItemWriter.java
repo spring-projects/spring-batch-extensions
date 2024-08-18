@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.Table;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
@@ -31,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * CSV writer for BigQuery.
@@ -45,18 +43,21 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
 
     private Converter<T, byte[]> rowMapper;
     private ObjectWriter objectWriter;
-    private Class itemClass;
+    private Class<?> itemClass;
 
     /**
      * Actual type of incoming data can be obtained only in runtime
      */
     @Override
     protected synchronized void doInitializeProperties(List<? extends T> items) {
-        if (Objects.isNull(this.itemClass)) {
-            T firstItem = items.stream().findFirst().orElseThrow(RuntimeException::new);
+        if (this.itemClass == null) {
+            T firstItem = items.stream().findFirst().orElseThrow(() -> {
+                logger.warn("Class type was not found");
+                return new IllegalStateException("Class type was not found");
+            });
             this.itemClass = firstItem.getClass();
 
-            if (Objects.isNull(this.rowMapper)) {
+            if (this.rowMapper == null) {
                 this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
             }
 
@@ -65,7 +66,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
     }
 
     /**
-     * Row mapper which transforms single BigQuery row into desired type.
+     * Row mapper which transforms single BigQuery row into a desired type.
      *
      * @param rowMapper your row mapper
      */
@@ -83,7 +84,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
                 .map(String::new)
                 .filter(Predicate.not(ObjectUtils::isEmpty))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -91,16 +92,16 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
         super.baseAfterPropertiesSet(() -> {
             Table table = getTable();
 
-            if (BooleanUtils.toBoolean(super.writeChannelConfig.getAutodetect())) {
-                if ((tableHasDefinedSchema(table) && super.logger.isWarnEnabled())) {
-                    super.logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
+            if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
+                if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
+                    logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
                 }
             } else {
                 Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
 
                 if (tableHasDefinedSchema(table)) {
                     Assert.isTrue(
-                            table.getDefinition().getSchema().equals(super.writeChannelConfig.getSchema()),
+                            Objects.equals(table.getDefinition().getSchema(), super.writeChannelConfig.getSchema()),
                             "Schema should be the same"
                     );
                 }
@@ -112,7 +113,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
 
     private byte[] mapItemToCsv(T t) {
         try {
-            return Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+            return rowMapper == null ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
         }
         catch (JsonProcessingException e) {
             logger.error("Error during processing of the line: ", e);

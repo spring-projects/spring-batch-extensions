@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
     /** Logger that can be reused */
     protected final Log logger = LogFactory.getLog(getClass());
+
     private final AtomicLong bigQueryWriteCounter = new AtomicLong();
 
     /**
@@ -77,7 +78,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
 
     /**
-     * Fetches table from provided configuration.
+     * Fetches table from the provided configuration.
      *
      * @return {@link Table} that is described in {@link BigQueryBaseItemWriter#writeChannelConfig}
      */
@@ -123,7 +124,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
     @Override
     public void write(Chunk<? extends T> chunk) throws Exception {
-        if (BooleanUtils.isFalse(chunk.isEmpty())) {
+        if (!chunk.isEmpty()) {
             List<? extends T> items = chunk.getItems();
             doInitializeProperties(items);
 
@@ -147,8 +148,8 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
             }
 
             /*
-             * It is extremely important to create larger ByteBuffer,
-             * if you call TableDataWriteChannel too many times, it leads to BigQuery exceptions.
+             * It is extremely important to create larger ByteBuffer.
+             * If you call TableDataWriteChannel too many times, it leads to BigQuery exceptions.
              */
             byteBuffer = ByteBuffer.wrap(outputStream.toByteArray());
         }
@@ -170,9 +171,9 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         finally {
             String logMessage = "Write operation submitted: " + bigQueryWriteCounter.incrementAndGet();
 
-            if (Objects.nonNull(writeChannel)) {
+            if (writeChannel != null) {
                 logMessage += " -- Job ID: " + writeChannel.getJob().getJobId().getJob();
-                if (Objects.nonNull(this.jobConsumer)) {
+                if (this.jobConsumer != null) {
                     this.jobConsumer.accept(writeChannel.getJob());
                 }
             }
@@ -212,7 +213,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         Assert.notNull(this.writeChannelConfig.getFormat(), "Data format must be provided");
 
         String dataset = this.writeChannelConfig.getDestinationTable().getDataset();
-        if (Objects.isNull(this.datasetInfo)) {
+        if (this.datasetInfo == null) {
             this.datasetInfo = DatasetInfo.newBuilder(dataset).build();
         }
 
@@ -228,13 +229,11 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         TableId tableId = this.writeChannelConfig.getDestinationTable();
         String datasetToCheck = tableId.getDataset();
 
-        if (Objects.nonNull(datasetToCheck)) {
+        if (datasetToCheck != null) {
             Dataset foundDataset = this.bigQuery.getDataset(datasetToCheck);
 
-            if (Objects.isNull(foundDataset)) {
-                if (Objects.nonNull(this.datasetInfo)) {
-                    this.bigQuery.create(this.datasetInfo);
-                }
+            if (foundDataset == null && this.datasetInfo != null) {
+                this.bigQuery.create(this.datasetInfo);
             }
         }
     }
@@ -264,7 +263,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
     }
 
     /**
-     * Schema can be computed on BigQuery side during upload,
+     * Schema can be computed on the BigQuery side during upload,
      * so it is good to know when schema is supplied by user manually.
      *
      * @param table BigQuery table
@@ -287,7 +286,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
     protected abstract void doInitializeProperties(List<? extends T> items);
 
     /**
-     * Converts chunk into byte array.
+     * Converts chunk into a byte array.
      * Each data type should be converted with respect to its specification.
      *
      * @param items current chunk

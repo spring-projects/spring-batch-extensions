@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 
 /**
- * In order to launch these tests you should provide a way how to authorize to Google BigQuery.
- * A simple way is to create service account, store credentials as JSON file and provide environment variable.
- * Example: GOOGLE_APPLICATION_CREDENTIALS=/home/dgray/Downloads/bq-key.json
+ * To launch these tests, you should provide a way how to authorize to Google BigQuery.
+ * A simple way is to create a service account, store credentials as JSON file and provide environment variable.
+ * Example: GOOGLE_APPLICATION_CREDENTIALS=/home/user/Downloads/bq-key.json
  * <p>
  * Test names should follow this pattern: test1, test2, testN.
  * So later in BigQuery you will see generated table name: csv_test1, csv_test2, csv_testN.
- * This way it will be easier to trace errors in BigQuery.
+ * This way, it will be easier to trace errors in BigQuery.
  *
  * @see <a href="https://cloud.google.com/bigquery/docs/quickstarts/quickstart-client-libraries#before-you-begin">Authentication</a>
  */

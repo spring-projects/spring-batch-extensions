@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
-
-import java.util.Objects;
 
 /**
  * A builder for {@link BigQueryQueryItemReader}.
@@ -70,7 +68,7 @@ public class BigQueryQueryItemReaderBuilder<T> {
     }
 
     /**
-     * Row mapper which transforms single BigQuery row into desired type.
+     * Row mapper which transforms single BigQuery row into a desired type.
      *
      * @param rowMapper your row mapper
      * @return {@link BigQueryQueryItemReaderBuilder}
@@ -94,7 +92,7 @@ public class BigQueryQueryItemReaderBuilder<T> {
     }
 
     /**
-     * Please do not forget about {@link BigQueryQueryItemReader#afterPropertiesSet()}.
+     * Please remember about {@link BigQueryQueryItemReader#afterPropertiesSet()}.
      *
      * @return {@link BigQueryQueryItemReader}
      */
@@ -104,11 +102,11 @@ public class BigQueryQueryItemReaderBuilder<T> {
         reader.setBigQuery(this.bigQuery);
         reader.setRowMapper(this.rowMapper);
 
-        if (Objects.nonNull(this.jobConfiguration)) {
-            reader.setJobConfiguration(this.jobConfiguration);
-        } else {
+        if (this.jobConfiguration == null) {
             Assert.isTrue(StringUtils.isNotBlank(this.query), "No query provided");
             reader.setJobConfiguration(QueryJobConfiguration.newBuilder(this.query).build());
+        } else {
+            reader.setJobConfiguration(this.jobConfiguration);
         }
 
         return reader;
