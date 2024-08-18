@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.bigquery.Table;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
@@ -31,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * JSON writer for BigQuery.
@@ -45,24 +43,27 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
 
     private Converter<T, byte[]> rowMapper;
     private ObjectWriter objectWriter;
-    private Class itemClass;
+    private Class<?> itemClass;
 
     @Override
     protected void doInitializeProperties(List<? extends T> items) {
-        if (Objects.isNull(this.itemClass)) {
-            T firstItem = items.stream().findFirst().orElseThrow(RuntimeException::new);
+        if (this.itemClass == null) {
+            T firstItem = items.stream().findFirst().orElseThrow(() -> {
+                logger.warn("Class type was not found");
+                return new IllegalStateException("Class type was not found");
+            });
             this.itemClass = firstItem.getClass();
 
-            if (Objects.isNull(this.rowMapper)) {
+            if (this.rowMapper == null) {
                 this.objectWriter = new ObjectMapper().writerFor(this.itemClass);
             }
 
-            super.logger.debug("Writer setup is completed");
+            logger.debug("Writer setup is completed");
         }
     }
 
     /**
-     * Converter that transforms a single row into byte array.
+     * Converter that transforms a single row into a byte array.
      *
      * @param rowMapper your JSON row mapper
      */
@@ -80,7 +81,7 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
                 .map(this::convertToNdJson)
                 .filter(Predicate.not(ObjectUtils::isEmpty))
                 .map(row -> row.getBytes(StandardCharsets.UTF_8))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -88,16 +89,16 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
         super.baseAfterPropertiesSet(() -> {
             Table table = getTable();
 
-            if (BooleanUtils.toBoolean(super.writeChannelConfig.getAutodetect())) {
-                if ((tableHasDefinedSchema(table) && super.logger.isWarnEnabled())) {
-                    super.logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
+            if (Boolean.TRUE.equals(writeChannelConfig.getAutodetect())) {
+                if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
+                    logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
                 }
             } else {
-                Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
+                Assert.notNull(writeChannelConfig.getSchema(), "Schema must be provided");
 
                 if (tableHasDefinedSchema(table)) {
                     Assert.isTrue(
-                            table.getDefinition().getSchema().equals(super.writeChannelConfig.getSchema()),
+                            Objects.equals(table.getDefinition().getSchema(), writeChannelConfig.getSchema()),
                             "Schema should be the same"
                     );
                 }

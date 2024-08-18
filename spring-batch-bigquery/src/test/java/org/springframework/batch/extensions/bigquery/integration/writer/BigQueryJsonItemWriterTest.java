@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ import org.springframework.batch.extensions.bigquery.integration.writer.base.Bas
 import org.springframework.batch.item.Chunk;
 
 @Tag("json")
-public class BigQueryJsonItemWriterTest extends BaseBigQueryItemWriterTest {
+class BigQueryJsonItemWriterTest extends BaseBigQueryItemWriterTest {
 
     @Test
     void test1(TestInfo testInfo) throws Exception {
@@ -54,7 +53,7 @@ public class BigQueryJsonItemWriterTest extends BaseBigQueryItemWriterTest {
                 .getValues()
                 .forEach(field -> {
                     Assertions.assertTrue(
-                            chunk.getItems().stream().map(PersonDto::name).anyMatch(name -> field.get(NumberUtils.INTEGER_ZERO).getStringValue().equals(name))
+                            chunk.getItems().stream().map(PersonDto::name).anyMatch(name -> field.get(0).getStringValue().equals(name))
                     );
 
                     boolean ageCondition = chunk
@@ -62,7 +61,7 @@ public class BigQueryJsonItemWriterTest extends BaseBigQueryItemWriterTest {
                             .stream()
                             .map(PersonDto::age)
                             .map(Long::valueOf)
-                            .anyMatch(age -> age.compareTo(field.get(NumberUtils.INTEGER_ONE).getLongValue()) == NumberUtils.INTEGER_ZERO);
+                            .anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
 
                     Assertions.assertTrue(ageCondition);
                 });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
-import java.util.Objects;
 
 /**
  * BigQuery {@link ItemReader} that accepts simple query as the input.
@@ -37,7 +36,7 @@ import java.util.Objects;
  * <p>
  * Also, worth mentioning that you should take into account concurrency limits.
  * <p>
- * Results of this query by default are stored in a shape of temporary table.
+ * Results of this query by default are stored in the shape of a temporary table.
  *
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
@@ -84,7 +83,7 @@ public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBe
 
     @Override
     public T read() throws Exception {
-        if (Objects.isNull(iterator)) {
+        if (iterator == null) {
             doOpen();
         }
 
