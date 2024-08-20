@@ -58,87 +58,86 @@ import java.util.Map;
  * </p>
  *
  * @param <T> type of entity to load
- *
  * @author Michael Minella
  * @author Mahmoud Ben Hassine
  * @author Gerrit Meier
  */
 public class Neo4jItemReader<T> extends AbstractPaginatedDataItemReader<T> implements InitializingBean {
 
-	private final Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-	private Neo4jTemplate neo4jTemplate;
+    private Neo4jTemplate neo4jTemplate;
 
-	private StatementBuilder.OngoingReadingAndReturn statement;
+    private StatementBuilder.OngoingReadingAndReturn statement;
 
-	private Class<T> targetType;
+    private Class<T> targetType;
 
-	private Map<String, Object> parameterValues;
+    private Map<String, Object> parameterValues;
 
-	/**
-	 * Optional parameters to be used in the cypher query.
-	 *
-	 * @param parameterValues the parameter values to be used in the cypher query
-	 */
-	public void setParameterValues(Map<String, Object> parameterValues) {
-		this.parameterValues = parameterValues;
-	}
+    /**
+     * Optional parameters to be used in the cypher query.
+     *
+     * @param parameterValues the parameter values to be used in the cypher query
+     */
+    public void setParameterValues(Map<String, Object> parameterValues) {
+        this.parameterValues = parameterValues;
+    }
 
-	/**
-	 * Cypher-DSL's {@link org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn} statement
-	 * without skip and limit segments. Those will get added by the pagination mechanism later.
-	 *
-	 * @param statement the Cypher-DSL statement-in-construction.
-	 */
-	public void setStatement(StatementBuilder.OngoingReadingAndReturn statement) {
-		this.statement = statement;
-	}
+    /**
+     * Cypher-DSL's {@link org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn} statement
+     * without skip and limit segments. Those will get added by the pagination mechanism later.
+     *
+     * @param statement the Cypher-DSL statement-in-construction.
+     */
+    public void setStatement(StatementBuilder.OngoingReadingAndReturn statement) {
+        this.statement = statement;
+    }
 
-	/**
-	 * Establish the Neo4jTemplate for the reader.
-	 *
-	 * @param neo4jTemplate the template to use for the reader.
-	 */
-	public void setNeo4jTemplate(Neo4jTemplate neo4jTemplate) {
-		this.neo4jTemplate = neo4jTemplate;
-	}
+    /**
+     * Establish the Neo4jTemplate for the reader.
+     *
+     * @param neo4jTemplate the template to use for the reader.
+     */
+    public void setNeo4jTemplate(Neo4jTemplate neo4jTemplate) {
+        this.neo4jTemplate = neo4jTemplate;
+    }
 
-	/**
-	 * The object type to be returned from each call to {@link #read()}
-	 *
-	 * @param targetType the type of object to return.
-	 */
-	public void setTargetType(Class<T> targetType) {
-		this.targetType = targetType;
-	}
+    /**
+     * The object type to be returned from each call to {@link #read()}
+     *
+     * @param targetType the type of object to return.
+     */
+    public void setTargetType(Class<T> targetType) {
+        this.targetType = targetType;
+    }
 
-	private Statement generateStatement() {
-		Statement builtStatement = statement
-				.skip(page * pageSize)
-				.limit(pageSize)
-				.build();
-		if (logger.isDebugEnabled()) {
-			logger.debug(Renderer.getDefaultRenderer().render(builtStatement));
-		}
+    private Statement generateStatement() {
+        Statement builtStatement = statement
+            .skip(page * pageSize)
+            .limit(pageSize)
+            .build();
+        if (logger.isDebugEnabled()) {
+            logger.debug(Renderer.getDefaultRenderer().render(builtStatement));
+        }
 
-		return builtStatement;
-	}
+        return builtStatement;
+    }
 
-	/**
-	 * Checks mandatory properties
-	 *
-	 * @see InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public void afterPropertiesSet() {
-		Assert.state(neo4jTemplate != null, "A Neo4jTemplate is required");
-		Assert.state(targetType != null, "The type to be returned is required");
-		Assert.state(statement != null, "A statement is required");
-	}
+    /**
+     * Checks mandatory properties
+     *
+     * @see InitializingBean#afterPropertiesSet()
+     */
+    @Override
+    public void afterPropertiesSet() {
+        Assert.state(neo4jTemplate != null, "A Neo4jTemplate is required");
+        Assert.state(targetType != null, "The type to be returned is required");
+        Assert.state(statement != null, "A statement is required");
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	protected Iterator<T> doPageRead() {
-		return neo4jTemplate.findAll(generateStatement(), parameterValues, targetType).iterator();
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Iterator<T> doPageRead() {
+        return neo4jTemplate.findAll(generateStatement(), parameterValues, targetType).iterator();
+    }
 }

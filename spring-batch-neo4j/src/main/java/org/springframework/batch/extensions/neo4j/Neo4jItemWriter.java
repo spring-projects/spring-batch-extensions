@@ -44,7 +44,6 @@ import java.util.Map;
  * </p>
  *
  * @param <T> type of the entity to write
- *
  * @author Michael Minella
  * @author Glenn Renfro
  * @author Mahmoud Ben Hassine
@@ -52,104 +51,106 @@ import java.util.Map;
  */
 public class Neo4jItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
-	private boolean delete = false;
+    private boolean delete = false;
 
-	private Neo4jTemplate neo4jTemplate;
-	private Neo4jMappingContext neo4jMappingContext;
-	private Driver neo4jDriver;
+    private Neo4jTemplate neo4jTemplate;
+    private Neo4jMappingContext neo4jMappingContext;
+    private Driver neo4jDriver;
 
-	/**
-	 * Boolean flag indicating whether the writer should save or delete the item at write
-	 * time.
-	 * @param delete true if write should delete item, false if item should be saved.
-	 * Default is false.
-	 */
-	public void setDelete(boolean delete) {
-		this.delete = delete;
-	}
+    /**
+     * Boolean flag indicating whether the writer should save or delete the item at write
+     * time.
+     *
+     * @param delete true if write should delete item, false if item should be saved.
+     *               Default is false.
+     */
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
 
-	/**
-	 * Establish the neo4jTemplate for interacting with Neo4j.
-	 * @param neo4jTemplate neo4jTemplate to be used.
-	 */
-	public void setNeo4jTemplate(Neo4jTemplate neo4jTemplate) {
-		this.neo4jTemplate = neo4jTemplate;
-	}
+    /**
+     * Establish the neo4jTemplate for interacting with Neo4j.
+     *
+     * @param neo4jTemplate neo4jTemplate to be used.
+     */
+    public void setNeo4jTemplate(Neo4jTemplate neo4jTemplate) {
+        this.neo4jTemplate = neo4jTemplate;
+    }
 
-	/**
-	 * Set the Neo4j driver to be used for the delete operation
-	 * @param neo4jDriver configured Neo4j driver instance
-	 */
-	public void setNeo4jDriver(Driver neo4jDriver) {
-		this.neo4jDriver = neo4jDriver;
-	}
+    /**
+     * Set the Neo4j driver to be used for the delete operation
+     *
+     * @param neo4jDriver configured Neo4j driver instance
+     */
+    public void setNeo4jDriver(Driver neo4jDriver) {
+        this.neo4jDriver = neo4jDriver;
+    }
 
-	/**
-	 * Neo4jMappingContext needed for determine the id type of the entity instances.
-	 *
-	 * @param neo4jMappingContext initialized mapping context
-	 */
-	public void setNeo4jMappingContext(Neo4jMappingContext neo4jMappingContext) {
-		this.neo4jMappingContext = neo4jMappingContext;
-	}
+    /**
+     * Neo4jMappingContext needed for determine the id type of the entity instances.
+     *
+     * @param neo4jMappingContext initialized mapping context
+     */
+    public void setNeo4jMappingContext(Neo4jMappingContext neo4jMappingContext) {
+        this.neo4jMappingContext = neo4jMappingContext;
+    }
 
-	/**
-	 * Checks mandatory properties
-	 *
-	 * @see InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public void afterPropertiesSet() {
-		Assert.state(this.neo4jTemplate != null, "A Neo4jTemplate is required");
-		Assert.state(this.neo4jMappingContext != null, "A Neo4jMappingContext is required");
-		Assert.state(this.neo4jDriver != null, "A Neo4j driver is required");
-	}
+    /**
+     * Checks mandatory properties
+     *
+     * @see InitializingBean#afterPropertiesSet()
+     */
+    @Override
+    public void afterPropertiesSet() {
+        Assert.state(this.neo4jTemplate != null, "A Neo4jTemplate is required");
+        Assert.state(this.neo4jMappingContext != null, "A Neo4jMappingContext is required");
+        Assert.state(this.neo4jDriver != null, "A Neo4j driver is required");
+    }
 
-	/**
-	 * Write all items to the data store.
-	 *
-	 * @see org.springframework.batch.item.ItemWriter#write(Chunk chunk)
-	 */
-		@Override
-		public void write(@NonNull Chunk<? extends T> chunk) {
-			if (!chunk.isEmpty()) {
-					doWrite(chunk.getItems());
-			}
-		}
+    /**
+     * Write all items to the data store.
+     *
+     * @see org.springframework.batch.item.ItemWriter#write(Chunk chunk)
+     */
+    @Override
+    public void write(@NonNull Chunk<? extends T> chunk) {
+        if (!chunk.isEmpty()) {
+            doWrite(chunk.getItems());
+        }
+    }
 
-	/**
-	 * Performs the actual write using the template.  This can be overridden by
-	 * a subclass if necessary.
-	 *
-	 * @param items the list of items to be persisted.
-	 */
-	protected void doWrite(List<? extends T> items) {
-		if(delete) {
-			delete(items);
-		}
-		else {
-			save(items);
-		}
-	}
+    /**
+     * Performs the actual write using the template.  This can be overridden by
+     * a subclass if necessary.
+     *
+     * @param items the list of items to be persisted.
+     */
+    protected void doWrite(List<? extends T> items) {
+        if (delete) {
+            delete(items);
+        } else {
+            save(items);
+        }
+    }
 
-	private void delete(List<? extends T> items) {
-		for(T item : items) {
-			// Figure out id field individually because different
-			// id strategies could have been taken for classes within a
-			// business model hierarchy.
-			Neo4jPersistentEntity<?> nodeDescription = (Neo4jPersistentEntity<?>) this.neo4jMappingContext.getNodeDescription(item.getClass());
-			Object identifier = nodeDescription.getIdentifierAccessor(item).getRequiredIdentifier();
-			Node named = Cypher.anyNode().named(nodeDescription.getPrimaryLabel());
-			Statement statement = Cypher.match(named)
-					.where(nodeDescription.getIdDescription().asIdExpression(nodeDescription.getPrimaryLabel()).eq(Cypher.parameter("id")))
-					.detachDelete(named).build();
+    private void delete(List<? extends T> items) {
+        for (T item : items) {
+            // Figure out id field individually because different
+            // id strategies could have been taken for classes within a
+            // business model hierarchy.
+            Neo4jPersistentEntity<?> nodeDescription = (Neo4jPersistentEntity<?>) this.neo4jMappingContext.getNodeDescription(item.getClass());
+            Object identifier = nodeDescription.getIdentifierAccessor(item).getRequiredIdentifier();
+            Node named = Cypher.anyNode().named(nodeDescription.getPrimaryLabel());
+            Statement statement = Cypher.match(named)
+                .where(nodeDescription.getIdDescription().asIdExpression(nodeDescription.getPrimaryLabel()).eq(Cypher.parameter("id")))
+                .detachDelete(named).build();
 
-			String renderedStatement = Renderer.getDefaultRenderer().render(statement);
-			this.neo4jDriver.executableQuery(renderedStatement).withParameters(Map.of("id", identifier)).execute();
-		}
-	}
+            String renderedStatement = Renderer.getDefaultRenderer().render(statement);
+            this.neo4jDriver.executableQuery(renderedStatement).withParameters(Map.of("id", identifier)).execute();
+        }
+    }
 
-	private void save(List<? extends T> items) {
-		this.neo4jTemplate.saveAll(items);
-	}
+    private void save(List<? extends T> items) {
+        this.neo4jTemplate.saveAll(items);
+    }
 }

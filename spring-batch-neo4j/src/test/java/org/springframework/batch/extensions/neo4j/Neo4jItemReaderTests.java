@@ -39,100 +39,100 @@ import static org.mockito.Mockito.when;
 
 public class Neo4jItemReaderTests {
 
-	private Neo4jTemplate neo4jTemplate;
+    private Neo4jTemplate neo4jTemplate;
 
-	@BeforeEach
-	void setup() {
-		neo4jTemplate = mock(Neo4jTemplate.class);
-	}
+    @BeforeEach
+    void setup() {
+        neo4jTemplate = mock(Neo4jTemplate.class);
+    }
 
-	private Neo4jItemReader<String> buildSessionBasedReader() {
-		Neo4jItemReader<String> reader = new Neo4jItemReader<>();
+    private Neo4jItemReader<String> buildSessionBasedReader() {
+        Neo4jItemReader<String> reader = new Neo4jItemReader<>();
 
-		reader.setNeo4jTemplate(this.neo4jTemplate);
-		reader.setTargetType(String.class);
-		Node n = Cypher.anyNode().named("n");
-		reader.setStatement(Cypher.match(n).returning(n));
-		reader.setPageSize(50);
-		reader.afterPropertiesSet();
+        reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setTargetType(String.class);
+        Node n = Cypher.anyNode().named("n");
+        reader.setStatement(Cypher.match(n).returning(n));
+        reader.setPageSize(50);
+        reader.afterPropertiesSet();
 
-		return reader;
-	}
+        return reader;
+    }
 
-	@Test
-	public void testAfterPropertiesSet() {
+    @Test
+    public void testAfterPropertiesSet() {
 
-		Neo4jItemReader<String> reader = new Neo4jItemReader<>();
+        Neo4jItemReader<String> reader = new Neo4jItemReader<>();
 
-		try {
-			reader.afterPropertiesSet();
-			fail("SessionFactory was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("A Neo4jTemplate is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        try {
+            reader.afterPropertiesSet();
+            fail("SessionFactory was not set but exception was not thrown.");
+        } catch (IllegalStateException iae) {
+            assertEquals("A Neo4jTemplate is required", iae.getMessage());
+        } catch (Throwable t) {
+            fail("Wrong exception was thrown:" + t);
+        }
 
-		reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setNeo4jTemplate(this.neo4jTemplate);
 
-		try {
-			reader.afterPropertiesSet();
-			fail("Target Type was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("The type to be returned is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        try {
+            reader.afterPropertiesSet();
+            fail("Target Type was not set but exception was not thrown.");
+        } catch (IllegalStateException iae) {
+            assertEquals("The type to be returned is required", iae.getMessage());
+        } catch (Throwable t) {
+            fail("Wrong exception was thrown:" + t);
+        }
 
-		reader.setTargetType(String.class);
+        reader.setTargetType(String.class);
 
-		reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
+        reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
 
-		reader.afterPropertiesSet();
+        reader.afterPropertiesSet();
 
-		reader = new Neo4jItemReader<>();
-		reader.setNeo4jTemplate(this.neo4jTemplate);
-		reader.setTargetType(String.class);
-		reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
+        reader = new Neo4jItemReader<>();
+        reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setTargetType(String.class);
+        reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
 
-		reader.afterPropertiesSet();
-	}
+        reader.afterPropertiesSet();
+    }
 
-	@Test
-	public void testNullResultsWithSession() {
+    @Test
+    public void testNullResultsWithSession() {
 
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
 
-		ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
+        ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
 
-		when(this.neo4jTemplate.findAll(query.capture(), isNull(), eq(String.class))).thenReturn(List.of());
+        when(this.neo4jTemplate.findAll(query.capture(), isNull(), eq(String.class))).thenReturn(List.of());
 
-		assertFalse(itemReader.doPageRead().hasNext());
-		Node node = Cypher.anyNode().named("n");
-		assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
+        assertFalse(itemReader.doPageRead().hasNext());
+        Node node = Cypher.anyNode().named("n");
+        assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
 
-	}
+    }
 
-	@Test
-	public void testNoResultsWithSession() {
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
-		ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
+    @Test
+    public void testNoResultsWithSession() {
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+        ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
 
-		when(this.neo4jTemplate.findAll(query.capture(), any(), eq(String.class))).thenReturn(List.of());
+        when(this.neo4jTemplate.findAll(query.capture(), any(), eq(String.class))).thenReturn(List.of());
 
-		assertFalse(itemReader.doPageRead().hasNext());
-		Node node = Cypher.anyNode().named("n");
-		assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
-	}
+        assertFalse(itemReader.doPageRead().hasNext());
+        Node node = Cypher.anyNode().named("n");
+        assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
+    }
 
-	@Test
-	public void testResultsWithMatchAndWhereWithSession() {
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
-		itemReader.afterPropertiesSet();
+    @Test
+    public void testResultsWithMatchAndWhereWithSession() {
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+        itemReader.afterPropertiesSet();
 
-		when(this.neo4jTemplate.findAll(any(Statement.class), isNull(), eq(String.class))).thenReturn(Arrays.asList("foo", "bar", "baz"));
+        when(this.neo4jTemplate.findAll(any(Statement.class), isNull(), eq(String.class))).thenReturn(Arrays.asList("foo", "bar", "baz"));
 
-		assertTrue(itemReader.doPageRead().hasNext());
-	}
+        assertTrue(itemReader.doPageRead().hasNext());
+    }
 
 }

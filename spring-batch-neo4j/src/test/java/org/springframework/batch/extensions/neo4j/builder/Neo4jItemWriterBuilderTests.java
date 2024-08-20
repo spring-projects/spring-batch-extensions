@@ -40,93 +40,93 @@ import static org.mockito.Mockito.*;
  */
 public class Neo4jItemWriterBuilderTests {
 
-	private Neo4jTemplate neo4jTemplate;
+    private Neo4jTemplate neo4jTemplate;
 
-	private Driver neo4jDriver;
+    private Driver neo4jDriver;
 
-	private Neo4jMappingContext neo4jMappingContext;
+    private Neo4jMappingContext neo4jMappingContext;
 
-	@BeforeEach
-	void setup() {
-		neo4jDriver = mock(Driver.class);
-		neo4jTemplate = mock(Neo4jTemplate.class);
-		neo4jMappingContext = mock(Neo4jMappingContext.class);
-	}
+    @BeforeEach
+    void setup() {
+        neo4jDriver = mock(Driver.class);
+        neo4jTemplate = mock(Neo4jTemplate.class);
+        neo4jMappingContext = mock(Neo4jMappingContext.class);
+    }
 
-	@Test
-	public void testBasicWriter() {
-		Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
-				.neo4jTemplate(this.neo4jTemplate)
-				.neo4jDriver(this.neo4jDriver)
-				.neo4jMappingContext(this.neo4jMappingContext)
-				.build();
+    @Test
+    public void testBasicWriter() {
+        Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
+            .neo4jTemplate(this.neo4jTemplate)
+            .neo4jDriver(this.neo4jDriver)
+            .neo4jMappingContext(this.neo4jMappingContext)
+            .build();
 
-		Chunk<String> items = Chunk.of("foo", "bar");
-		writer.write(items);
+        Chunk<String> items = Chunk.of("foo", "bar");
+        writer.write(items);
 
-		verify(this.neo4jTemplate).saveAll(items.getItems());
-		verify(this.neo4jDriver, never()).executableQuery(anyString());
-	}
+        verify(this.neo4jTemplate).saveAll(items.getItems());
+        verify(this.neo4jDriver, never()).executableQuery(anyString());
+    }
 
-	@Test
-	public void testBasicDelete() {
-		Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
-				.delete(true)
-				.neo4jMappingContext(this.neo4jMappingContext)
-				.neo4jTemplate(this.neo4jTemplate)
-				.neo4jDriver(neo4jDriver)
-				.build();
+    @Test
+    public void testBasicDelete() {
+        Neo4jItemWriter<String> writer = new Neo4jItemWriterBuilder<String>()
+            .delete(true)
+            .neo4jMappingContext(this.neo4jMappingContext)
+            .neo4jTemplate(this.neo4jTemplate)
+            .neo4jDriver(neo4jDriver)
+            .build();
 
-		// needs some mocks to create the testable environment
-		Neo4jPersistentEntity<?> persistentEntity = mock(Neo4jPersistentEntity.class);
-		IdentifierAccessor identifierAccessor = mock(IdentifierAccessor.class);
-		IdDescription idDescription = mock(IdDescription.class);
-		ExecutableQuery executableQuery = mock(ExecutableQuery.class);
-		when(identifierAccessor.getRequiredIdentifier()).thenReturn("someId");
-		when(idDescription.asIdExpression(anyString())).thenReturn(Functions.id(Cypher.anyNode()));
-		when(executableQuery.withParameters(any())).thenReturn(executableQuery);
-		when(persistentEntity.getIdentifierAccessor(any())).thenReturn(identifierAccessor);
-		when(persistentEntity.getPrimaryLabel()).thenReturn("SomeLabel");
-		when(persistentEntity.getIdDescription()).thenReturn(idDescription);
-		when(this.neo4jMappingContext.getNodeDescription(any(Class.class))).thenAnswer(invocationOnMock -> persistentEntity);
-		when(this.neo4jDriver.executableQuery(anyString())).thenReturn(executableQuery);
+        // needs some mocks to create the testable environment
+        Neo4jPersistentEntity<?> persistentEntity = mock(Neo4jPersistentEntity.class);
+        IdentifierAccessor identifierAccessor = mock(IdentifierAccessor.class);
+        IdDescription idDescription = mock(IdDescription.class);
+        ExecutableQuery executableQuery = mock(ExecutableQuery.class);
+        when(identifierAccessor.getRequiredIdentifier()).thenReturn("someId");
+        when(idDescription.asIdExpression(anyString())).thenReturn(Functions.id(Cypher.anyNode()));
+        when(executableQuery.withParameters(any())).thenReturn(executableQuery);
+        when(persistentEntity.getIdentifierAccessor(any())).thenReturn(identifierAccessor);
+        when(persistentEntity.getPrimaryLabel()).thenReturn("SomeLabel");
+        when(persistentEntity.getIdDescription()).thenReturn(idDescription);
+        when(this.neo4jMappingContext.getNodeDescription(any(Class.class))).thenAnswer(invocationOnMock -> persistentEntity);
+        when(this.neo4jDriver.executableQuery(anyString())).thenReturn(executableQuery);
 
-		Chunk<String> items = Chunk.of("foo", "bar");
+        Chunk<String> items = Chunk.of("foo", "bar");
 
-		writer.write(items);
+        writer.write(items);
 
-		verify(this.neo4jDriver, times(2)).executableQuery(anyString());
-		verify(this.neo4jTemplate, never()).save(items);
-	}
+        verify(this.neo4jDriver, times(2)).executableQuery(anyString());
+        verify(this.neo4jTemplate, never()).save(items);
+    }
 
-	@Test
-	public void testNoNeo4jDriver() {
-		try {
-			new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jMappingContext(neo4jMappingContext).build();
-			fail("Neo4jTemplate was not set but exception was not thrown.");
-		} catch (IllegalArgumentException iae) {
-			assertEquals("neo4jDriver is required.", iae.getMessage());
-		}
-	}
+    @Test
+    public void testNoNeo4jDriver() {
+        try {
+            new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jMappingContext(neo4jMappingContext).build();
+            fail("Neo4jTemplate was not set but exception was not thrown.");
+        } catch (IllegalArgumentException iae) {
+            assertEquals("neo4jDriver is required.", iae.getMessage());
+        }
+    }
 
-	@Test
-	public void testNoMappingContextFactory() {
-		try {
-			new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jDriver(neo4jDriver).build();
-			fail("Neo4jTemplate was not set but exception was not thrown.");
-		} catch (IllegalArgumentException iae) {
-			assertEquals("neo4jMappingContext is required.", iae.getMessage());
-		}
-	}
+    @Test
+    public void testNoMappingContextFactory() {
+        try {
+            new Neo4jItemWriterBuilder<String>().neo4jTemplate(neo4jTemplate).neo4jDriver(neo4jDriver).build();
+            fail("Neo4jTemplate was not set but exception was not thrown.");
+        } catch (IllegalArgumentException iae) {
+            assertEquals("neo4jMappingContext is required.", iae.getMessage());
+        }
+    }
 
-	@Test
-	public void testNoNeo4jTemplate() {
-		try {
-			new Neo4jItemWriterBuilder<String>().build();
-			fail("Neo4jTemplate was not set but exception was not thrown.");
-		} catch (IllegalArgumentException iae) {
-			assertEquals("neo4jTemplate is required.", iae.getMessage());
-		}
-	}
+    @Test
+    public void testNoNeo4jTemplate() {
+        try {
+            new Neo4jItemWriterBuilder<String>().build();
+            fail("Neo4jTemplate was not set but exception was not thrown.");
+        } catch (IllegalArgumentException iae) {
+            assertEquals("neo4jTemplate is required.", iae.getMessage());
+        }
+    }
 
 }

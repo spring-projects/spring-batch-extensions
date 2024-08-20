@@ -27,179 +27,179 @@ import java.util.Map;
  * A builder for the {@link Neo4jItemReader}.
  *
  * @param <T> type of the entity to read
- *
  * @author Glenn Renfro
  * @author Gerrit Meier
  * @see Neo4jItemReader
  */
 public class Neo4jItemReaderBuilder<T> {
 
-	private Neo4jTemplate neo4jTemplate;
+    private Neo4jTemplate neo4jTemplate;
 
-	private StatementBuilder.OngoingReadingAndReturn statement;
+    private StatementBuilder.OngoingReadingAndReturn statement;
 
-	private Class<T> targetType;
+    private Class<T> targetType;
 
-	private Map<String, Object> parameterValues;
+    private Map<String, Object> parameterValues;
 
-	private int pageSize = 10;
+    private int pageSize = 10;
 
-	private boolean saveState = true;
+    private boolean saveState = true;
 
-	private String name;
+    private String name;
 
-	private int maxItemCount = Integer.MAX_VALUE;
+    private int maxItemCount = Integer.MAX_VALUE;
 
-	private int currentItemCount;
+    private int currentItemCount;
 
-	/**
-	 * Configure if the state of the {@link org.springframework.batch.item.ItemStreamSupport}
-	 * should be persisted within the {@link org.springframework.batch.item.ExecutionContext}
-	 * for restart purposes.
-	 *
-	 * @param saveState defaults to true
-	 * @return The current instance of the builder.
-	 */
-	public Neo4jItemReaderBuilder<T> saveState(boolean saveState) {
-		this.saveState = saveState;
+    /**
+     * Configure if the state of the {@link org.springframework.batch.item.ItemStreamSupport}
+     * should be persisted within the {@link org.springframework.batch.item.ExecutionContext}
+     * for restart purposes.
+     *
+     * @param saveState defaults to true
+     * @return The current instance of the builder.
+     */
+    public Neo4jItemReaderBuilder<T> saveState(boolean saveState) {
+        this.saveState = saveState;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * The name used to calculate the key within the
-	 * {@link org.springframework.batch.item.ExecutionContext}. Required if
-	 * {@link #saveState(boolean)} is set to true.
-	 *
-	 * @param name name of the reader instance
-	 * @return The current instance of the builder.
-	 * @see org.springframework.batch.item.ItemStreamSupport#setName(String)
-	 */
-	public Neo4jItemReaderBuilder<T> name(String name) {
-		this.name = name;
+    /**
+     * The name used to calculate the key within the
+     * {@link org.springframework.batch.item.ExecutionContext}. Required if
+     * {@link #saveState(boolean)} is set to true.
+     *
+     * @param name name of the reader instance
+     * @return The current instance of the builder.
+     * @see org.springframework.batch.item.ItemStreamSupport#setName(String)
+     */
+    public Neo4jItemReaderBuilder<T> name(String name) {
+        this.name = name;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Configure the max number of items to be read.
-	 *
-	 * @param maxItemCount the max items to be read
-	 * @return The current instance of the builder.
-	 * @see org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader#setMaxItemCount(int)
-	 */
-	public Neo4jItemReaderBuilder<T> maxItemCount(int maxItemCount) {
-		this.maxItemCount = maxItemCount;
+    /**
+     * Configure the max number of items to be read.
+     *
+     * @param maxItemCount the max items to be read
+     * @return The current instance of the builder.
+     * @see org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader#setMaxItemCount(int)
+     */
+    public Neo4jItemReaderBuilder<T> maxItemCount(int maxItemCount) {
+        this.maxItemCount = maxItemCount;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Index for the current item. Used on restarts to indicate where to start from.
-	 *
-	 * @param currentItemCount current index
-	 * @return this instance for method chaining
-	 * @see org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader#setCurrentItemCount(int)
-	 */
-	public Neo4jItemReaderBuilder<T> currentItemCount(int currentItemCount) {
-		this.currentItemCount = currentItemCount;
+    /**
+     * Index for the current item. Used on restarts to indicate where to start from.
+     *
+     * @param currentItemCount current index
+     * @return this instance for method chaining
+     * @see org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader#setCurrentItemCount(int)
+     */
+    public Neo4jItemReaderBuilder<T> currentItemCount(int currentItemCount) {
+        this.currentItemCount = currentItemCount;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Establish the neo4jTemplate for the reader.
-	 * @param neo4jTemplate the template to use for the reader.
-	 * @return this instance for method chaining
-	 * @see Neo4jItemReader#setNeo4jTemplate(Neo4jTemplate)
-	 */
-	public Neo4jItemReaderBuilder<T> neo4jTemplate(Neo4jTemplate neo4jTemplate) {
-		this.neo4jTemplate = neo4jTemplate;
+    /**
+     * Establish the neo4jTemplate for the reader.
+     *
+     * @param neo4jTemplate the template to use for the reader.
+     * @return this instance for method chaining
+     * @see Neo4jItemReader#setNeo4jTemplate(Neo4jTemplate)
+     */
+    public Neo4jItemReaderBuilder<T> neo4jTemplate(Neo4jTemplate neo4jTemplate) {
+        this.neo4jTemplate = neo4jTemplate;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * The number of items to be read with each page.
-	 *
-	 * @param pageSize the number of items
-	 * @return this instance for method chaining
-	 * @see Neo4jItemReader#setPageSize(int)
-	 */
-	public Neo4jItemReaderBuilder<T> pageSize(int pageSize) {
-		this.pageSize = pageSize;
+    /**
+     * The number of items to be read with each page.
+     *
+     * @param pageSize the number of items
+     * @return this instance for method chaining
+     * @see Neo4jItemReader#setPageSize(int)
+     */
+    public Neo4jItemReaderBuilder<T> pageSize(int pageSize) {
+        this.pageSize = pageSize;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Optional parameters to be used in the cypher query.
-	 *
-	 * @param parameterValues the parameter values to be used in the cypher query
-	 * @return this instance for method chaining
-	 * @see Neo4jItemReader#setParameterValues(Map)
-	 */
-	public Neo4jItemReaderBuilder<T> parameterValues(Map<String, Object> parameterValues) {
-		this.parameterValues = parameterValues;
+    /**
+     * Optional parameters to be used in the cypher query.
+     *
+     * @param parameterValues the parameter values to be used in the cypher query
+     * @return this instance for method chaining
+     * @see Neo4jItemReader#setParameterValues(Map)
+     */
+    public Neo4jItemReaderBuilder<T> parameterValues(Map<String, Object> parameterValues) {
+        this.parameterValues = parameterValues;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Cypher-DSL's {@link org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn} statement
-	 * without skip and limit segments. Those will get added by the pagination mechanism later.
-	 *
-	 * @param statement the cypher query without SKIP or LIMIT
-	 * @return this instance for method chaining
-	 * @see Neo4jItemReader#setStatement(org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn)
-	 */
-	public Neo4jItemReaderBuilder<T> statement(StatementBuilder.OngoingReadingAndReturn statement) {
-		this.statement = statement;
+    /**
+     * Cypher-DSL's {@link org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn} statement
+     * without skip and limit segments. Those will get added by the pagination mechanism later.
+     *
+     * @param statement the cypher query without SKIP or LIMIT
+     * @return this instance for method chaining
+     * @see Neo4jItemReader#setStatement(org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn)
+     */
+    public Neo4jItemReaderBuilder<T> statement(StatementBuilder.OngoingReadingAndReturn statement) {
+        this.statement = statement;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * The object type to be returned from each call to {@link Neo4jItemReader#read()}
-	 *
-	 * @param targetType the type of object to return.
-	 * @return this instance for method chaining
-	 * @see Neo4jItemReader#setTargetType(Class)
-	 */
-	public Neo4jItemReaderBuilder<T> targetType(Class<T> targetType) {
-		this.targetType = targetType;
+    /**
+     * The object type to be returned from each call to {@link Neo4jItemReader#read()}
+     *
+     * @param targetType the type of object to return.
+     * @return this instance for method chaining
+     * @see Neo4jItemReader#setTargetType(Class)
+     */
+    public Neo4jItemReaderBuilder<T> targetType(Class<T> targetType) {
+        this.targetType = targetType;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Returns a fully constructed {@link Neo4jItemReader}.
-	 *
-	 * @return a new {@link Neo4jItemReader}
-	 */
-	public Neo4jItemReader<T> build() {
-		if (this.saveState) {
-			Assert.hasText(this.name, "A name is required when saveState is set to true");
-		}
-		Assert.notNull(this.neo4jTemplate, "neo4jTemplate is required.");
-		Assert.notNull(this.targetType, "targetType is required.");
-		Assert.notNull(this.statement, "statement is required.");
-		Assert.isTrue(this.pageSize > 0, "pageSize must be greater than zero");
-		Assert.isTrue(this.maxItemCount > 0, "maxItemCount must be greater than zero");
-		Assert.isTrue(this.maxItemCount > this.currentItemCount , "maxItemCount must be greater than currentItemCount");
+    /**
+     * Returns a fully constructed {@link Neo4jItemReader}.
+     *
+     * @return a new {@link Neo4jItemReader}
+     */
+    public Neo4jItemReader<T> build() {
+        if (this.saveState) {
+            Assert.hasText(this.name, "A name is required when saveState is set to true");
+        }
+        Assert.notNull(this.neo4jTemplate, "neo4jTemplate is required.");
+        Assert.notNull(this.targetType, "targetType is required.");
+        Assert.notNull(this.statement, "statement is required.");
+        Assert.isTrue(this.pageSize > 0, "pageSize must be greater than zero");
+        Assert.isTrue(this.maxItemCount > 0, "maxItemCount must be greater than zero");
+        Assert.isTrue(this.maxItemCount > this.currentItemCount, "maxItemCount must be greater than currentItemCount");
 
-		Neo4jItemReader<T> reader = new Neo4jItemReader<>();
-		reader.setPageSize(this.pageSize);
-		reader.setParameterValues(this.parameterValues);
-		reader.setNeo4jTemplate(this.neo4jTemplate);
-		reader.setTargetType(this.targetType);
-		reader.setStatement(this.statement);
-		reader.setName(this.name);
-		reader.setSaveState(this.saveState);
-		reader.setCurrentItemCount(this.currentItemCount);
-		reader.setMaxItemCount(this.maxItemCount);
+        Neo4jItemReader<T> reader = new Neo4jItemReader<>();
+        reader.setPageSize(this.pageSize);
+        reader.setParameterValues(this.parameterValues);
+        reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setTargetType(this.targetType);
+        reader.setStatement(this.statement);
+        reader.setName(this.name);
+        reader.setSaveState(this.saveState);
+        reader.setCurrentItemCount(this.currentItemCount);
+        reader.setMaxItemCount(this.maxItemCount);
 
-		return reader;
-	}
+        return reader;
+    }
 
 }
