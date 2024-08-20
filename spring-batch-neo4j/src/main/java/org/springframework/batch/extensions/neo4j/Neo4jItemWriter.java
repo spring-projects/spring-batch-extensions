@@ -49,7 +49,6 @@ import java.util.Map;
  * @author Glenn Renfro
  * @author Mahmoud Ben Hassine
  * @author Gerrit Meier
- *
  */
 public class Neo4jItemWriter<T> implements ItemWriter<T>, InitializingBean {
 

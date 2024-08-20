@@ -25,24 +25,25 @@ import org.neo4j.cypherdsl.core.Statement;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class Neo4jItemReaderTests {
 
-	private List<String> result;
 	private Neo4jTemplate neo4jTemplate;
 
-	@SuppressWarnings("unchecked")
 	@BeforeEach
 	void setup() {
 		neo4jTemplate = mock(Neo4jTemplate.class);
-		result = mock(List.class);
 	}
 
 	private Neo4jItemReader<String> buildSessionBasedReader() {
@@ -97,9 +98,8 @@ public class Neo4jItemReaderTests {
 		reader.afterPropertiesSet();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testNullResultsWithSession() throws Exception {
+	public void testNullResultsWithSession() {
 
 		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
 
@@ -113,28 +113,24 @@ public class Neo4jItemReaderTests {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testNoResultsWithSession() throws Exception {
+	public void testNoResultsWithSession() {
 		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
 		ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
 
-		when(this.neo4jTemplate.findAll(query.capture(), any(), eq(String.class))).thenReturn(result);
-		when(result.iterator()).thenReturn(Collections.emptyIterator());
+		when(this.neo4jTemplate.findAll(query.capture(), any(), eq(String.class))).thenReturn(List.of());
 
 		assertFalse(itemReader.doPageRead().hasNext());
 		Node node = Cypher.anyNode().named("n");
 		assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
 	}
 
-	@SuppressWarnings("serial")
 	@Test
-	public void testResultsWithMatchAndWhereWithSession() throws Exception {
+	public void testResultsWithMatchAndWhereWithSession() {
 		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
 		itemReader.afterPropertiesSet();
 
-		when(this.neo4jTemplate.findAll(any(Statement.class), isNull(), eq(String.class))).thenReturn(result);
-		when(result.iterator()).thenReturn(Arrays.asList("foo", "bar", "baz").iterator());
+		when(this.neo4jTemplate.findAll(any(Statement.class), isNull(), eq(String.class))).thenReturn(Arrays.asList("foo", "bar", "baz"));
 
 		assertTrue(itemReader.doPageRead().hasNext());
 	}

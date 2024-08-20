@@ -1,10 +1,10 @@
 /*
  * Copyright 2017-2021 the original author or authors.
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *          https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
@@ -49,7 +49,6 @@ public class Neo4jItemWriterBuilder<T> {
 	 */
 	public Neo4jItemWriterBuilder<T> delete(boolean delete) {
 		this.delete = delete;
-
 		return this;
 	}
 
@@ -62,7 +61,6 @@ public class Neo4jItemWriterBuilder<T> {
 	 */
 	public Neo4jItemWriterBuilder<T> neo4jTemplate(Neo4jTemplate neo4jTemplate) {
 		this.neo4jTemplate = neo4jTemplate;
-
 		return this;
 	}
 
@@ -73,7 +71,6 @@ public class Neo4jItemWriterBuilder<T> {
 	 */
 	public Neo4jItemWriterBuilder<T> neo4jDriver(Driver neo4jDriver) {
 		this.neo4jDriver = neo4jDriver;
-
 		return this;
 	}
 
@@ -84,7 +81,6 @@ public class Neo4jItemWriterBuilder<T> {
 	 */
 	public Neo4jItemWriterBuilder<T> neo4jMappingContext(Neo4jMappingContext neo4jMappingContext) {
 		this.neo4jMappingContext = neo4jMappingContext;
-
 		return this;
 	}
 
@@ -102,7 +98,6 @@ public class Neo4jItemWriterBuilder<T> {
 		writer.setNeo4jTemplate(this.neo4jTemplate);
 		writer.setNeo4jDriver(this.neo4jDriver);
 		writer.setNeo4jMappingContext(this.neo4jMappingContext);
-
 		return writer;
 	}
 }

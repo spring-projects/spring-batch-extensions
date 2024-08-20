@@ -165,25 +165,7 @@ public class Neo4jItemWriterTests {
 		verify(this.neo4jDriver, new Times(2)).executableQuery("MATCH (MyEntity) WHERE MyEntity.idField = $id DETACH DELETE MyEntity");
 	}
 
-	private static class MyEntity {
-		public final String idField;
-
-		private MyEntity(String idField) {
-			this.idField = idField;
-		}
-
-		@Override
-		public boolean equals(Object object) {
-			if (this == object) return true;
-			if (object == null || getClass() != object.getClass()) return false;
-			MyEntity myEntity = (MyEntity) object;
-			return Objects.equals(idField, myEntity.idField);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(idField);
-		}
+	private record MyEntity(String idField) {
 	}
 
 	private static class TestEntity<T> extends BasicPersistentEntity<T, Neo4jPersistentProperty>
@@ -245,7 +227,7 @@ public class Neo4jItemWriterTests {
 				@Override
 				public Field getField() {
 					try {
-						return MyEntity.class.getField("idField");
+						return MyEntity.class.getDeclaredField("idField");
 					} catch (NoSuchFieldException e) {
 						throw new RuntimeException(e);
 					}
