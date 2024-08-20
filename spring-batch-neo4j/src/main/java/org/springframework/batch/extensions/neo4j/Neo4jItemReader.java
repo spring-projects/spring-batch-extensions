@@ -16,20 +16,19 @@
 
 package org.springframework.batch.extensions.neo4j;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-
+import org.neo4j.cypherdsl.core.Statement;
+import org.neo4j.cypherdsl.core.StatementBuilder;
+import org.neo4j.cypherdsl.core.renderer.Renderer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.AbstractPaginatedDataItemReader;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * <p>
@@ -38,7 +37,7 @@ import org.springframework.util.StringUtils;
  * </p>
  *
  * <p>
- * It executes cypher queries built from the statement fragments provided to
+ * It executes cypher queries built from the statement provided to
  * retrieve the requested data.  The query is executed using paged requests of
  * a size specified in {@link #setPageSize(int)}.  Additional pages are requested
  * as needed when the {@link #read()} method is called.  On restart, the reader
@@ -46,7 +45,7 @@ import org.springframework.util.StringUtils;
  * </p>
  *
  * <p>
- * Performance is dependent on your Neo4J configuration (embedded or remote) as
+ * Performance is dependent on your Neo4j configuration as
  * well as page size.  Setting a fairly large page size and using a commit
  * interval that matches the page size should provide better performance.
  * </p>
@@ -58,167 +57,87 @@ import org.springframework.util.StringUtils;
  * environment (no restart available).
  * </p>
  *
+ * @param <T> type of entity to load
  * @author Michael Minella
  * @author Mahmoud Ben Hassine
+ * @author Gerrit Meier
  */
 public class Neo4jItemReader<T> extends AbstractPaginatedDataItemReader<T> implements InitializingBean {
 
-	protected Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-	private SessionFactory sessionFactory;
+    private Neo4jTemplate neo4jTemplate;
 
-	private String startStatement;
-	private String returnStatement;
-	private String matchStatement;
-	private String whereStatement;
-	private String orderByStatement;
+    private StatementBuilder.OngoingReadingAndReturn statement;
 
-	private Class<T> targetType;
+    private Class<T> targetType;
 
-	private Map<String, Object> parameterValues;
+    private Map<String, Object> parameterValues;
 
-	/**
-	 * Optional parameters to be used in the cypher query.
-	 *
-	 * @param parameterValues the parameter values to be used in the cypher query
-	 */
-	public void setParameterValues(Map<String, Object> parameterValues) {
-		this.parameterValues = parameterValues;
-	}
+    /**
+     * Optional parameters to be used in the cypher query.
+     *
+     * @param parameterValues the parameter values to be used in the cypher query
+     */
+    public void setParameterValues(Map<String, Object> parameterValues) {
+        this.parameterValues = parameterValues;
+    }
 
-	protected final Map<String, Object> getParameterValues() {
-		return this.parameterValues;
-	}
+    /**
+     * Cypher-DSL's {@link org.neo4j.cypherdsl.core.StatementBuilder.OngoingReadingAndReturn} statement
+     * without skip and limit segments. Those will get added by the pagination mechanism later.
+     *
+     * @param statement the Cypher-DSL statement-in-construction.
+     */
+    public void setStatement(StatementBuilder.OngoingReadingAndReturn statement) {
+        this.statement = statement;
+    }
 
-	/**
-	 * The start segment of the cypher query.  START is prepended
-	 * to the statement provided and should <em>not</em> be
-	 * included.
-	 *
-	 * @param startStatement the start fragment of the cypher query.
-	 */
-	public void setStartStatement(String startStatement) {
-		this.startStatement = startStatement;
-	}
+    /**
+     * Establish the Neo4jTemplate for the reader.
+     *
+     * @param neo4jTemplate the template to use for the reader.
+     */
+    public void setNeo4jTemplate(Neo4jTemplate neo4jTemplate) {
+        this.neo4jTemplate = neo4jTemplate;
+    }
 
-	/**
-	 * The return statement of the cypher query.  RETURN is prepended
-	 * to the statement provided and should <em>not</em> be
-	 * included
-	 *
-	 * @param returnStatement the return fragment of the cypher query.
-	 */
-	public void setReturnStatement(String returnStatement) {
-		this.returnStatement = returnStatement;
-	}
+    /**
+     * The object type to be returned from each call to {@link #read()}
+     *
+     * @param targetType the type of object to return.
+     */
+    public void setTargetType(Class<T> targetType) {
+        this.targetType = targetType;
+    }
 
-	/**
-	 * An optional match fragment of the cypher query.  MATCH is
-	 * prepended to the statement provided and should <em>not</em>
-	 * be included.
-	 *
-	 * @param matchStatement the match fragment of the cypher query
-	 */
-	public void setMatchStatement(String matchStatement) {
-		this.matchStatement = matchStatement;
-	}
+    private Statement generateStatement() {
+        Statement builtStatement = statement
+            .skip(page * pageSize)
+            .limit(pageSize)
+            .build();
+        if (logger.isDebugEnabled()) {
+            logger.debug(Renderer.getDefaultRenderer().render(builtStatement));
+        }
 
-	/**
-	 * An optional where fragment of the cypher query.  WHERE is
-	 * prepended to the statement provided and should <em>not</em>
-	 * be included.
-	 *
-	 * @param whereStatement where fragment of the cypher query
-	 */
-	public void setWhereStatement(String whereStatement) {
-		this.whereStatement = whereStatement;
-	}
+        return builtStatement;
+    }
 
-	/**
-	 * A list of properties to order the results by.  This is
-	 * required so that subsequent page requests pull back the
-	 * segment of results correctly.  ORDER BY is prepended to
-	 * the statement provided and should <em>not</em> be included.
-	 *
-	 * @param orderByStatement order by fragment of the cypher query.
-	 */
-	public void setOrderByStatement(String orderByStatement) {
-		this.orderByStatement = orderByStatement;
-	}
+    /**
+     * Checks mandatory properties
+     *
+     * @see InitializingBean#afterPropertiesSet()
+     */
+    @Override
+    public void afterPropertiesSet() {
+        Assert.state(neo4jTemplate != null, "A Neo4jTemplate is required");
+        Assert.state(targetType != null, "The type to be returned is required");
+        Assert.state(statement != null, "A statement is required");
+    }
 
-	protected SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	/**
-	 * Establish the session factory for the reader.
-	 * @param sessionFactory the factory to use for the reader.
-	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	/**
-	 * The object type to be returned from each call to {@link #read()}
-	 *
-	 * @param targetType the type of object to return.
-	 */
-	public void setTargetType(Class<T> targetType) {
-		this.targetType = targetType;
-	}
-
-	protected final Class<T> getTargetType() {
-		return this.targetType;
-	}
-
-	protected String generateLimitCypherQuery() {
-		StringBuilder query = new StringBuilder(128);
-
-		query.append("START ").append(startStatement);
-		query.append(matchStatement != null ? " MATCH " + matchStatement : "");
-		query.append(whereStatement != null ? " WHERE " + whereStatement : "");
-		query.append(" RETURN ").append(returnStatement);
-		query.append(" ORDER BY ").append(orderByStatement);
-		query.append(" SKIP " + (pageSize * page));
-		query.append(" LIMIT " + pageSize);
-
-		String resultingQuery = query.toString();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug(resultingQuery);
-		}
-
-		return resultingQuery;
-	}
-
-	/**
-	 * Checks mandatory properties
-	 *
-	 * @see InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		Assert.state(sessionFactory != null,"A SessionFactory is required");
-		Assert.state(targetType != null, "The type to be returned is required");
-		Assert.state(StringUtils.hasText(startStatement), "A START statement is required");
-		Assert.state(StringUtils.hasText(returnStatement), "A RETURN statement is required");
-		Assert.state(StringUtils.hasText(orderByStatement), "A ORDER BY statement is required");
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	protected Iterator<T> doPageRead() {
-		Session session = getSessionFactory().openSession();
-
-		Iterable<T> queryResults = session.query(getTargetType(),
-				generateLimitCypherQuery(),
-				getParameterValues());
-
-		if(queryResults != null) {
-			return queryResults.iterator();
-		}
-		else {
-			return new ArrayList<T>().iterator();
-		}
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Iterator<T> doPageRead() {
+        return neo4jTemplate.findAll(generateStatement(), parameterValues, targetType).iterator();
+    }
 }

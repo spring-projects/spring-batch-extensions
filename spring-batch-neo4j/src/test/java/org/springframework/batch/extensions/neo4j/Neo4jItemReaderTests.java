@@ -16,187 +16,123 @@
 
 package org.springframework.batch.extensions.neo4j;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.cypherdsl.core.Cypher;
+import org.neo4j.cypherdsl.core.Node;
+import org.neo4j.cypherdsl.core.Statement;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class Neo4jItemReaderTests {
 
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule().silent();
+    private Neo4jTemplate neo4jTemplate;
 
-	@Mock
-	private Iterable<String> result;
-	@Mock
-	private SessionFactory sessionFactory;
-	@Mock
-	private Session session;
+    @BeforeEach
+    void setup() {
+        neo4jTemplate = mock(Neo4jTemplate.class);
+    }
 
-	private Neo4jItemReader<String> buildSessionBasedReader() throws Exception {
-		Neo4jItemReader<String> reader = new Neo4jItemReader<>();
+    private Neo4jItemReader<String> buildSessionBasedReader() {
+        Neo4jItemReader<String> reader = new Neo4jItemReader<>();
 
-		reader.setSessionFactory(this.sessionFactory);
-		reader.setTargetType(String.class);
-		reader.setStartStatement("n=node(*)");
-		reader.setReturnStatement("*");
-		reader.setOrderByStatement("n.age");
-		reader.setPageSize(50);
-		reader.afterPropertiesSet();
+        reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setTargetType(String.class);
+        Node n = Cypher.anyNode().named("n");
+        reader.setStatement(Cypher.match(n).returning(n));
+        reader.setPageSize(50);
+        reader.afterPropertiesSet();
 
-		return reader;
-	}
+        return reader;
+    }
 
-	@Test
-	public void testAfterPropertiesSet() throws Exception {
+    @Test
+    public void testAfterPropertiesSet() {
 
-		Neo4jItemReader<String> reader = new Neo4jItemReader<>();
+        Neo4jItemReader<String> reader = new Neo4jItemReader<>();
 
-		try {
-			reader.afterPropertiesSet();
-			fail("SessionFactory was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("A SessionFactory is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        try {
+            reader.afterPropertiesSet();
+            fail("SessionFactory was not set but exception was not thrown.");
+        } catch (IllegalStateException iae) {
+            assertEquals("A Neo4jTemplate is required", iae.getMessage());
+        } catch (Throwable t) {
+            fail("Wrong exception was thrown:" + t);
+        }
 
-		reader.setSessionFactory(this.sessionFactory);
+        reader.setNeo4jTemplate(this.neo4jTemplate);
 
-		try {
-			reader.afterPropertiesSet();
-			fail("Target Type was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("The type to be returned is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        try {
+            reader.afterPropertiesSet();
+            fail("Target Type was not set but exception was not thrown.");
+        } catch (IllegalStateException iae) {
+            assertEquals("The type to be returned is required", iae.getMessage());
+        } catch (Throwable t) {
+            fail("Wrong exception was thrown:" + t);
+        }
 
-		reader.setTargetType(String.class);
+        reader.setTargetType(String.class);
 
-		try {
-			reader.afterPropertiesSet();
-			fail("START was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("A START statement is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
 
-		reader.setStartStatement("n=node(*)");
+        reader.afterPropertiesSet();
 
-		try {
-			reader.afterPropertiesSet();
-			fail("RETURN was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("A RETURN statement is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+        reader = new Neo4jItemReader<>();
+        reader.setNeo4jTemplate(this.neo4jTemplate);
+        reader.setTargetType(String.class);
+        reader.setStatement(Cypher.match(Cypher.anyNode()).returning(Cypher.anyNode()));
 
-		reader.setReturnStatement("n.name, n.phone");
+        reader.afterPropertiesSet();
+    }
 
-		try {
-			reader.afterPropertiesSet();
-			fail("ORDER BY was not set but exception was not thrown.");
-		} catch (IllegalStateException iae) {
-			assertEquals("A ORDER BY statement is required", iae.getMessage());
-		} catch (Throwable t) {
-			fail("Wrong exception was thrown:" + t);
-		}
+    @Test
+    public void testNullResultsWithSession() {
 
-		reader.setOrderByStatement("n.age");
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
 
-		reader.afterPropertiesSet();
+        ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
 
-		reader = new Neo4jItemReader<>();
-		reader.setSessionFactory(this.sessionFactory);
-		reader.setTargetType(String.class);
-		reader.setStartStatement("n=node(*)");
-		reader.setReturnStatement("n.name, n.phone");
-		reader.setOrderByStatement("n.age");
+        when(this.neo4jTemplate.findAll(query.capture(), isNull(), eq(String.class))).thenReturn(List.of());
 
-		reader.afterPropertiesSet();
-	}
+        assertFalse(itemReader.doPageRead().hasNext());
+        Node node = Cypher.anyNode().named("n");
+        assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testNullResultsWithSession() throws Exception {
+    }
 
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+    @Test
+    public void testNoResultsWithSession() {
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+        ArgumentCaptor<Statement> query = ArgumentCaptor.forClass(Statement.class);
 
-		ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+        when(this.neo4jTemplate.findAll(query.capture(), any(), eq(String.class))).thenReturn(List.of());
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		when(this.session.query(eq(String.class), query.capture(), isNull())).thenReturn(null);
+        assertFalse(itemReader.doPageRead().hasNext());
+        Node node = Cypher.anyNode().named("n");
+        assertEquals(Cypher.match(node).returning(node).skip(0).limit(50).build().getCypher(), query.getValue().getCypher());
+    }
 
-		assertFalse(itemReader.doPageRead().hasNext());
-		assertEquals("START n=node(*) RETURN * ORDER BY n.age SKIP 0 LIMIT 50", query.getValue());
-	}
+    @Test
+    public void testResultsWithMatchAndWhereWithSession() {
+        Neo4jItemReader<String> itemReader = buildSessionBasedReader();
+        itemReader.afterPropertiesSet();
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testNoResultsWithSession() throws Exception {
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
-		ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+        when(this.neo4jTemplate.findAll(any(Statement.class), isNull(), eq(String.class))).thenReturn(Arrays.asList("foo", "bar", "baz"));
 
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		when(this.session.query(eq(String.class), query.capture(), isNull())).thenReturn(result);
-		when(result.iterator()).thenReturn(Collections.emptyIterator());
+        assertTrue(itemReader.doPageRead().hasNext());
+    }
 
-		assertFalse(itemReader.doPageRead().hasNext());
-		assertEquals("START n=node(*) RETURN * ORDER BY n.age SKIP 0 LIMIT 50", query.getValue());
-	}
-
-	@SuppressWarnings("serial")
-	@Test
-	public void testResultsWithMatchAndWhereWithSession() throws Exception {
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
-		itemReader.setMatchStatement("n -- m");
-		itemReader.setWhereStatement("has(n.name)");
-		itemReader.setReturnStatement("m");
-		itemReader.afterPropertiesSet();
-
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		when(this.session.query(String.class, "START n=node(*) MATCH n -- m WHERE has(n.name) RETURN m ORDER BY n.age SKIP 0 LIMIT 50", null)).thenReturn(result);
-		when(result.iterator()).thenReturn(Arrays.asList("foo", "bar", "baz").iterator());
-
-		assertTrue(itemReader.doPageRead().hasNext());
-	}
-
-	@SuppressWarnings("serial")
-	@Test
-	public void testResultsWithMatchAndWhereWithParametersWithSession() throws Exception {
-		Neo4jItemReader<String> itemReader = buildSessionBasedReader();
-		Map<String, Object> params = new HashMap<>();
-		params.put("foo", "bar");
-		itemReader.setParameterValues(params);
-		itemReader.setMatchStatement("n -- m");
-		itemReader.setWhereStatement("has(n.name)");
-		itemReader.setReturnStatement("m");
-		itemReader.afterPropertiesSet();
-
-		when(this.sessionFactory.openSession()).thenReturn(this.session);
-		when(this.session.query(String.class, "START n=node(*) MATCH n -- m WHERE has(n.name) RETURN m ORDER BY n.age SKIP 0 LIMIT 50", params)).thenReturn(result);
-		when(result.iterator()).thenReturn(Arrays.asList("foo", "bar", "baz").iterator());
-
-		assertTrue(itemReader.doPageRead().hasNext());
-	}
 }
