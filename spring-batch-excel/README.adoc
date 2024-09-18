@@ -6,9 +6,9 @@ The `PoiItemReader` has the most features but is also the most memory intensive 
 
 To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this will only keep the current row in memory and discard it afterward. Not everything is supported while streaming the XLSX file. It can be that formulas don't get evaluated or lead to an error.
 
-NOTE: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
+WARNING: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
 
-*Compatibility:* Spring Batch Excel is compatible with Spring Batch 4.3 and 5.0/5.1.
+*Compatibility:* Spring Batch Excel is compatible with Spring Batch 5.x.
 
 == Configuration of `PoiItemReader`
 
@@ -34,10 +34,10 @@ Configuration of can be done in XML or Java Config.
 ----
 @Bean
 @StepScope
-public PoiItemReader excelReader() {
+public PoiItemReader excelReader(RowMapper rowMapper) {
     PoiItemReader reader = new PoiItemReader();
     reader.setResource(new FileSystemResource("/path/to/your/excel/file"));
-    reader.setRowMapper(rowMapper());
+    reader.setRowMapper(rowMapper);
     return reader;
 }
 
@@ -82,7 +82,6 @@ public RowMapper rowMapper() {
 }
 ----
 
-
 == Configuration properties
 [cols="1,1,1,4"]
 .Properties for item readers
@@ -99,7 +98,11 @@ public RowMapper rowMapper() {
 | `strict` | no | `true` | This controls wether or not an exception is thrown if the file doesn't exists or isn't readable, by default an exception will be thrown.
 | `datesAsIso` | no | `false` | Controls if dates need to be parsed as ISO or to use the format as specified in the excel sheet.
 | `userLocale` | no | `null` | Set the `java.util.Locale` to use when formatting dates when there is no explicit format set in the Excel document.
+| `dataFormatterCustomizer` | no | `DataFormatterCustomizer.DEFAULT` | To additionally configure the https://poi.apache.org/apidocs/dev/org/apache/poi/ss/usermodel/DataFormatter.html[`DataFormatter`] in use to format the data. The default will set the `useCachedValuesForFormulaCells` property to `true` to use cached values instead of evaluating the formulas.
+| `formulaEvaluatorFactory` | no | `FormulaEvaluatorFactory.NOOP` | A factory approach to create a `FormulaEvaluator` used by Apache POI to evaluate the formulas in the, the default implementation will return `null` as the default is to use the cached values.
 |===
+
+== ColumnNameExtractors
 
 - `StaticColumnNameExtractor` uses a preset list of column names.
  - `RowNumberColumnNameExtractor` (**the default**) reads a given row (default 0) to determine the column names of the current sheet

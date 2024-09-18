@@ -74,6 +74,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	private DataFormatter dataFormatter;
 
+	private DataFormatterCustomizer dataFormatterCustomizer = DataFormatterCustomizer.DEFAULT;
+
+	private FormulaEvaluatorFactory formulaEvaluatorFactory = FormulaEvaluatorFactory.NOOP;
+
 	public AbstractExcelItemReader() {
 		super();
 		this.setName(ClassUtils.getShortName(this.getClass()));
@@ -222,12 +226,15 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.rowMapper, "RowMapper must be set");
+		Assert.notNull(this.dataFormatterCustomizer, "DataFormatterCustomizer must be set");
+		Assert.notNull(this.formulaEvaluatorFactory, "FormulaEvaluatorFactory must be set");
 		if (this.datesAsIso) {
 			this.dataFormatter = (this.userLocale != null) ? new IsoFormattingDateDataFormatter(this.userLocale) : new IsoFormattingDateDataFormatter();
 		}
 		else {
 			this.dataFormatter = (this.userLocale != null) ? new DataFormatter(this.userLocale) : new DataFormatter();
 		}
+		this.dataFormatterCustomizer.customize(this.dataFormatter);
 	}
 
 	protected DataFormatter getDataFormatter() {
@@ -329,5 +336,30 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	 */
 	public void setUserLocale(Locale userLocale) {
 		this.userLocale = userLocale;
+	}
+
+	/**
+	 * The {@code DataFormatterCustomizer} to use to configure the {@code DataFormatter} used to format/read data.
+	 * The default used is the {@code DataFormatterCustomizer.DEFAULT} which will disable formula evaluating and return
+	 * the cached value for a cell.
+	 * @param dataFormatterCustomizer the {@code DataFormatterCustomizer} never {@code null}.
+	 */
+	public void setDataFormatterCustomizer(DataFormatterCustomizer dataFormatterCustomizer) {
+		this.dataFormatterCustomizer = dataFormatterCustomizer;
+	}
+
+	/**
+	 * The {@code FormulaEvaluatorFactory} to use when a {@code FormulaEvaluator} is needed. The default used will
+	 * return {@code null} as the evaluator to use, this as by default the {@code DataFormatter} is configured to use
+	 * the cached value anyway.
+	 * @param formulaEvaluatorFactory the {@code FormulaEvaluatorFactory} to use, never {@code null}
+	 * @see FormulaEvaluatorFactory
+	 */
+	public void setFormulaEvaluatorFactory(FormulaEvaluatorFactory formulaEvaluatorFactory) {
+		this.formulaEvaluatorFactory = formulaEvaluatorFactory;
+	}
+
+	protected FormulaEvaluatorFactory getFormulaEvaluatorFactory() {
+		return this.formulaEvaluatorFactory;
 	}
 }

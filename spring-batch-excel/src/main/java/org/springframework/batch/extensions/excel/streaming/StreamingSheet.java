@@ -18,7 +18,6 @@ package org.springframework.batch.extensions.excel.streaming;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,6 +37,7 @@ import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.xml.sax.Attributes;
 
 import org.springframework.batch.extensions.excel.Sheet;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.StaxUtils;
 
@@ -161,7 +161,7 @@ class StreamingSheet implements Sheet {
 
 	@Override
 	public Iterator<String[]> iterator() {
-		return new Iterator<String[]>() {
+		return new Iterator<>() {
 
 			private String[] currentRow;
 
@@ -233,9 +233,10 @@ class StreamingSheet implements Sheet {
 	 */
 	private static final class AttributesAdapter implements Attributes {
 
-		private final Map<String, String> attributes = new HashMap<>();
+		private final Map<String, String> attributes;
 
 		private AttributesAdapter(XMLStreamReader delegate) {
+			this.attributes = CollectionUtils.newHashMap(delegate.getAttributeCount());
 			for (int i = 0; i < delegate.getAttributeCount(); i++) {
 				String name = delegate.getAttributeLocalName(i);
 				String value = delegate.getAttributeValue(i);

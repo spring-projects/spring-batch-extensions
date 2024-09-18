@@ -26,6 +26,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 
+import org.springframework.batch.extensions.excel.FormulaEvaluatorFactory;
 import org.springframework.batch.extensions.excel.Sheet;
 import org.springframework.lang.Nullable;
 
@@ -41,6 +42,7 @@ class PoiSheet implements Sheet {
 	private final org.apache.poi.ss.usermodel.Sheet delegate;
 	private final int numberOfRows;
 	private final String name;
+	private final FormulaEvaluatorFactory formulaEvaluatorFactory;
 
 	private FormulaEvaluator evaluator;
 
@@ -48,13 +50,15 @@ class PoiSheet implements Sheet {
 	 * Constructor which takes the delegate sheet.
 	 * @param delegate the apache POI sheet
 	 * @param dataFormatter the {@code DataFormatter} to use.
+	 * @param formulaEvaluatorFactory the {@code FormulaEvaluatorFactory} to use.
 	 */
-	PoiSheet(final org.apache.poi.ss.usermodel.Sheet delegate, DataFormatter dataFormatter) {
+	PoiSheet(final org.apache.poi.ss.usermodel.Sheet delegate, DataFormatter dataFormatter, FormulaEvaluatorFactory formulaEvaluatorFactory) {
 		super();
 		this.delegate = delegate;
 		this.numberOfRows = this.delegate.getLastRowNum() + 1;
 		this.name = this.delegate.getSheetName();
 		this.dataFormatter = dataFormatter;
+		this.formulaEvaluatorFactory = formulaEvaluatorFactory;
 	}
 
 	/**
@@ -108,17 +112,18 @@ class PoiSheet implements Sheet {
 	 * Lazy getter for the {@code FormulaEvaluator}. Takes some time to create an
 	 * instance, so if not necessary don't create it.
 	 * @return the {@code FormulaEvaluator}
+	 * @see FormulaEvaluatorFactory
 	 */
 	private FormulaEvaluator getFormulaEvaluator() {
 		if (this.evaluator == null) {
-			this.evaluator = this.delegate.getWorkbook().getCreationHelper().createFormulaEvaluator();
+			this.evaluator = this.formulaEvaluatorFactory.create(this.delegate.getWorkbook());
 		}
 		return this.evaluator;
 	}
 
 	@Override
 	public Iterator<String[]> iterator() {
-		return new Iterator<String[]>() {
+		return new Iterator<>() {
 			private final Iterator<Row> delegateIter = PoiSheet.this.delegate.iterator();
 
 			@Override

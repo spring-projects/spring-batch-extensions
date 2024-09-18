@@ -16,9 +16,12 @@
 
 package org.springframework.batch.extensions.excel.streaming;
 
+import java.util.stream.Stream;
+
+import org.junit.jupiter.params.provider.Arguments;
+
 import org.springframework.batch.extensions.excel.AbstractExcelItemReader;
 import org.springframework.batch.extensions.excel.AbstractExcelItemReaderTests;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author Marten Deinum
@@ -27,13 +30,14 @@ import org.springframework.core.io.ClassPathResource;
 class StreamingXlsxItemReaderTests extends AbstractExcelItemReaderTests {
 
 	@Override
-	protected void configureItemReader(AbstractExcelItemReader<String[]> itemReader) {
-		itemReader.setResource(new ClassPathResource("player.xlsx"));
-	}
-
-	@Override
 	protected AbstractExcelItemReader<String[]> createExcelItemReader() {
 		return new StreamingXlsxItemReader<>();
 	}
 
+	@Override
+	protected Stream<Arguments> scenarios() {
+		return Stream.of(
+				Arguments.of("classpath:/player.xlsx", NOOP),
+				Arguments.of("classpath:/player_with_blank_lines.xlsx", NOOP));
+	}
 }

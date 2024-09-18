@@ -46,7 +46,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
 	@Override
 	protected Sheet getSheet(final int sheet) {
-		return new PoiSheet(this.workbook.getSheetAt(sheet), getDataFormatter());
+		return new PoiSheet(this.workbook.getSheetAt(sheet), getDataFormatter(), getFormulaEvaluatorFactory());
 	}
 
 	@Override
