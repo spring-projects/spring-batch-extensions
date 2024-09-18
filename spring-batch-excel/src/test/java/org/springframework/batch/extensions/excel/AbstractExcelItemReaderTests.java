@@ -17,16 +17,23 @@
 package org.springframework.batch.extensions.excel;
 
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,35 +44,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Marten Deinum
  * @since 0.1.0
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractExcelItemReaderTests {
+
+	protected static final Consumer<AbstractExcelItemReader<String[]>> NOOP = (reader) -> { };
+
+	private final DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	protected AbstractExcelItemReader<String[]> itemReader;
+	private AbstractExcelItemReader<String[]> itemReader;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	public void setup() {
 		this.itemReader = createExcelItemReader();
 		this.itemReader.setLinesToSkip(1); // First line is column names
-		this.itemReader.setResource(new ClassPathResource("player.xls"));
 		this.itemReader.setRowMapper(new PassThroughRowMapper());
 		this.itemReader.setSkippedRowsCallback((rs) -> this.logger.info("Skipping: " + Arrays.toString(rs.getCurrentRow())));
-		configureItemReader(this.itemReader);
+		this.itemReader.setUserLocale(Locale.US); // Fixed Locale to prevent changes in different environments
+
+	}
+
+	protected void configureAndOpenItemReader(String resource, Consumer<AbstractExcelItemReader<String[]>> configurer) {
+		this.itemReader.setResource(this.resourceLoader.getResource(resource));
+		configurer.accept(this.itemReader);
 		this.itemReader.afterPropertiesSet();
+
 		ExecutionContext executionContext = new ExecutionContext();
 		this.itemReader.open(executionContext);
 	}
 
-	protected void configureItemReader(AbstractExcelItemReader<String[]> itemReader) {
-	}
 
 	@AfterEach
 	public void after() {
 		this.itemReader.close();
 	}
 
-	@Test
-	public void readExcelFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("scenarios")
+	public void readExcelFile(String resource, Consumer<AbstractExcelItemReader<String[]>> configurer) throws Exception {
+		configureAndOpenItemReader(resource, configurer);
 		assertThat(this.itemReader.getNumberOfSheets()).isEqualTo(3);
 		String[] row;
 		do {
@@ -82,6 +100,7 @@ public abstract class AbstractExcelItemReaderTests {
 		assertThat(readCount).isEqualTo(4321);
 	}
 
+
 	@Test
 	public void testRequiredProperties() {
 		assertThatThrownBy(() -> {
@@ -91,5 +110,7 @@ public abstract class AbstractExcelItemReaderTests {
 	}
 
 	protected abstract AbstractExcelItemReader<String[]> createExcelItemReader();
+
+	protected abstract Stream<Arguments> scenarios();
 
 }

@@ -97,7 +97,10 @@ public class StreamingXlsxItemReader<T> extends AbstractExcelItemReader<T> {
 
 	@Override
 	protected void doClose() throws Exception {
-		this.pkg.revert();
+
+		if (this.pkg != null) {
+			this.pkg.revert();
+		}
 
 		for (StreamingSheet sheet : this.sheets) {
 			sheet.close();
