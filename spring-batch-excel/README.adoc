@@ -128,15 +128,98 @@ Uses a `BeanWrapper` to convert a given row into an object. Uses the column name
 </bean>
 ----
 
+or the same in Java configuration.
+
+[source,java]
+----
+@Bean
+public PoiItemReader excelReader(BeanWrapperRowMapper rowMapper) {
+  var excelReader = new PoiItemReader();
+  excelReader.setResource(new FileSystemResouce("file:/path/to/your/excel/file"));
+  excelReader.setRowMapper(rowMapper);
+  return excelReader;
+}
+
+@Bean
+public BeanWrapperRowMapper rowMapper() {
+  var rowMapper = new BeanWrapperRowMapper<Player>();
+  rowMapper.setTargetType(Player.class);
+  return rowMapper;
+}
+----
+
+NOTE: When using the `BeanWrapperRowMapper` with the `StreamingXlsxItemReader` it is required to use the `StaticColumnNameExtractor` to provide the column names for mapping purposes. The reason for this is that we cannot read a specific row while streaming the results.
+
+[source,xml]
+----
+ <bean id="excelReader" class="org.springframework.batch.extensions.excel.streaming.StreamingXlsxItemReader" scope="step">
+    <property name="resource" value="file:/path/to/your/excel/file" />
+    <property name="rowMapper">
+        <bean class="org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper">
+            <property name="targetType" value="org.springframework.batch.extensions.excel.Player" />
+        </bean>
+    </property>
+    <property name="rowSetFactory">
+        <bean class="org.springframework.batch.extensions.excel.support.rowset.DefaultRowSetFactory">
+            <property name="columnNameExtractor">
+                <bean class="org.springframework.batch.extensions.excel.support.rowset.StaticColumnNameExtractor">
+                    <constructor-arg value="id,position,lastName,firstName,birthYear,debutYear,comment" />
+                </bean>
+            </property>
+        </bean>
+    </property>
+ </bean>
+----
+
+And the same in Java Configuration.
+
+[source,java]
+----
+@Bean
+public StreamingXlsxItemReader excelReader(BeanWrapperRowMapper rowMapper) {
+  var columns = new String[] {"id", "position", "lastName", "firstName", "birthYear", "debutYear","comment"};
+  var columnNameExtractor = new StaticColumnNameExtractor(columns);
+  var rowSetFactory = new DefaultRowSetFactory();
+  rowSetFactory.setColumnNameExtractor(columnNameExtractor);
+
+  var excelReader = new StreamingXlsxItemReader();
+  excelReader.setResource(new FileSystemResouce("file:/path/to/your/excel/file"));
+  excelReader.setRowMapper(rowMapper);
+  excelReader.set
+  return excelReader;
+}
+
+@Bean
+public BeanWrapperRowMapper rowMapper() {
+  var rowMapper = new BeanWrapperRowMapper<Player>();
+  rowMapper.setTargetType(Player.class);
+  return rowMapper;
+}
+----
+
 == Frequently Asked Questions
 
 === Not able to open large Excel
 When opening large Excel files or Excel files with large amounts of data in a single cell it might fail with an error
 
-```
+[source]
+----
 "Unexpected error Tried to allocate an array of length 162,386,364, but the maximum length for this record type is 100,000,000. If the file is not corrupt or large, please open an issue on bugzilla to request increasing the maximum allowable size for this record type. As a temporary workaround, consider setting a higher override value with IOUtils.setByteArrayMaxOverride()"
-```
+----
 
-This is due to the maximum lenght for certain datatypes is limited. To prevent this from happening you can use the `IOUtils.setByteArrayMaxOverride()` method to increase the allowed size. It is however important that this is set before anything POI related has been processed/configured. 
+This is due to the maximum lenght for certain datatypes is limited. To prevent this from happening you can use the `IOUtils.setByteArrayMaxOverride()` method to increase the allowed size. It is however important that this is set _before_ anything POI related has been processed/configured.
 
-Ideally, when using Spring Boot, you can set this before launching the application or by putting this in a `static {}` initializer block of the Spring Batch job configuration. 
+Ideally, when using Spring Boot, you can set this before launching the application or by putting this in a `static {}` initializer block of the Spring Batch job configuration.
+
+[source,java]
+----
+import org.apache.poi.util.IOUtils;
+@SpringBootApplication
+public class MyBatchApplication {
+
+  public static void main(String[] args) {
+    IOUtils.setByteArrayMaxOverride(Integer.MAX_VALUE);
+    SpringApplication.run(MyBatchApplication.class, args);
+  }
+}
+----
