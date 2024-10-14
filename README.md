@@ -87,7 +87,7 @@ Once complete, you may then import the projects into Intellij IDEA as usual.
 Follow the Spring Batch team members and contributors on Twitter:
 
 * [@michaelminella](https://twitter.com/michaelminella) - Michael Minella
-* [@b_e_n_a_s](https://twitter.com/b_e_n_a_s) - Mahmoud Ben Hassine
+* [@fmbenhassine](https://twitter.com/fmbenhassine) - Mahmoud Ben Hassine
 * [@mdeinum](https://twitter.com/mdeinum) - Marten Deinum
 * [@rotnroll666](https://twitter.com/rotnroll666) - Michael Simons
 * [@meistermeier](https://twitter.com/meistermeier) - Gerrit Meier
