@@ -6,6 +6,8 @@
 	<artifactId>spring-batch-elasticsearch</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
+	<name>Spring Batch Elasticsearch</name>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
