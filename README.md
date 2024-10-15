@@ -6,13 +6,13 @@ This project is part of the [Spring organization][] on GitHub.
 
 ## Available Modules
 
-| Module                     | Description                   | Lead                                                 | Version | CI build                                                                                                                                                                                                                                                            |
-|----------------------------|-------------------------------|------------------------------------------------------| ------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| spring-batch-excel         | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum)               | 0.1.1 | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml)                         |
-| spring-batch-elasticsearch | Support for [Elasticsearch]   | [@parikshitdutta](https://github.com/parikshitdutta) | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
-| spring-batch-bigquery      | Support for [Google BigQuery] | [@dgray16](https://github.com/dgray16)               | 0.1.0 | [![Spring Batch BigQuery](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml)                |
-| spring-batch-neo4j         | Support for [Neo4j]           | [@michael-simons](https://github.com/michael-simons) | 0.1.0 | [![Spring Batch Neo4j](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml)                         |
-| spring-batch-geode         | Support for [Apache Geode]    | TBA                                                  | 0.1.0-SNAPSHOT | [![Spring Batch Geode](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml)                         |
+| Module                                                             | Description                   | Lead                                                 | Version        | CI build                                                                                                                                                                                                                                                            |
+|--------------------------------------------------------------------|-------------------------------|------------------------------------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [spring-batch-bigquery](spring-batch-bigquery/README.adoc)         | Support for [Google BigQuery] | [@dgray16](https://github.com/dgray16)               | 0.1.0          | [![Spring Batch BigQuery](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-bigquery.yml)                |
+| [spring-batch-elasticsearch](spring-batch-elasticsearch/README.md) | Support for [Elasticsearch]   | [@parikshitdutta](https://github.com/parikshitdutta) | 0.1.0-SNAPSHOT | [![Spring Batch Elasticsearch](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-elasticsearch.yml) |
+| [spring-batch-excel](spring-batch-excel/README.adoc)               | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum)               | 0.1.1          | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml)                         |
+| [spring-batch-geode](spring-batch-geode/README.adoc)               | Support for [Apache Geode]    | TBA                                                  | 0.1.0-SNAPSHOT | [![Spring Batch Geode](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-geode.yml)                         |
+| [spring-batch-neo4j](spring-batch-neo4j/README.md)                 | Support for [Neo4j]           | [@michael-simons](https://github.com/michael-simons) | 0.1.0          | [![Spring Batch Neo4j](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml)                         |
 
 ## Getting support
 
@@ -100,23 +100,23 @@ noted differently for individual extension Modules, but this should be the rare 
 
 **We look forward to your contributions!!**
 
-[Spring Batch Project]: https://projects.spring.io/spring-batch/
-[Spring organization]: https://github.com/spring-projects
-[Microsoft Excel]: https://www.microsoft.com/en-us/microsoft-365/excel
-[Elasticsearch]: https://www.elastic.co
-[Google BigQuery]: https://cloud.google.com/bigquery
-[Neo4j]: https://neo4j.com
 [Apache Geode]: https://geode.apache.org
-[spring-batch tag]: https://stackoverflow.com/questions/tagged/spring-batch
-[Spring Batch]: https://github.com/spring-projects/spring-batch
-[Spring Boot]: https://github.com/spring-projects/spring-boot
-[Spring Cloud Task]: https://github.com/spring-cloud/spring-cloud-task
-[Spring Cloud Data Flow]: https://github.com/spring-cloud/spring-cloud-dataflow
-[GitHub Issue Tracker]: https://github.com/spring-projects/spring-batch-extensions/issues
-[Maven]: https://maven.apache.org
-[Git]: https://help.github.com/set-up-git-redirect
-[Spring Tool Suite]: https://spring.io/tools
-[Intellij IDEA]: https://www.jetbrains.com/idea/
-[Pull requests]: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests
-[Contributor Guidelines]: CONTRIBUTING.md
 [Apache License]: https://www.apache.org/licenses/LICENSE-2.0
+[Contributor Guidelines]: CONTRIBUTING.md
+[Elasticsearch]: https://www.elastic.co
+[Git]: https://help.github.com/set-up-git-redirect
+[GitHub Issue Tracker]: https://github.com/spring-projects/spring-batch-extensions/issues
+[Google BigQuery]: https://cloud.google.com/bigquery
+[Intellij IDEA]: https://www.jetbrains.com/idea/
+[Maven]: https://maven.apache.org
+[Microsoft Excel]: https://www.microsoft.com/en-us/microsoft-365/excel
+[Neo4j]: https://neo4j.com
+[Pull requests]: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests
+[Spring Batch]: https://github.com/spring-projects/spring-batch
+[Spring Batch Project]: https://projects.spring.io/spring-batch/
+[spring-batch tag]: https://stackoverflow.com/questions/tagged/spring-batch
+[Spring Boot]: https://github.com/spring-projects/spring-boot
+[Spring Cloud Data Flow]: https://github.com/spring-cloud/spring-cloud-dataflow
+[Spring Cloud Task]: https://github.com/spring-cloud/spring-cloud-task
+[Spring organization]: https://github.com/spring-projects
+[Spring Tool Suite]: https://spring.io/tools
