@@ -1,0 +1,99 @@
+name: Spring Batch Notion
+
+on:
+  pull_request:
+    paths:
+      - 'spring-batch-notion/**'
+  push:
+    paths:
+      - 'spring-batch-notion/**'
+
+defaults:
+  run:
+    working-directory: spring-batch-notion
+
+env:
+  MAVEN_ARGS: -B -V -ntp -e -Djansi.passthrough=true -Dstyle.color=always
+
+jobs:
+
+  java-lts:
+
+    name: Java ${{ matrix.java }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 17, 21 ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'zulu'
+          cache: maven
+      - name: Test
+        run: ./mvnw $MAVEN_ARGS verify
+
+  java-oracle:
+
+    name: Java ${{ matrix.java }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 23, 24 ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: oracle-actions/setup-java@v1
+        with:
+          website: jdk.java.net
+          release: ${{ matrix.java }}
+          version: latest
+      - name: Test
+        run: ./mvnw $MAVEN_ARGS verify
+
+  spring-boot:
+
+    name: Spring Boot ${{ matrix.spring }}
+    strategy:
+      fail-fast: false
+      matrix:
+        spring: [ 3.2.0, 3.2.10, 3.3.0, 3.4.0-M3 ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'zulu'
+          cache: maven
+      - name: Set Spring Boot ${{ matrix.spring }}
+        run: >
+          ./mvnw $MAVEN_ARGS versions:update-parent
+          -DparentVersion=${{ matrix.spring }}
+          -DskipResolution
+      - name: Test
+        run: ./mvnw $MAVEN_ARGS -Pspring-milestone verify
+
+  javadoc:
+
+    name: Javadoc
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'zulu'
+          cache: maven
+      - name: Generate Javadoc
+        run: ./mvnw $MAVEN_ARGS javadoc:javadoc
