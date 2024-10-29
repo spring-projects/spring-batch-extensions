@@ -8,27 +8,20 @@ on:
     paths:
       - 'spring-batch-notion/**'
 
-defaults:
-  run:
-    working-directory: spring-batch-notion
-
 env:
   MAVEN_ARGS: -B -V -ntp -e -Djansi.passthrough=true -Dstyle.color=always
 
 jobs:
-
   build:
-
-    name: Build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: 'temurin'
-          cache: maven
+          java-version: '21'
+          cache: 'maven'
       - name: Build with Maven
         run: ./mvnw $MAVEN_ARGS verify javadoc:javadoc
+        working-directory: spring-batch-notion
