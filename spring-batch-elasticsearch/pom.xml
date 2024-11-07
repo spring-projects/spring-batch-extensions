@@ -12,7 +12,7 @@
 		<spring-batch.version>3.0.1.RELEASE</spring-batch.version>
 		<spring-data-elasticsearch.version>1.0.1.RELEASE</spring-data-elasticsearch.version>
 		<mockito.verion>1.9.5</mockito.verion>
-		<junit.verion>4.11</junit.verion>
+		<junit.verion>4.13.1</junit.verion>
 	</properties>
 
 	<build>
