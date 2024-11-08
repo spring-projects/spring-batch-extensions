@@ -58,7 +58,7 @@
 
         <!-- Production dependencies-->
         <spring.batch.version>5.1.2</spring.batch.version>
-        <spring-data-neo4j.version>7.2.1</spring-data-neo4j.version>
+        <spring-data-neo4j.version>7.3.5</spring-data-neo4j.version>
 
         <!-- Test Dependencies -->
         <assertj.version>3.18.1</assertj.version>
