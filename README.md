@@ -17,7 +17,7 @@ This project is part of the [Spring organization][] on GitHub.
 
 ## Getting support
 
-Check out the [spring-batch][spring-batch tag] tag on Stack Overflow.
+Check out the [`spring-batch`][spring-batch tag] tag on Stack Overflow.
 
 ## Related GitHub projects
 
