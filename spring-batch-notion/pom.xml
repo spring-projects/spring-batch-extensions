@@ -35,7 +35,7 @@
   </developers>
 
   <scm>
-    <url>https://github.com/spring-projects/spring-batch-extensions/spring-batch-notion</url>
+    <url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-notion</url>
   </scm>
 
   <properties>
