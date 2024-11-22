@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.5</version>
+    <version>3.4.0</version>
     <relativePath/>
   </parent>
 
@@ -171,7 +171,7 @@ limitations under the License.
           <failOnWarnings>true</failOnWarnings>
           <links>
             <link>https://docs.spring.io/spring-batch/docs/${spring-batch.version}/api/</link>
-            <link>https://docs.spring.io/spring-framework/docs/${spring-framework.version}/api/</link>
+            <link>https://docs.spring.io/spring-framework/docs/${spring-framework.version}/javadoc-api/</link>
           </links>
         </configuration>
         <executions>
