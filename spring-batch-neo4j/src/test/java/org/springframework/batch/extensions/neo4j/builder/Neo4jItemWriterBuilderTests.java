@@ -19,7 +19,6 @@ package org.springframework.batch.extensions.neo4j.builder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.cypherdsl.core.Cypher;
-import org.neo4j.cypherdsl.core.Functions;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.ExecutableQuery;
 import org.springframework.batch.extensions.neo4j.Neo4jItemWriter;
@@ -83,7 +82,7 @@ public class Neo4jItemWriterBuilderTests {
         IdDescription idDescription = mock(IdDescription.class);
         ExecutableQuery executableQuery = mock(ExecutableQuery.class);
         when(identifierAccessor.getRequiredIdentifier()).thenReturn("someId");
-        when(idDescription.asIdExpression(anyString())).thenReturn(Functions.id(Cypher.anyNode()));
+        when(idDescription.asIdExpression(anyString())).thenReturn(Cypher.anyNode().elementId());
         when(executableQuery.withParameters(any())).thenReturn(executableQuery);
         when(persistentEntity.getIdentifierAccessor(any())).thenReturn(identifierAccessor);
         when(persistentEntity.getPrimaryLabel()).thenReturn("SomeLabel");
