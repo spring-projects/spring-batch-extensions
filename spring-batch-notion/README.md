@@ -1,4 +1,4 @@
-# Spring Batch Notion [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-notion?label=Maven%20Central)](https://mvnrepository.com/artifact/org.springframework.batch.extensions/spring-batch-notion) [![javadoc](https://javadoc.io/badge2/org.springframework.batch.extensions/spring-batch-notion/javadoc.svg)](https://javadoc.io/doc/org.springframework.batch.extensions/spring-batch-notion)
+# Spring Batch Notion [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-notion?label=Maven%20Central)](https://central.sonatype.com/artifact/org.springframework.batch.extensions/spring-batch-notion) [![javadoc](https://javadoc.io/badge2/org.springframework.batch.extensions/spring-batch-notion/javadoc.svg)](https://javadoc.io/doc/org.springframework.batch.extensions/spring-batch-notion)
 
 [![Spring Batch Notion](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-notion.yml/badge.svg?branch=main)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-notion.yml?query=branch%3Amain)
 
