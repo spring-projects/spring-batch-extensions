@@ -44,6 +44,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static org.springframework.batch.extensions.notion.it.RequestBodies.queryRequest;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION_VALUE;
@@ -55,8 +57,6 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.springframework.batch.core.ExitStatus.COMPLETED;
-import static wiremock.com.google.common.net.HttpHeaders.AUTHORIZATION;
-import static wiremock.com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * @author Stefano Cordio
