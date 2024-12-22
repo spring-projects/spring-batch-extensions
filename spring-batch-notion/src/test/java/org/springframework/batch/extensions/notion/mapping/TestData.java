@@ -15,11 +15,11 @@
  */
 package org.springframework.batch.extensions.notion.mapping;
 
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.FieldSource;
 
 import java.lang.annotation.Retention;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -29,31 +29,27 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 class TestData {
 
 	@Retention(RUNTIME)
-	@MethodSource("org.springframework.batch.extensions.notion.mapping.TestData#all_properties")
+	@FieldSource("org.springframework.batch.extensions.notion.mapping.TestData#ALL_PROPERTIES")
 	@interface AllPropertiesSource {
 
 	}
 
-	static Stream<Map<String, String>> all_properties() {
-		return Stream.of(
-				// FIXME not working with BeanWrapperPropertyMapper
-				// Map.of("FIELD1", "Value1", "FIELD2", "Value2"), //
-				Map.of("Field1", "Value1", "Field2", "Value2"), //
-				Map.of("field1", "Value1", "field2", "Value2"));
-	}
+	static final List<Map<String, String>> ALL_PROPERTIES = List.of(
+			// FIXME not working with BeanWrapperPropertyMapper
+			// Map.of("FIELD1", "Value1", "FIELD2", "Value2"), //
+			Map.of("Field1", "Value1", "Field2", "Value2"), //
+			Map.of("field1", "Value1", "field2", "Value2"));
 
 	@Retention(RUNTIME)
-	@MethodSource("org.springframework.batch.extensions.notion.mapping.TestData#partial_properties")
+	@FieldSource("org.springframework.batch.extensions.notion.mapping.TestData#PARTIAL_PROPERTIES")
 	@interface PartialPropertiesSource {
 
 	}
 
-	static Stream<Map<String, String>> partial_properties() {
-		return Stream.of(
-				// FIXME not working with BeanWrapperPropertyMapper
-				// Map.of("FIELD1", "Value1"), //
-				Map.of("Field1", "Value1"), //
-				Map.of("field1", "Value1"));
-	}
+	static final List<Map<String, String>> PARTIAL_PROPERTIES = List.of(
+			// FIXME not working with BeanWrapperPropertyMapper
+			// Map.of("FIELD1", "Value1"), //
+			Map.of("Field1", "Value1"), //
+			Map.of("field1", "Value1"));
 
 }

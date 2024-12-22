@@ -20,14 +20,10 @@ import notion.api.v1.model.databases.query.sort.QuerySortDirection;
 import notion.api.v1.model.databases.query.sort.QuerySortTimestamp;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.FieldSource;
 
-import java.util.stream.Stream;
+import java.util.List;
 
-import static org.springframework.batch.extensions.notion.Sort.Direction.ASCENDING;
-import static org.springframework.batch.extensions.notion.Sort.Direction.DESCENDING;
-import static org.springframework.batch.extensions.notion.Sort.Timestamp.CREATED_TIME;
-import static org.springframework.batch.extensions.notion.Sort.Timestamp.LAST_EDITED_TIME;
 import static notion.api.v1.model.databases.query.sort.QuerySortDirection.Ascending;
 import static notion.api.v1.model.databases.query.sort.QuerySortDirection.Descending;
 import static notion.api.v1.model.databases.query.sort.QuerySortTimestamp.CreatedTime;
@@ -35,6 +31,10 @@ import static notion.api.v1.model.databases.query.sort.QuerySortTimestamp.LastEd
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.batch.extensions.notion.Sort.Direction.ASCENDING;
+import static org.springframework.batch.extensions.notion.Sort.Direction.DESCENDING;
+import static org.springframework.batch.extensions.notion.Sort.Timestamp.CREATED_TIME;
+import static org.springframework.batch.extensions.notion.Sort.Timestamp.LAST_EDITED_TIME;
 
 /**
  * @author Stefano Cordio
@@ -42,7 +42,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class SortTests {
 
 	@ParameterizedTest
-	@MethodSource
+	@FieldSource
 	void toQuerySort(Sort underTest, String property, QuerySortTimestamp timestamp, QuerySortDirection direction) {
 		// WHEN
 		QuerySort result = underTest.toQuerySort();
@@ -53,21 +53,19 @@ class SortTests {
 			.returns(timestamp, from(QuerySort::getTimestamp));
 	}
 
-	static Stream<Arguments> toQuerySort() {
-		return Stream.of( //
-				arguments(Sort.by("property"), "property", null, Ascending),
-				arguments(Sort.by("property", ASCENDING), "property", null, Ascending),
-				arguments(Sort.by("property", DESCENDING), "property", null, Descending),
-				arguments(Sort.by(CREATED_TIME), null, CreatedTime, Ascending),
-				arguments(Sort.by(CREATED_TIME, ASCENDING), null, CreatedTime, Ascending),
-				arguments(Sort.by(CREATED_TIME, DESCENDING), null, CreatedTime, Descending),
-				arguments(Sort.by(LAST_EDITED_TIME), null, LastEditedTime, Ascending),
-				arguments(Sort.by(LAST_EDITED_TIME, ASCENDING), null, LastEditedTime, Ascending),
-				arguments(Sort.by(LAST_EDITED_TIME, DESCENDING), null, LastEditedTime, Descending));
-	}
+	static List<Arguments> toQuerySort = List.of( //
+			arguments(Sort.by("property"), "property", null, Ascending),
+			arguments(Sort.by("property", ASCENDING), "property", null, Ascending),
+			arguments(Sort.by("property", DESCENDING), "property", null, Descending),
+			arguments(Sort.by(CREATED_TIME), null, CreatedTime, Ascending),
+			arguments(Sort.by(CREATED_TIME, ASCENDING), null, CreatedTime, Ascending),
+			arguments(Sort.by(CREATED_TIME, DESCENDING), null, CreatedTime, Descending),
+			arguments(Sort.by(LAST_EDITED_TIME), null, LastEditedTime, Ascending),
+			arguments(Sort.by(LAST_EDITED_TIME, ASCENDING), null, LastEditedTime, Ascending),
+			arguments(Sort.by(LAST_EDITED_TIME, DESCENDING), null, LastEditedTime, Descending));
 
 	@ParameterizedTest
-	@MethodSource
+	@FieldSource
 	void testToString(Sort underTest, String expected) {
 		// WHEN
 		String result = underTest.toString();
@@ -75,17 +73,15 @@ class SortTests {
 		then(result).isEqualTo(expected);
 	}
 
-	static Stream<Arguments> testToString() {
-		return Stream.of( //
-				arguments(Sort.by("property"), "property: ASCENDING"),
-				arguments(Sort.by("property", ASCENDING), "property: ASCENDING"),
-				arguments(Sort.by("property", DESCENDING), "property: DESCENDING"),
-				arguments(Sort.by(CREATED_TIME), "CREATED_TIME: ASCENDING"),
-				arguments(Sort.by(CREATED_TIME, ASCENDING), "CREATED_TIME: ASCENDING"),
-				arguments(Sort.by(CREATED_TIME, DESCENDING), "CREATED_TIME: DESCENDING"),
-				arguments(Sort.by(LAST_EDITED_TIME), "LAST_EDITED_TIME: ASCENDING"),
-				arguments(Sort.by(LAST_EDITED_TIME, ASCENDING), "LAST_EDITED_TIME: ASCENDING"),
-				arguments(Sort.by(LAST_EDITED_TIME, DESCENDING), "LAST_EDITED_TIME: DESCENDING"));
-	}
+	static List<Arguments> testToString = List.of( //
+			arguments(Sort.by("property"), "property: ASCENDING"),
+			arguments(Sort.by("property", ASCENDING), "property: ASCENDING"),
+			arguments(Sort.by("property", DESCENDING), "property: DESCENDING"),
+			arguments(Sort.by(CREATED_TIME), "CREATED_TIME: ASCENDING"),
+			arguments(Sort.by(CREATED_TIME, ASCENDING), "CREATED_TIME: ASCENDING"),
+			arguments(Sort.by(CREATED_TIME, DESCENDING), "CREATED_TIME: DESCENDING"),
+			arguments(Sort.by(LAST_EDITED_TIME), "LAST_EDITED_TIME: ASCENDING"),
+			arguments(Sort.by(LAST_EDITED_TIME, ASCENDING), "LAST_EDITED_TIME: ASCENDING"),
+			arguments(Sort.by(LAST_EDITED_TIME, DESCENDING), "LAST_EDITED_TIME: DESCENDING"));
 
 }
