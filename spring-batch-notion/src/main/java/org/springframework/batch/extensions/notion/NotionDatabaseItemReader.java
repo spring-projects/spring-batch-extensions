@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.springframework.batch.extensions.notion;
 
-import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import notion.api.v1.NotionClient;
 import notion.api.v1.http.JavaNetHttpClient;
 import notion.api.v1.logging.Slf4jLogger;
@@ -26,6 +25,7 @@ import notion.api.v1.model.pages.Page;
 import notion.api.v1.model.pages.PageProperty;
 import notion.api.v1.model.pages.PageProperty.RichText;
 import notion.api.v1.request.databases.QueryDatabaseRequest;
+import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.AbstractPaginatedDataItemReader;

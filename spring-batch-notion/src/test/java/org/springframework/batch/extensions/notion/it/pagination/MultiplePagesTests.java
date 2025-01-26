@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package org.springframework.batch.extensions.notion.it.pagination;
 
-import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
-import org.springframework.batch.extensions.notion.it.IntegrationTest;
-import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
@@ -26,6 +23,9 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
+import org.springframework.batch.extensions.notion.it.IntegrationTest;
+import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
 import org.springframework.batch.item.support.ListItemWriter;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static java.util.UUID.randomUUID;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
+import static org.springframework.batch.core.ExitStatus.COMPLETED;
 import static org.springframework.batch.extensions.notion.it.RequestBodies.queryRequest;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION_VALUE;
@@ -53,10 +57,6 @@ import static org.springframework.batch.extensions.notion.it.ResponseBodies.quer
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.result;
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.richText;
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.title;
-import static java.util.UUID.randomUUID;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
-import static org.springframework.batch.core.ExitStatus.COMPLETED;
 
 /**
  * @author Stefano Cordio

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.springframework.batch.extensions.notion.mapping;
 
-import org.springframework.batch.extensions.notion.mapping.TestData.AllPropertiesSource;
-import org.springframework.batch.extensions.notion.mapping.TestData.PartialPropertiesSource;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.springframework.batch.extensions.notion.mapping.TestData.AllPropertiesSource;
+import org.springframework.batch.extensions.notion.mapping.TestData.PartialPropertiesSource;
 
 import java.util.Map;
 
