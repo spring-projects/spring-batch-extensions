@@ -17,20 +17,11 @@ Is there already an issue that addresses your concern?  Do a bit of searching in
 if you can find something similar. If not, please create a new issue before submitting a pull request unless the change
 is truly trivial, e.g. typo fixes, removing compiler warnings, etc.
 
-## Sign the contributor license agreement
+### Sign-off commits according to the Developer Certificate of Origin
 
-Very important, before we can accept any *Spring Batch contributions*, we will need you to sign the contributor license agreement (CLA).
-Signing the CLA does not grant anyone commit rights to the main repository, but it does mean that we can accept your contributions,
-and you will get an author credit if we do. In order to read and sign the CLA, please go to:
+All commits must include a Signed-off-by trailer at the end of each commit message to indicate that the contributor agrees to the [Developer Certificate of Origin](https://developercertificate.org).
 
-* [https://support.springsource.com/spring_committer_signup](https://support.springsource.com/spring_committer_signup)
-
-For **Project**, please select **Spring Batch**. The **Project Lead** is **Michael Minella**.
-
-Once you've completed the web form, simply add the following in a comment on your pull request:
-
-    I have signed and agree to the terms of the SpringSource Individual
-    Contributor License Agreement.
+For additional details, please refer to the blog post [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring).
 
 ## Fork the Repository
 
