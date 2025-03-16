@@ -15,7 +15,7 @@
 
   <name>Spring Batch Notion</name>
   <description>Spring Batch extension for Notion</description>
-  <url>https://github.com/spring-projects/spring-batch-extensions/spring-batch-notion</url>
+  <url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-notion</url>
   <inceptionYear>2024</inceptionYear>
   <licenses>
     <license>
