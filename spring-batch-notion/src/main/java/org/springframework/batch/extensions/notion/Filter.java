@@ -18,9 +18,11 @@ package org.springframework.batch.extensions.notion;
 import notion.api.v1.model.databases.query.filter.CompoundFilterElement;
 import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
 import notion.api.v1.model.databases.query.filter.condition.CheckboxFilter;
+import notion.api.v1.model.databases.query.filter.condition.FilesFilter;
 import notion.api.v1.model.databases.query.filter.condition.MultiSelectFilter;
 import notion.api.v1.model.databases.query.filter.condition.NumberFilter;
 import notion.api.v1.model.databases.query.filter.condition.SelectFilter;
+import notion.api.v1.model.databases.query.filter.condition.StatusFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -311,6 +313,16 @@ public abstract sealed class Filter {
 		}
 
 		/**
+		 * Start the definition of the filter condition for a {@code files} property.
+		 * @param property The name of the property as it appears in the database, or the
+		 * property ID
+		 * @return a new {@link CheckboxCondition} instance
+		 */
+		public FilesCondition<T> files(String property) {
+			return new FilesCondition<>(property, factory);
+		}
+
+		/**
 		 * Start the definition of the filter condition for a {@code multi-select}
 		 * property.
 		 * @param property The name of the property as it appears in the database, or the
@@ -339,6 +351,16 @@ public abstract sealed class Filter {
 		 */
 		public SelectCondition<T> select(String property) {
 			return new SelectCondition<>(property, factory);
+		}
+
+		/**
+		 * Start the definition of the filter condition for a {@code status} property.
+		 * @param property The name of the property as it appears in the database, or the
+		 * property ID
+		 * @return a new {@link StatusCondition} instance
+		 */
+		public StatusCondition<T> status(String property) {
+			return new StatusCondition<>(property, factory);
 		}
 
 		static abstract sealed class Condition<T extends Filter> {
@@ -389,6 +411,39 @@ public abstract sealed class Filter {
 				CheckboxFilter checkboxFilter = new CheckboxFilter();
 				checkboxFilter.setDoesNotEqual(value);
 				return toFilter(notionPropertyFilter -> notionPropertyFilter.setCheckbox(checkboxFilter));
+			}
+
+		}
+
+		/**
+		 * Filter condition for a {@code files} property.
+		 *
+		 * @param <T> the type of the target filter
+		 */
+		public static final class FilesCondition<T extends Filter> extends Condition<T> {
+
+			private FilesCondition(String property, NotionPropertyFilterFactory<T> factory) {
+				super(property, factory);
+			}
+
+			/**
+			 * Return database entries where the property value does not contain any data.
+			 * @return a filter with the newly defined condition
+			 */
+			public T isEmpty() {
+				FilesFilter filesFilter = new FilesFilter();
+				filesFilter.setEmpty(true);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setFile(filesFilter));
+			}
+
+			/**
+			 * Return database entries where the property value contains data.
+			 * @return a filter with the newly defined condition
+			 */
+			public T isNotEmpty() {
+				FilesFilter filesFilter = new FilesFilter();
+				filesFilter.setNotEmpty(true);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setFile(filesFilter));
 			}
 
 		}
@@ -606,6 +661,62 @@ public abstract sealed class Filter {
 				SelectFilter selectFilter = new SelectFilter();
 				selectFilter.setNotEmpty(true);
 				return toFilter(notionPropertyFilter -> notionPropertyFilter.setSelect(selectFilter));
+			}
+
+		}
+
+		/**
+		 * Filter condition for a {@code status} property.
+		 *
+		 * @param <T> the type of the target filter
+		 */
+		public static final class StatusCondition<T extends Filter> extends Condition<T> {
+
+			private StatusCondition(String property, NotionPropertyFilterFactory<T> factory) {
+				super(property, factory);
+			}
+
+			/**
+			 * Return database entries where the property value matches the provided one.
+			 * @param value the value to compare the property value against
+			 * @return a filter with the newly defined condition
+			 */
+			public T isEqualTo(String value) {
+				StatusFilter statusFilter = new StatusFilter();
+				statusFilter.setEquals(value);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+			}
+
+			/**
+			 * Return database entries where the property value does not match the
+			 * provided one.
+			 * @param value the value to compare the property value against
+			 * @return a filter with the newly defined condition
+			 */
+			public T isNotEqualTo(String value) {
+				StatusFilter statusFilter = new StatusFilter();
+				statusFilter.setDoesNotEqual(value);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+			}
+
+			/**
+			 * Return database entries where the property value does not contain any data.
+			 * @return a filter with the newly defined condition
+			 */
+			public T isEmpty() {
+				StatusFilter statusFilter = new StatusFilter();
+				statusFilter.setEmpty(true);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+			}
+
+			/**
+			 * Return database entries where the property value contains data.
+			 * @return a filter with the newly defined condition
+			 */
+			public T isNotEmpty() {
+				StatusFilter statusFilter = new StatusFilter();
+				statusFilter.setNotEmpty(true);
+				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
 			}
 
 		}

@@ -19,9 +19,11 @@ import notion.api.v1.model.databases.query.filter.CompoundFilter;
 import notion.api.v1.model.databases.query.filter.PropertyFilter;
 import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
 import notion.api.v1.model.databases.query.filter.condition.CheckboxFilter;
+import notion.api.v1.model.databases.query.filter.condition.FilesFilter;
 import notion.api.v1.model.databases.query.filter.condition.MultiSelectFilter;
 import notion.api.v1.model.databases.query.filter.condition.NumberFilter;
 import notion.api.v1.model.databases.query.filter.condition.SelectFilter;
+import notion.api.v1.model.databases.query.filter.condition.StatusFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
@@ -69,6 +71,26 @@ class FilterTests {
 							return propertyFilter;
 						}))))
 		.toList();
+
+	static final List<Arguments> FILES_FILTERS = List.of( //
+			arguments( //
+					where().files("property").isEmpty(), //
+					supply(() -> {
+						FilesFilter filesFilter = new FilesFilter();
+						filesFilter.setEmpty(true);
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setFile(filesFilter);
+						return propertyFilter;
+					})),
+			arguments( //
+					where().files("property").isNotEmpty(), //
+					supply(() -> {
+						FilesFilter filesFilter = new FilesFilter();
+						filesFilter.setNotEmpty(true);
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setFile(filesFilter);
+						return propertyFilter;
+					})));
 
 	static final List<Arguments> MULTI_SELECT_FILTERS = List.of( //
 			arguments( //
@@ -220,11 +242,51 @@ class FilterTests {
 						return propertyFilter;
 					})));
 
+	static final List<Arguments> STATUS_FILTERS = List.of( //
+			arguments( //
+					where().status("property").isEqualTo("value"), //
+					supply(() -> {
+						StatusFilter statusFilter = new StatusFilter();
+						statusFilter.setEquals("value");
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setStatus(statusFilter);
+						return propertyFilter;
+					})),
+			arguments( //
+					where().status("property").isNotEqualTo("value"), //
+					supply(() -> {
+						StatusFilter statusFilter = new StatusFilter();
+						statusFilter.setDoesNotEqual("value");
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setStatus(statusFilter);
+						return propertyFilter;
+					})),
+			arguments( //
+					where().status("property").isEmpty(), //
+					supply(() -> {
+						StatusFilter statusFilter = new StatusFilter();
+						statusFilter.setEmpty(true);
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setStatus(statusFilter);
+						return propertyFilter;
+					})),
+			arguments( //
+					where().status("property").isNotEmpty(), //
+					supply(() -> {
+						StatusFilter statusFilter = new StatusFilter();
+						statusFilter.setNotEmpty(true);
+						PropertyFilter propertyFilter = new PropertyFilter("property");
+						propertyFilter.setStatus(statusFilter);
+						return propertyFilter;
+					})));
+
 	static final List<Arguments> PROPERTY_FILTERS = Stream.of( //
 			CHECKBOX_FILTERS, //
+			FILES_FILTERS, //
 			MULTI_SELECT_FILTERS, //
 			NUMBER_FILTERS, //
-			SELECT_FILTERS) //
+			SELECT_FILTERS, //
+			STATUS_FILTERS) //
 		.flatMap(List::stream)
 		.toList();
 
