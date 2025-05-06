@@ -30,19 +30,33 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConverter;
-import org.springframework.data.neo4j.core.mapping.*;
+import org.springframework.data.neo4j.core.mapping.GraphPropertyDescription;
+import org.springframework.data.neo4j.core.mapping.IdDescription;
+import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
+import org.springframework.data.neo4j.core.mapping.Neo4jPersistentEntity;
+import org.springframework.data.neo4j.core.mapping.Neo4jPersistentProperty;
+import org.springframework.data.neo4j.core.mapping.NodeDescription;
+import org.springframework.data.neo4j.core.mapping.PropertyFilter;
+import org.springframework.data.neo4j.core.mapping.RelationshipDescription;
 import org.springframework.data.util.TypeInformation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class Neo4jItemWriterTests {
 
@@ -382,6 +396,11 @@ public class Neo4jItemWriterTests {
 
         @Override
         public boolean isRelationshipPropertiesEntity() {
+            return false;
+        }
+
+        @Override
+        public boolean hasRelationshipPropertyPersistTypeInfoFlag() {
             return false;
         }
 
