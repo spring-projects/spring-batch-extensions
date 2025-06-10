@@ -1,11 +1,15 @@
 = spring-batch-bigquery
 
-Spring Batch extension which contains an `ItemWriter` implementation for https://cloud.google.com/bigquery[BigQuery] based on https://github.com/googleapis/java-bigquery[Java BigQuery].
-It supports writing https://en.wikipedia.org/wiki/Comma-separated_values[CSV], https://en.wikipedia.org/wiki/JSON[JSON] using https://cloud.google.com/bigquery/docs/batch-loading-data[load jobs].
+Spring Batch extension which contains an `ItemWriter` and `ItemReader` implementations for https://cloud.google.com/bigquery[BigQuery].
 
-== Configuration of `BigQueryCsvItemWriter`
+`ItemWriter` supports next formats (https://cloud.google.com/bigquery/docs/batch-loading-data[load jobs]):
 
-Next to the https://docs.spring.io/spring-batch/reference/html/configureJob.html[configuration of Spring Batch] one needs to configure the `BigQueryCsvItemWriter`.
+* https://en.wikipedia.org/wiki/Comma-separated_values[CSV]
+* https://en.wikipedia.org/wiki/JSON[JSON]
+
+Based on https://github.com/googleapis/java-bigquery[Java BigQuery].
+
+== Example of `BigQueryCsvItemWriter`
 
 [source,java]
 ----
@@ -17,24 +21,25 @@ BigQueryCsvItemWriter<MyDto> bigQueryCsvWriter() {
         .setFormatOptions(FormatOptions.csv())
         .build();
 
-    BigQueryCsvItemWriter<MyDto> writer = new BigQueryCsvItemWriterBuilder<MyDto>()
-        .bigQuery(mockedBigQuery)
+    return new BigQueryCsvItemWriterBuilder<MyDto>()
+        .bigQuery(bigQueryService)
         .writeChannelConfig(writeConfiguration)
         .build();
 }
 ----
 
-Additional examples could be found in https://github.com/spring-projects/spring-batch-extensions/blob/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/writer/builder/[here].
+== Example of `BigQueryItemReader`
 
-== Configuration properties
-[cols="1,1,4"]
-.Properties for an item writer
-|===
-| Property | Required | Description
+[source,java]
+----
+@Bean
+BigQueryItemReader<PersonDto> bigQueryReader() {
+    return new BigQueryQueryItemReaderBuilder<PersonDto>()
+        .bigQuery(bigQueryService)
+        .rowMapper(res -> new PersonDto(res.get("name").getStringValue()))
+        .query("SELECT p.name FROM persons p")
+        .build();
+}
+----
 
-| `bigQuery` | yes | BigQuery object that provided by BigQuery Java Library. Responsible for connection with BigQuery.
-| `writeChannelConfig` | yes | BigQuery write channel config provided by BigQuery Java Library. Responsible for configuring data type, data channel, jobs that will be sent to BigQuery.
-| `rowMapper` | no | Your own converter that specifies how to convert input CSV / JSON to a byte array.
-| `datasetInfo` | no | Your way to customize how to create BigQuery dataset.
-| `jobConsumer` | no | Your custom handler for BigQuery Job provided by BigQuery Java Library.
-|===
+Additional examples could be found in the https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery[test folder].

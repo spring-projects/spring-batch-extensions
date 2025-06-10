@@ -14,80 +14,60 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.gcloud.writer;
+package org.springframework.batch.extensions.bigquery.emulator.writer;
 
-import com.google.cloud.bigquery.DatasetInfo;
+import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.StandardTableDefinition;
-import com.google.cloud.bigquery.TableDefinition;
 import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.TableInfo;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
 import org.springframework.batch.extensions.bigquery.common.TableUtils;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
+import org.springframework.batch.extensions.bigquery.emulator.writer.base.BaseEmulatorItemWriterTest;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
+import org.springframework.batch.item.Chunk;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-class BigQueryGcloudJsonItemWriterTest extends BaseBigQueryGcloudItemWriterTest {
-
-    @BeforeAll
-    static void prepareTest() {
-        if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
-            BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
-        }
-
-        if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.JSON) == null) {
-            TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            BIG_QUERY.create(TableInfo.of(TableId.of(TestConstants.DATASET, TestConstants.JSON), tableDefinition));
-        }
-    }
-
-    @AfterAll
-    static void cleanup() {
-        BIG_QUERY.delete(TableId.of(TestConstants.DATASET, TestConstants.JSON));
-    }
+class BigQueryEmulatorJsonItemWriterTest extends BaseEmulatorItemWriterTest {
 
     @ParameterizedTest
     @MethodSource("tables")
-    void testWriteJson(String tableName, boolean autodetect) throws Exception {
-        AtomicReference<Job> job = new AtomicReference<>();
+    void testWrite(String table, boolean autodetect) throws Exception {
+        TableId tableId = TableId.of(TestConstants.DATASET, table);
+        Chunk<PersonDto> expectedChunk = Chunk.of(new PersonDto("Ivan", 30));
 
-        WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, tableName))
+        WriteChannelConfiguration channelConfig = WriteChannelConfiguration
+                .newBuilder(tableId)
+                .setFormatOptions(FormatOptions.json())
                 .setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
                 .setAutodetect(autodetect)
-                .setFormatOptions(FormatOptions.json())
                 .build();
 
         BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .writeChannelConfig(channelConfiguration)
-                .jobConsumer(job::set)
+                .bigQuery(bigQuery)
+                .writeChannelConfig(channelConfig)
                 .build();
-
         writer.afterPropertiesSet();
-        writer.write(TestConstants.CHUNK);
-        job.get().waitFor();
 
-        verifyResults(tableName);
+        writer.write(expectedChunk);
+
+        ResultVerifier.verifyTableResult(expectedChunk, bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
     }
 
     private static Stream<Arguments> tables() {
         return Stream.of(
                 Arguments.of(TableUtils.generateTableName(TestConstants.JSON), false),
-                Arguments.of(TableUtils.generateTableName(TestConstants.JSON), true),
+
+                // TODO auto detect is broken on big query contained side?
+                // Arguments.of(TableUtils.generateTableName(TestConstants.JSON), true),
+
                 Arguments.of(TestConstants.JSON, false)
         );
     }
-
 }

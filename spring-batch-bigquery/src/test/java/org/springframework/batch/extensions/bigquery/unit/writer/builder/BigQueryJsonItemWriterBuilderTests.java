@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,85 +16,77 @@
 
 package org.springframework.batch.extensions.bigquery.unit.writer.builder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardSQLTypeName;
+import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
+import org.springframework.batch.extensions.bigquery.writer.BigQueryBaseItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
+import org.springframework.core.convert.converter.Converter;
+
+import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
 
-    private static final String TABLE = "persons_json";
-
-    private final Log logger = LogFactory.getLog(getClass());
-
-    /**
-     * Example how JSON writer is expected to be built without {@link org.springframework.context.annotation.Bean} annotation.
-     */
     @Test
-    void testJsonWriterWithRowMapper() {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-        ObjectMapper objectMapper = new ObjectMapper();
+    void testBuild() throws IllegalAccessException, NoSuchFieldException {
+        MethodHandles.Lookup jsonWriterHandle = MethodHandles.privateLookupIn(BigQueryJsonItemWriter.class, MethodHandles.lookup());
+        MethodHandles.Lookup baseWriterHandle = MethodHandles.privateLookupIn(BigQueryBaseItemWriter.class, MethodHandles.lookup());
 
-        WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, TABLE))
-                .setFormatOptions(FormatOptions.json())
-                .setSchema(Schema.of(
-                        Field.newBuilder("name", StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build()
-                ))
-                .build();
-
-        BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .rowMapper(dto -> convertDtoToJsonByteArray(objectMapper, dto))
-                .writeChannelConfig(writeConfiguration)
-                .jobConsumer(job -> this.logger.debug("Job with id: {}" + job.getJobId() + " is created"))
-                .build();
-
-        writer.afterPropertiesSet();
-
-        Assertions.assertNotNull(writer);
-    }
-
-    @Test
-    void testCsvWriterWithJsonMapper() {
+        Converter<PersonDto, String> rowMapper = source -> "";
+        DatasetInfo datasetInfo = DatasetInfo.newBuilder(TestConstants.DATASET).setLocation("europe-west-2").build();
+        Consumer<Job> jobConsumer = job -> {};
         BigQuery mockedBigQuery = prepareMockedBigQuery();
 
         WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, TABLE))
-                .setAutodetect(true)
+                .newBuilder(TableId.of(datasetInfo.getDatasetId().getDataset(), "persons_json"))
                 .setFormatOptions(FormatOptions.json())
                 .build();
 
         BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
+                .rowMapper(rowMapper)
                 .writeChannelConfig(writeConfiguration)
+                .jobConsumer(jobConsumer)
+                .bigQuery(mockedBigQuery)
+                .datasetInfo(datasetInfo)
                 .build();
 
-        writer.afterPropertiesSet();
-
         Assertions.assertNotNull(writer);
-    }
 
-    private byte[] convertDtoToJsonByteArray(ObjectMapper objectMapper, PersonDto dto)  {
-        try {
-            return objectMapper.writeValueAsBytes(dto);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        Converter<PersonDto, String> actualRowMapper = (Converter<PersonDto, String>) jsonWriterHandle
+                .findVarHandle(BigQueryJsonItemWriter.class, "rowMapper", Converter.class)
+                .get(writer);
+
+        WriteChannelConfiguration actualWriteChannelConfig = (WriteChannelConfiguration) jsonWriterHandle
+                .findVarHandle(BigQueryJsonItemWriter.class, "writeChannelConfig", WriteChannelConfiguration.class)
+                .get(writer);
+
+        Consumer<Job> actualJobConsumer = (Consumer<Job>) baseWriterHandle
+                .findVarHandle(BigQueryBaseItemWriter.class, "jobConsumer", Consumer.class)
+                .get(writer);
+
+        BigQuery actualBigQuery = (BigQuery) baseWriterHandle
+                .findVarHandle(BigQueryBaseItemWriter.class, "bigQuery", BigQuery.class)
+                .get(writer);
+
+        DatasetInfo actualDatasetInfo = (DatasetInfo) baseWriterHandle
+                .findVarHandle(BigQueryJsonItemWriter.class, "datasetInfo", DatasetInfo.class)
+                .get(writer);
+
+        Assertions.assertEquals(rowMapper, actualRowMapper);
+        Assertions.assertEquals(writeConfiguration, actualWriteChannelConfig);
+        Assertions.assertEquals(jobConsumer, actualJobConsumer);
+        Assertions.assertEquals(mockedBigQuery, actualBigQuery);
+        Assertions.assertEquals(datasetInfo, actualDatasetInfo);
     }
 
 }
