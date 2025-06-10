@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,12 @@ package org.springframework.batch.extensions.bigquery.writer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Table;
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -39,7 +37,7 @@ import java.util.function.Predicate;
  * @since 0.2.0
  * @see <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV</a>
  */
-public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implements InitializingBean {
+public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
     private Converter<T, byte[]> rowMapper;
     private ObjectWriter objectWriter;
@@ -74,41 +72,37 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
         this.rowMapper = rowMapper;
     }
 
-
     @Override
     protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
         return items
                 .stream()
                 .map(this::mapItemToCsv)
-                .filter(ArrayUtils::isNotEmpty)
-                .map(String::new)
                 .filter(Predicate.not(ObjectUtils::isEmpty))
-                .map(row -> row.getBytes(StandardCharsets.UTF_8))
                 .toList();
     }
 
     @Override
-    public void afterPropertiesSet() {
-        super.baseAfterPropertiesSet(() -> {
-            Table table = getTable();
+    protected void performFormatSpecificChecks() {
+        Table table = getTable();
 
-            if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
-                if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
-                    logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
-                }
-            } else {
-                Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
-
-                if (tableHasDefinedSchema(table)) {
-                    Assert.isTrue(
-                            Objects.equals(table.getDefinition().getSchema(), super.writeChannelConfig.getSchema()),
-                            "Schema should be the same"
-                    );
-                }
+        if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
+            if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
+                logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
             }
+        } else {
+            Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
 
-            return null;
-        });
+            if (tableHasDefinedSchema(table)) {
+                Assert.isTrue(
+                        Objects.equals(table.getDefinition().getSchema(), super.writeChannelConfig.getSchema()),
+                        "Schema must be the same"
+                );
+            }
+        }
+
+        String format = FormatOptions.csv().getType();
+        Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
+
     }
 
     private byte[] mapItemToCsv(T t) {
@@ -117,7 +111,7 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> implemen
         }
         catch (JsonProcessingException e) {
             logger.error("Error during processing of the line: ", e);
-            return null;
+            return new byte[]{};
         }
     }
 

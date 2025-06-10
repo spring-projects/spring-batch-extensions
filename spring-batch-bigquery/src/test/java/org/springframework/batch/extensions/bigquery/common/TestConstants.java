@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 package org.springframework.batch.extensions.bigquery.common;
 
 import com.google.cloud.bigquery.FieldValueList;
+import org.springframework.batch.item.Chunk;
 import org.springframework.core.convert.converter.Converter;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 public final class TestConstants {
 
@@ -30,7 +35,15 @@ public final class TestConstants {
     public static final String JSON = "json";
 
     public static final Converter<FieldValueList, PersonDto> PERSON_MAPPER = res -> new PersonDto(
-            res.get(NAME).getStringValue(), Long.valueOf(res.get(AGE).getLongValue()).intValue()
+            res.get(NAME).getStringValue(), res.get(AGE).getNumericValue().intValue()
     );
+
+    /** Order must be defined so later executed queries results could be predictable */
+    private static final List<PersonDto> PERSONS = Stream
+            .of(new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26))
+            .sorted(Comparator.comparing(PersonDto::name))
+            .toList();
+
+    public static final Chunk<PersonDto> CHUNK = new Chunk<>(PERSONS);
 
 }

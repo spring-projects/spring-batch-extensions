@@ -35,7 +35,7 @@ import java.util.function.Consumer;
  */
 public class BigQueryJsonItemWriterBuilder<T>  {
 
-    private Converter<T, byte[]> rowMapper;
+    private Converter<T, String> rowMapper;
 
     private Consumer<Job> jobConsumer;
     private DatasetInfo datasetInfo;
@@ -43,13 +43,13 @@ public class BigQueryJsonItemWriterBuilder<T>  {
     private BigQuery bigQuery;
 
     /**
-     * Converts your DTO into a byte array.
+     * Converts your DTO into a {@link String}.
      *
      * @param rowMapper your mapping
      * @return {@link BigQueryJsonItemWriter}
      * @see BigQueryJsonItemWriter#setRowMapper(Converter)
      */
-    public BigQueryJsonItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
+    public BigQueryJsonItemWriterBuilder<T> rowMapper(Converter<T, String> rowMapper) {
         this.rowMapper = rowMapper;
         return this;
     }

@@ -12,6 +12,8 @@
         </encoder>
     </appender>
 
+    <logger name="org.springframework.batch.extensions.bigquery" level="DEBUG"/>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

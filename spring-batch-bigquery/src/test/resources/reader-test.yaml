@@ -9,7 +9,7 @@ projects:
                 type: STRING
                 mode: REQUIRED
               - name: age
-                type: INTEGER
+                type: INT64
                 mode: REQUIRED
             data:
               - name: Volodymyr

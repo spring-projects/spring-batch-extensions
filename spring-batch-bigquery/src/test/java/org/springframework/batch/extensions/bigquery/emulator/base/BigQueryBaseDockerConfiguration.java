@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.gcloud.base;
+package org.springframework.batch.extensions.bigquery.emulator.base;
 
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
+import org.testcontainers.containers.GenericContainer;
 
-public abstract class BaseBigQueryGcloudIntegrationTest {
-    protected static final BigQuery BIG_QUERY = BigQueryOptions.getDefaultInstance().getService();
+public final class BigQueryBaseDockerConfiguration {
+
+    public static final int PORT = 9050;
+
+    public static final GenericContainer<?> CONTAINER = new GenericContainer<>("ghcr.io/goccy/bigquery-emulator:0.6.6")
+            .withExposedPorts(PORT);
+
+    private BigQueryBaseDockerConfiguration() {}
 }

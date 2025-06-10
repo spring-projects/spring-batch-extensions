@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package org.springframework.batch.extensions.bigquery.gcloud.writer;
 
-import com.google.cloud.bigquery.*;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.Dataset;
+import com.google.cloud.bigquery.Table;
+import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableResult;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
-import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.gcloud.base.BaseBigQueryGcloudIntegrationTest;
 
@@ -33,24 +36,7 @@ abstract class BaseBigQueryGcloudItemWriterTest extends BaseBigQueryGcloudIntegr
 
         Assertions.assertNotNull(dataset.getDatasetId());
         Assertions.assertNotNull(tableId);
-        Assertions.assertEquals(BigQueryDataLoader.CHUNK.size(), tableResult.getTotalRows());
-
-        tableResult
-                .getValues()
-                .forEach(field -> {
-                    Assertions.assertTrue(
-                            BigQueryDataLoader.CHUNK.getItems().stream().map(PersonDto::name).anyMatch(name -> field.get(0).getStringValue().equals(name))
-                    );
-
-                    boolean ageCondition = BigQueryDataLoader.CHUNK
-                            .getItems()
-                            .stream()
-                            .map(PersonDto::age)
-                            .map(Long::valueOf)
-                            .anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
-
-                    Assertions.assertTrue(ageCondition);
-                });
+        ResultVerifier.verifyTableResult(TestConstants.CHUNK, tableResult);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,27 @@
 
 package org.springframework.batch.extensions.bigquery.gcloud.writer;
 
-import com.google.cloud.bigquery.*;
-import org.junit.jupiter.api.*;
-import org.springframework.batch.extensions.bigquery.common.BigQueryDataLoader;
+import com.google.cloud.bigquery.DatasetInfo;
+import com.google.cloud.bigquery.FormatOptions;
+import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.StandardTableDefinition;
+import com.google.cloud.bigquery.TableDefinition;
+import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableInfo;
+import com.google.cloud.bigquery.WriteChannelConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
+import org.springframework.batch.extensions.bigquery.common.TableUtils;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryCsvItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryCsvItemWriterBuilder;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 class BigQueryGcloudCsvItemWriterTest extends BaseBigQueryGcloudItemWriterTest {
 
@@ -45,14 +57,15 @@ class BigQueryGcloudCsvItemWriterTest extends BaseBigQueryGcloudItemWriterTest {
         BIG_QUERY.delete(TableId.of(TestConstants.DATASET, TestConstants.CSV));
     }
 
-    @Test
-    void testWriteCsv() throws Exception {
+    @ParameterizedTest
+    @MethodSource("tables")
+    void testWriteCsv(String tableName, boolean autodetect) throws Exception {
         AtomicReference<Job> job = new AtomicReference<>();
 
         WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, TestConstants.CSV))
-                .setSchema(PersonDto.getBigQuerySchema())
-                .setAutodetect(false)
+                .newBuilder(TableId.of(TestConstants.DATASET, tableName))
+                .setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
+                .setAutodetect(autodetect)
                 .setFormatOptions(FormatOptions.csv())
                 .build();
 
@@ -63,10 +76,18 @@ class BigQueryGcloudCsvItemWriterTest extends BaseBigQueryGcloudItemWriterTest {
                 .build();
 
         writer.afterPropertiesSet();
-        writer.write(BigQueryDataLoader.CHUNK);
+        writer.write(TestConstants.CHUNK);
         job.get().waitFor();
 
-        verifyResults(TestConstants.CSV);
+        verifyResults(tableName);
+    }
+
+    private static Stream<Arguments> tables() {
+        return Stream.of(
+                Arguments.of(TableUtils.generateTableName(TestConstants.CSV), false),
+                Arguments.of(TableUtils.generateTableName(TestConstants.CSV), true),
+                Arguments.of(TestConstants.CSV, false)
+        );
     }
 
 }

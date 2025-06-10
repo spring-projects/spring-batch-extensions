@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,12 @@
 
 package org.springframework.batch.extensions.bigquery.writer;
 
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.DatasetInfo;
-import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.Table;
-import com.google.cloud.bigquery.TableDataWriteChannel;
-import com.google.cloud.bigquery.TableDefinition;
-import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.WriteChannelConfiguration;
-import org.apache.commons.lang3.BooleanUtils;
+import com.google.cloud.bigquery.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayOutputStream;
@@ -41,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Base class that holds shared code for JSON and CSV writers.
@@ -50,7 +40,7 @@ import java.util.function.Supplier;
  * @author Volodymyr Perebykivskyi
  * @since 0.1.0
  */
-public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
+public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
     /** Logger that can be reused */
     protected final Log logger = LogFactory.getLog(getClass());
@@ -76,6 +66,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
     private BigQuery bigQuery;
 
+    private boolean writeFailed;
 
     /**
      * Fetches table from the provided configuration.
@@ -168,18 +159,25 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
             writer.write(byteBuffer);
             writeChannel = writer;
         }
+        catch (Exception e) {
+            writeFailed = true;
+            logger.error("BigQuery error", e);
+            throw new BigQueryItemWriterException("Error on write happened", e);
+        }
         finally {
-            String logMessage = "Write operation submitted: " + bigQueryWriteCounter.incrementAndGet();
+            if (!writeFailed) {
+                String logMessage = "Write operation submitted: " + bigQueryWriteCounter.incrementAndGet();
 
-            if (writeChannel != null) {
-                logMessage += " -- Job ID: " + writeChannel.getJob().getJobId().getJob();
-                if (this.jobConsumer != null) {
-                    this.jobConsumer.accept(writeChannel.getJob());
+                if (writeChannel != null) {
+                    logMessage += " -- Job ID: " + writeChannel.getJob().getJobId().getJob();
+                    if (this.jobConsumer != null) {
+                        this.jobConsumer.accept(writeChannel.getJob());
+                    }
                 }
-            }
 
-            if (this.logger.isDebugEnabled()) {
-                this.logger.debug(logMessage);
+                if (this.logger.isDebugEnabled()) {
+                    this.logger.debug(logMessage);
+                }
             }
         }
     }
@@ -194,23 +192,22 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
 
     /**
      * Performs common validation for CSV and JSON types.
-     *
-     * @param formatSpecificChecks supplies type-specific validation
      */
-    protected void baseAfterPropertiesSet(Supplier<Void> formatSpecificChecks) {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(this.bigQuery, "BigQuery service must be provided");
         Assert.notNull(this.writeChannelConfig, "Write channel configuration must be provided");
-
-        Assert.isTrue(BooleanUtils.isFalse(isBigtable()), "Google BigTable is not supported");
-        Assert.isTrue(BooleanUtils.isFalse(isGoogleSheets()), "Google Sheets is not supported");
-        Assert.isTrue(BooleanUtils.isFalse(isDatastore()), "Google Datastore is not supported");
-        Assert.isTrue(BooleanUtils.isFalse(isParquet()), "Parquet is not supported");
-        Assert.isTrue(BooleanUtils.isFalse(isOrc()), "Orc is not supported");
-        Assert.isTrue(BooleanUtils.isFalse(isAvro()), "Avro is not supported");
-
-        formatSpecificChecks.get();
-
         Assert.notNull(this.writeChannelConfig.getFormat(), "Data format must be provided");
+
+        Assert.isTrue(!isBigtable(), "Google BigTable is not supported");
+        Assert.isTrue(!isGoogleSheets(), "Google Sheets is not supported");
+        Assert.isTrue(!isDatastore(), "Google Datastore is not supported");
+        Assert.isTrue(!isParquet(), "Parquet is not supported");
+        Assert.isTrue(!isOrc(), "Orc is not supported");
+        Assert.isTrue(!isAvro(), "Avro is not supported");
+        Assert.isTrue(!isIceberg(), "Iceberg is not supported");
+
+        performFormatSpecificChecks();
 
         String dataset = this.writeChannelConfig.getDestinationTable().getDataset();
         if (this.datasetInfo == null) {
@@ -262,6 +259,10 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
         return FormatOptions.datastoreBackup().getType().equals(this.writeChannelConfig.getFormat());
     }
 
+    private boolean isIceberg() {
+        return FormatOptions.iceberg().getType().equals(this.writeChannelConfig.getFormat());
+    }
+
     /**
      * Schema can be computed on the BigQuery side during upload,
      * so it is good to know when schema is supplied by user manually.
@@ -293,5 +294,10 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T> {
      * @return {@link List<byte[]>} converted list of byte arrays
      */
     protected abstract List<byte[]> convertObjectsToByteArrays(List<? extends T> items);
+
+    /**
+     * Performs specific checks that are unique to the format.
+     */
+    protected abstract void performFormatSpecificChecks();
 
 }

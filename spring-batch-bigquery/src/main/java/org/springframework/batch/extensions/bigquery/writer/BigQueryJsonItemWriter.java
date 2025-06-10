@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ package org.springframework.batch.extensions.bigquery.writer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Table;
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -39,9 +38,11 @@ import java.util.function.Predicate;
  * @since 0.2.0
  * @see <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>
  */
-public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> implements InitializingBean {
+public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
-    private Converter<T, byte[]> rowMapper;
+    private static final String LF = "\n";
+
+    private Converter<T, String> rowMapper;
     private ObjectWriter objectWriter;
     private Class<?> itemClass;
 
@@ -63,11 +64,11 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
     }
 
     /**
-     * Converter that transforms a single row into a byte array.
+     * Converter that transforms a single row into a {@link String}.
      *
      * @param rowMapper your JSON row mapper
      */
-    public void setRowMapper(Converter<T, byte[]> rowMapper) {
+    public void setRowMapper(Converter<T, String> rowMapper) {
         this.rowMapper = rowMapper;
     }
 
@@ -76,41 +77,38 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
         return items
                 .stream()
                 .map(this::mapItemToJson)
-                .filter(ArrayUtils::isNotEmpty)
-                .map(String::new)
-                .map(this::convertToNdJson)
                 .filter(Predicate.not(ObjectUtils::isEmpty))
+                .map(this::convertToNdJson)
                 .map(row -> row.getBytes(StandardCharsets.UTF_8))
                 .toList();
     }
 
     @Override
-    public void afterPropertiesSet() {
-        super.baseAfterPropertiesSet(() -> {
-            Table table = getTable();
+    protected void performFormatSpecificChecks() {
+        Table table = getTable();
 
-            if (Boolean.TRUE.equals(writeChannelConfig.getAutodetect())) {
-                if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
-                    logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
-                }
-            } else {
-                Assert.notNull(writeChannelConfig.getSchema(), "Schema must be provided");
-
-                if (tableHasDefinedSchema(table)) {
-                    Assert.isTrue(
-                            Objects.equals(table.getDefinition().getSchema(), writeChannelConfig.getSchema()),
-                            "Schema should be the same"
-                    );
-                }
+        if (Boolean.TRUE.equals(writeChannelConfig.getAutodetect())) {
+            if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
+                logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
             }
+        } else {
+            Assert.notNull(writeChannelConfig.getSchema(), "Schema must be provided");
 
-            return null;
-        });
+            if (tableHasDefinedSchema(table)) {
+                Assert.isTrue(
+                        Objects.equals(table.getDefinition().getSchema(), writeChannelConfig.getSchema()),
+                        "Schema must be the same"
+                );
+            }
+        }
+
+        String format = FormatOptions.json().getType();
+        Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
     }
 
-    private byte[] mapItemToJson(T t) {
+    private String mapItemToJson(T t) {
         try {
-            return Objects.isNull(rowMapper) ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+            return rowMapper == null ? objectWriter.writeValueAsString(t) : rowMapper.convert(t);
         }
         catch (JsonProcessingException e) {
             logger.error("Error during processing of the line: ", e);
@@ -124,7 +122,7 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> impleme
      * {@link com.fasterxml.jackson.databind.ObjectMapper} or any other JSON parser.
      */
     private String convertToNdJson(String json) {
-        return json.concat(org.apache.commons.lang3.StringUtils.LF);
+        return json.concat(LF);
     }
 
 }

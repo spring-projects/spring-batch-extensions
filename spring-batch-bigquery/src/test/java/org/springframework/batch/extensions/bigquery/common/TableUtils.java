@@ -16,18 +16,12 @@
 
 package org.springframework.batch.extensions.bigquery.common;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.google.cloud.bigquery.Field;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardSQLTypeName;
+import java.util.concurrent.ThreadLocalRandom;
 
-@JsonPropertyOrder(value = {TestConstants.NAME, TestConstants.AGE})
-public record PersonDto(String name, Integer age) {
+public final class TableUtils {
+    private TableUtils() {}
 
-    public static Schema getBigQuerySchema() {
-        Field nameField = Field.newBuilder(TestConstants.NAME, StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build();
-        Field ageField = Field.newBuilder(TestConstants.AGE, StandardSQLTypeName.INT64).setMode(Field.Mode.REQUIRED).build();
-        return Schema.of(nameField, ageField);
+    public static String generateTableName(String testType) {
+        return testType + "-" + ThreadLocalRandom.current().nextInt(100);
     }
-
 }

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.bigquery.gcloud.base;
-
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
-
-public abstract class BaseBigQueryGcloudIntegrationTest {
-    protected static final BigQuery BIG_QUERY = BigQueryOptions.getDefaultInstance().getService();
-}
+/**
+ * These tests are run against BigQuery emulator. It is the next test level after unit tests.
+ * An attempt to cover integration with fake BigQuery.
+ *
+ * @see <a href="https://github.com/goccy/bigquery-emulator">GitHub</a>
+ */
+package org.springframework.batch.extensions.bigquery.emulator;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@
  * Test names should follow this pattern: test1, test2, testN.
  * So later in BigQuery you will see generated table name: csv_test1, csv_test2, csv_testN.
  * This way, it will be easier to trace errors in BigQuery.
- *
+ * <p>
+ * It is the next test level after emulator tests.
+ * Real world integration testing.
  * @see <a href="https://cloud.google.com/bigquery/docs/quickstarts/quickstart-client-libraries#before-you-begin">Authentication</a>
  */
 package org.springframework.batch.extensions.bigquery.gcloud;
