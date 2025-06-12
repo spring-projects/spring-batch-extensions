@@ -16,8 +16,6 @@
 
 package org.springframework.batch.extensions.bigquery.unit.writer;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FormatOptions;
@@ -36,7 +34,9 @@ import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.batch.item.json.GsonJsonObjectMarshaller;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.item.json.JsonObjectMarshaller;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -47,34 +47,15 @@ class BigQueryJsonItemWriterTest extends AbstractBigQueryTest {
     private static final TableId TABLE_ID = TableId.of("1", "2");
 
     @Test
-    void testDoInitializeProperties() throws IllegalAccessException, NoSuchFieldException {
-        TestWriter writer = new TestWriter();
-        List<PersonDto> items = TestConstants.CHUNK.getItems();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryJsonItemWriter.class, MethodHandles.lookup());
-
-        // Exception
-        Assertions.assertThrows(IllegalStateException.class, () -> writer.testInitializeProperties(List.of()));
-
-        // No exception
-        writer.testInitializeProperties(items);
-        Assertions.assertEquals(
-                PersonDto.class.getSimpleName(),
-                ((Class<PersonDto>) handle.findVarHandle(BigQueryJsonItemWriter.class, "itemClass", Class.class).get(writer)).getSimpleName()
-        );
-        ObjectWriter objectWriter = (ObjectWriter) handle.findVarHandle(BigQueryJsonItemWriter.class, "objectWriter", ObjectWriter.class).get(writer);
-        Assertions.assertInstanceOf(JsonFactory.class, objectWriter.getFactory());
-    }
-
-    @Test
-    void testSetRowMapper() throws IllegalAccessException, NoSuchFieldException {
+    void testSetMarshaller() throws IllegalAccessException, NoSuchFieldException {
         BigQueryJsonItemWriter<PersonDto> reader = new BigQueryJsonItemWriter<>();
         MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryJsonItemWriter.class, MethodHandles.lookup());
-        Converter<PersonDto, String> expected = source -> null;
+        JsonObjectMarshaller<PersonDto> expected = new JacksonJsonObjectMarshaller<>();
 
-        reader.setRowMapper(expected);
+        reader.setMarshaller(expected);
 
-        Converter<PersonDto, String> actual = (Converter<PersonDto, String>) handle
-                .findVarHandle(BigQueryJsonItemWriter.class, "rowMapper", Converter.class)
+        JsonObjectMarshaller<PersonDto> actual = (JsonObjectMarshaller<PersonDto>) handle
+                .findVarHandle(BigQueryJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
                 .get(reader);
 
         Assertions.assertEquals(expected, actual);
@@ -83,14 +64,23 @@ class BigQueryJsonItemWriterTest extends AbstractBigQueryTest {
     @Test
     void testConvertObjectsToByteArrays() {
         TestWriter writer = new TestWriter();
+        writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
 
         // Empty
         Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
 
         // Not empty
-        writer.setRowMapper(Record::toString);
+        writer.setMarshaller(Record::toString);
         List<byte[]> actual = writer.testConvert(TestConstants.CHUNK.getItems());
-        List<byte[]> expected = TestConstants.CHUNK.getItems().stream().map(PersonDto::toString).map(s -> s.concat("\n")).map(String::getBytes).toList();
+
+        List<byte[]> expected = TestConstants.CHUNK
+                .getItems()
+                .stream()
+                .map(PersonDto::toString)
+                .map(s -> s.concat("\n"))
+                .map(String::getBytes)
+                .toList();
+
         Assertions.assertEquals(expected.size(), actual.size());
 
         for (int i = 0; i < actual.size(); i++) {
@@ -112,10 +102,15 @@ class BigQueryJsonItemWriterTest extends AbstractBigQueryTest {
         BigQuery bigQuery = prepareMockedBigQuery();
         Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
 
+        // marshaller
+        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
+        Assertions.assertEquals("Marshaller is mandatory", actual.getMessage());
+
         // schema
+        writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
         writer.setBigQuery(bigQuery);
         writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID, FormatOptions.csv()));
-        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
+        actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
         Assertions.assertEquals("Schema must be provided", actual.getMessage());
 
         // schema equality
@@ -144,6 +139,7 @@ class BigQueryJsonItemWriterTest extends AbstractBigQueryTest {
 
         TestWriter writer = new TestWriter();
         writer.setBigQuery(bigQuery);
+        writer.setMarshaller(new GsonJsonObjectMarshaller<>());
 
         writer.setWriteChannelConfig(WriteChannelConfiguration.newBuilder(TABLE_ID).setAutodetect(true).setFormatOptions(formatOptions).build());
         IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
@@ -164,9 +160,6 @@ class BigQueryJsonItemWriterTest extends AbstractBigQueryTest {
     }
 
     private static final class TestWriter extends BigQueryJsonItemWriter<PersonDto> {
-        public void testInitializeProperties(List<PersonDto> items) {
-            doInitializeProperties(items);
-        }
 
         public List<byte[]> testConvert(List<PersonDto> items) {
             return convertObjectsToByteArrays(items);

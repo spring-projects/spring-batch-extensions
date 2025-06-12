@@ -31,6 +31,7 @@ import org.springframework.batch.extensions.bigquery.emulator.writer.base.BaseEm
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
 import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 
 import java.util.stream.Stream;
 
@@ -52,6 +53,7 @@ class BigQueryEmulatorJsonItemWriterTest extends BaseEmulatorItemWriterTest {
         BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
                 .bigQuery(bigQuery)
                 .writeChannelConfig(channelConfig)
+                .marshaller(new JacksonJsonObjectMarshaller<>())
                 .build();
         writer.afterPropertiesSet();
 

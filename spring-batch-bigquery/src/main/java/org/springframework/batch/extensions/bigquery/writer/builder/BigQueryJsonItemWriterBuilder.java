@@ -21,7 +21,7 @@ import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.batch.item.json.JsonObjectMarshaller;
 
 import java.util.function.Consumer;
 
@@ -35,8 +35,7 @@ import java.util.function.Consumer;
  */
 public class BigQueryJsonItemWriterBuilder<T>  {
 
-    private Converter<T, String> rowMapper;
-
+    private JsonObjectMarshaller<T> marshaller;
     private Consumer<Job> jobConsumer;
     private DatasetInfo datasetInfo;
     private WriteChannelConfiguration writeChannelConfig;
@@ -45,12 +44,12 @@ public class BigQueryJsonItemWriterBuilder<T>  {
     /**
      * Converts your DTO into a {@link String}.
      *
-     * @param rowMapper your mapping
+     * @param marshaller your mapper
      * @return {@link BigQueryJsonItemWriter}
-     * @see BigQueryJsonItemWriter#setRowMapper(Converter)
+     * @see BigQueryJsonItemWriter#setMarshaller(JsonObjectMarshaller)
      */
-    public BigQueryJsonItemWriterBuilder<T> rowMapper(Converter<T, String> rowMapper) {
-        this.rowMapper = rowMapper;
+    public BigQueryJsonItemWriterBuilder<T> marshaller(JsonObjectMarshaller<T> marshaller) {
+        this.marshaller = marshaller;
         return this;
     }
 
@@ -110,7 +109,7 @@ public class BigQueryJsonItemWriterBuilder<T>  {
     public BigQueryJsonItemWriter<T> build() {
         BigQueryJsonItemWriter<T> writer = new BigQueryJsonItemWriter<>();
 
-        writer.setRowMapper(this.rowMapper);
+        writer.setMarshaller(this.marshaller);
         writer.setWriteChannelConfig(this.writeChannelConfig);
         writer.setJobConsumer(this.jobConsumer);
         writer.setBigQuery(this.bigQuery);
