@@ -22,6 +22,9 @@ import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
@@ -30,6 +33,7 @@ import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryT
 import org.springframework.core.convert.converter.Converter;
 
 import java.lang.invoke.MethodHandles;
+import java.util.stream.Stream;
 
 class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
 
@@ -65,7 +69,41 @@ class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
     }
 
     @Test
-    void testBuild_WithJobConfiguration() throws IllegalAccessException, NoSuchFieldException {
+    void testBuild_WithoutRowMapper() throws IllegalAccessException, NoSuchFieldException {
+        BigQuery mockedBigQuery = prepareMockedBigQuery();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
+
+        QueryJobConfiguration expectedJobConfiguration = QueryJobConfiguration
+                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1")
+                .build();
+
+        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
+                .bigQuery(mockedBigQuery)
+                .jobConfiguration(expectedJobConfiguration)
+                .targetType(PersonDto.class)
+                .build();
+
+        Assertions.assertNotNull(reader);
+
+        BigQuery actualBigQuery = (BigQuery) handle
+                .findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
+                .get(reader);
+
+        Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
+                .findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
+                .get(reader);
+
+        QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
+                .findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
+                .get(reader);
+
+        Assertions.assertEquals(mockedBigQuery, actualBigQuery);
+        Assertions.assertNotNull(actualRowMapper);
+        Assertions.assertEquals(expectedJobConfiguration, actualJobConfiguration);
+    }
+
+    @Test
+    void testBuild() throws IllegalAccessException, NoSuchFieldException {
         BigQuery mockedBigQuery = prepareMockedBigQuery();
         MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
 
@@ -99,8 +137,19 @@ class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
         Assertions.assertEquals(jobConfiguration, actualJobConfiguration);
     }
 
-    @Test
-    void testBuild_NoQueryProvided() {
-        Assertions.assertThrows(IllegalArgumentException.class, new BigQueryQueryItemReaderBuilder<>()::build);
+    @ParameterizedTest
+    @MethodSource("brokenBuilders")
+    void testBuild_Exception(String expectedMessage, BigQueryQueryItemReaderBuilder<?> builder) {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, builder::build);
+        Assertions.assertEquals(expectedMessage, ex.getMessage());
+    }
+
+    private static Stream<Arguments> brokenBuilders() {
+        final class HumanDto {}
+        return Stream.of(
+                Arguments.of("No target type provided", new BigQueryQueryItemReaderBuilder<PersonDto>()),
+                Arguments.of("Only Java record supported", new BigQueryQueryItemReaderBuilder<HumanDto>().targetType(HumanDto.class)),
+                Arguments.of("No query provided", new BigQueryQueryItemReaderBuilder<PersonDto>().rowMapper(source -> null))
+        );
     }
 }

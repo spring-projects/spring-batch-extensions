@@ -22,6 +22,8 @@ import org.springframework.batch.item.ItemWriterException;
 
 /**
  * Unchecked {@link Exception} indicating that an error has occurred on during {@link ItemWriter#write(Chunk)}.
+ * @author Volodymyr Perebykivskyi
+ * @since 0.2.0
  */
 public class BigQueryItemWriterException extends ItemWriterException {
 
