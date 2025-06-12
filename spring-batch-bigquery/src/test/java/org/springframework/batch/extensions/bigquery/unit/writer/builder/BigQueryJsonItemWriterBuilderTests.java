@@ -30,7 +30,8 @@ import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryT
 import org.springframework.batch.extensions.bigquery.writer.BigQueryBaseItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.builder.BigQueryJsonItemWriterBuilder;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.item.json.JsonObjectMarshaller;
 
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
@@ -42,7 +43,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
         MethodHandles.Lookup jsonWriterHandle = MethodHandles.privateLookupIn(BigQueryJsonItemWriter.class, MethodHandles.lookup());
         MethodHandles.Lookup baseWriterHandle = MethodHandles.privateLookupIn(BigQueryBaseItemWriter.class, MethodHandles.lookup());
 
-        Converter<PersonDto, String> rowMapper = source -> "";
+        JsonObjectMarshaller<PersonDto> marshaller = new JacksonJsonObjectMarshaller<>();
         DatasetInfo datasetInfo = DatasetInfo.newBuilder(TestConstants.DATASET).setLocation("europe-west-2").build();
         Consumer<Job> jobConsumer = job -> {};
         BigQuery mockedBigQuery = prepareMockedBigQuery();
@@ -53,7 +54,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
                 .build();
 
         BigQueryJsonItemWriter<PersonDto> writer = new BigQueryJsonItemWriterBuilder<PersonDto>()
-                .rowMapper(rowMapper)
+                .marshaller(marshaller)
                 .writeChannelConfig(writeConfiguration)
                 .jobConsumer(jobConsumer)
                 .bigQuery(mockedBigQuery)
@@ -62,8 +63,8 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
 
         Assertions.assertNotNull(writer);
 
-        Converter<PersonDto, String> actualRowMapper = (Converter<PersonDto, String>) jsonWriterHandle
-                .findVarHandle(BigQueryJsonItemWriter.class, "rowMapper", Converter.class)
+        JsonObjectMarshaller<PersonDto> actualMarshaller = (JsonObjectMarshaller<PersonDto>) jsonWriterHandle
+                .findVarHandle(BigQueryJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
                 .get(writer);
 
         WriteChannelConfiguration actualWriteChannelConfig = (WriteChannelConfiguration) jsonWriterHandle
@@ -82,7 +83,7 @@ class BigQueryJsonItemWriterBuilderTests extends AbstractBigQueryTest {
                 .findVarHandle(BigQueryJsonItemWriter.class, "datasetInfo", DatasetInfo.class)
                 .get(writer);
 
-        Assertions.assertEquals(rowMapper, actualRowMapper);
+        Assertions.assertEquals(marshaller, actualMarshaller);
         Assertions.assertEquals(writeConfiguration, actualWriteChannelConfig);
         Assertions.assertEquals(jobConsumer, actualJobConsumer);
         Assertions.assertEquals(mockedBigQuery, actualBigQuery);

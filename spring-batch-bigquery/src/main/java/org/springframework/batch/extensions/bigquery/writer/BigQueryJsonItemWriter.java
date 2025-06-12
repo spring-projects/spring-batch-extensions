@@ -16,12 +16,9 @@
 
 package org.springframework.batch.extensions.bigquery.writer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Table;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.batch.item.json.JsonObjectMarshaller;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -42,41 +39,27 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
     private static final String LF = "\n";
 
-    private Converter<T, String> rowMapper;
-    private ObjectWriter objectWriter;
-    private Class<?> itemClass;
+    private JsonObjectMarshaller<T> marshaller;
 
     @Override
     protected void doInitializeProperties(List<? extends T> items) {
-        if (this.itemClass == null) {
-            T firstItem = items.stream().findFirst().orElseThrow(() -> {
-                logger.warn("Class type was not found");
-                return new IllegalStateException("Class type was not found");
-            });
-            this.itemClass = firstItem.getClass();
-
-            if (this.rowMapper == null) {
-                this.objectWriter = new ObjectMapper().writerFor(this.itemClass);
-            }
-
-            logger.debug("Writer setup is completed");
-        }
+        // Unused
     }
 
     /**
      * Converter that transforms a single row into a {@link String}.
      *
-     * @param rowMapper your JSON row mapper
+     * @param marshaller your JSON mapper
      */
-    public void setRowMapper(Converter<T, String> rowMapper) {
-        this.rowMapper = rowMapper;
+    public void setMarshaller(JsonObjectMarshaller<T> marshaller) {
+        this.marshaller = marshaller;
     }
 
     @Override
     protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
         return items
                 .stream()
-                .map(this::mapItemToJson)
+                .map(marshaller::marshal)
                 .filter(Predicate.not(ObjectUtils::isEmpty))
                 .map(this::convertToNdJson)
                 .map(row -> row.getBytes(StandardCharsets.UTF_8))
@@ -85,6 +68,8 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
     @Override
     protected void performFormatSpecificChecks() {
+        Assert.notNull(this.marshaller, "Marshaller is mandatory");
+
         Table table = getTable();
 
         if (Boolean.TRUE.equals(writeChannelConfig.getAutodetect())) {
@@ -104,16 +89,6 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
         String format = FormatOptions.json().getType();
         Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
-    }
-
-    private String mapItemToJson(T t) {
-        try {
-            return rowMapper == null ? objectWriter.writeValueAsString(t) : rowMapper.convert(t);
-        }
-        catch (JsonProcessingException e) {
-            logger.error("Error during processing of the line: ", e);
-            return null;
-        }
     }
 
     /**
