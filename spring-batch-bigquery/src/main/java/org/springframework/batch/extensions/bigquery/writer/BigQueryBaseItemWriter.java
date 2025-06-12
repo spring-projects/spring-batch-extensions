@@ -82,7 +82,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
      *
      * @param datasetInfo BigQuery dataset info
      */
-    public void setDatasetInfo(DatasetInfo datasetInfo) {
+    public void setDatasetInfo(final DatasetInfo datasetInfo) {
         this.datasetInfo = datasetInfo;
     }
 
@@ -91,7 +91,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
      *
      * @param consumer your consumer
      */
-    public void setJobConsumer(Consumer<Job> consumer) {
+    public void setJobConsumer(final Consumer<Job> consumer) {
         this.jobConsumer = consumer;
     }
 
@@ -100,7 +100,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
      *
      * @param writeChannelConfig BigQuery channel configuration
      */
-    public void setWriteChannelConfig(WriteChannelConfiguration writeChannelConfig) {
+    public void setWriteChannelConfig(final WriteChannelConfiguration writeChannelConfig) {
         this.writeChannelConfig = writeChannelConfig;
     }
 
@@ -109,30 +109,30 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
      *
      * @param bigQuery BigQuery service
      */
-    public void setBigQuery(BigQuery bigQuery) {
+    public void setBigQuery(final BigQuery bigQuery) {
         this.bigQuery = bigQuery;
     }
 
     @Override
-    public void write(Chunk<? extends T> chunk) throws Exception {
+    public void write(final Chunk<? extends T> chunk) throws Exception {
         if (!chunk.isEmpty()) {
-            List<? extends T> items = chunk.getItems();
+            final List<? extends T> items = chunk.getItems();
             doInitializeProperties(items);
 
             if (this.logger.isDebugEnabled()) {
                 this.logger.debug(String.format("Mapping %d elements", items.size()));
             }
 
-            ByteBuffer byteBuffer = mapDataToBigQueryFormat(items);
+            final ByteBuffer byteBuffer = mapDataToBigQueryFormat(items);
             doWriteDataToBigQuery(byteBuffer);
         }
     }
 
-    private ByteBuffer mapDataToBigQueryFormat(List<? extends T> items) throws IOException {
-        ByteBuffer byteBuffer;
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    private ByteBuffer mapDataToBigQueryFormat(final List<? extends T> items) throws IOException {
+        final ByteBuffer byteBuffer;
+        try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-            List<byte[]> data = convertObjectsToByteArrays(items);
+            final List<byte[]> data = convertObjectsToByteArrays(items);
 
             for (byte[] byteArray : data) {
                 outputStream.write(byteArray);
@@ -147,14 +147,14 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
         return byteBuffer;
     }
 
-    private void doWriteDataToBigQuery(ByteBuffer byteBuffer) throws IOException {
+    private void doWriteDataToBigQuery(final ByteBuffer byteBuffer) {
         if (this.logger.isDebugEnabled()) {
             this.logger.debug("Writing data to BigQuery");
         }
 
         TableDataWriteChannel writeChannel = null;
 
-        try (TableDataWriteChannel writer = getWriteChannel()) {
+        try (final TableDataWriteChannel writer = getWriteChannel()) {
             /* TableDataWriteChannel is not thread safe */
             writer.write(byteBuffer);
             writeChannel = writer;
@@ -209,29 +209,22 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
 
         performFormatSpecificChecks();
 
-        String dataset = this.writeChannelConfig.getDestinationTable().getDataset();
+        final String dataset = this.writeChannelConfig.getDestinationTable().getDataset();
         if (this.datasetInfo == null) {
             this.datasetInfo = DatasetInfo.newBuilder(dataset).build();
+        } else {
+            Assert.isTrue(Objects.equals(this.datasetInfo.getDatasetId().getDataset(), dataset), "Dataset should be configured properly");
         }
-
-        Assert.isTrue(
-                Objects.equals(this.datasetInfo.getDatasetId().getDataset(), dataset),
-                "Dataset should be configured properly"
-        );
 
         createDataset();
     }
 
     private void createDataset() {
-        TableId tableId = this.writeChannelConfig.getDestinationTable();
-        String datasetToCheck = tableId.getDataset();
+        final TableId tableId = this.writeChannelConfig.getDestinationTable();
+        final String datasetToCheck = tableId.getDataset();
 
-        if (datasetToCheck != null) {
-            Dataset foundDataset = this.bigQuery.getDataset(datasetToCheck);
-
-            if (foundDataset == null && this.datasetInfo != null) {
-                this.bigQuery.create(this.datasetInfo);
-            }
+        if (datasetToCheck != null && this.bigQuery.getDataset(datasetToCheck) == null && this.datasetInfo != null) {
+            this.bigQuery.create(this.datasetInfo);
         }
     }
 
@@ -270,7 +263,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
      * @param table BigQuery table
      * @return {@code true} if BigQuery {@link Table} has schema already described
      */
-    protected boolean tableHasDefinedSchema(Table table) {
+    protected boolean tableHasDefinedSchema(final Table table) {
         return Optional
                 .ofNullable(table)
                 .map(Table::getDefinition)
