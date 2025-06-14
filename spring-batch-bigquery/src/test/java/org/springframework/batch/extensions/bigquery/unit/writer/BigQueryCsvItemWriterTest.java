@@ -16,8 +16,10 @@
 
 package org.springframework.batch.extensions.bigquery.unit.writer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FormatOptions;
@@ -83,14 +85,38 @@ class BigQueryCsvItemWriterTest extends AbstractBigQueryTest {
     @Test
     void testConvertObjectsToByteArrays() {
         TestWriter writer = new TestWriter();
+        List<PersonDto> items = TestConstants.CHUNK.getItems();
 
         // Empty
         Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
 
-        // Not empty
+        // Not empty (row mapper)
         writer.setRowMapper(source -> source.toString().getBytes());
-        List<byte[]> actual = writer.testConvert(TestConstants.CHUNK.getItems());
-        List<byte[]> expected = TestConstants.CHUNK.getItems().stream().map(PersonDto::toString).map(String::getBytes).toList();
+        List<byte[]> actual = writer.testConvert(items);
+        List<byte[]> expected = items.stream().map(PersonDto::toString).map(String::getBytes).toList();
+        Assertions.assertEquals(expected.size(), actual.size());
+
+        for (int i = 0; i < actual.size(); i++) {
+            Assertions.assertArrayEquals(expected.get(i), actual.get(i));
+        }
+
+        // Not empty (object writer)
+        ObjectWriter csvWriter = new CsvMapper().writerWithTypedSchemaFor(PersonDto.class);
+        writer.setRowMapper(null);
+        writer.testInitializeProperties(items);
+        actual = writer.testConvert(items);
+
+        expected = items
+                .stream()
+                .map(pd -> {
+                    try {
+                        return csvWriter.writeValueAsBytes(pd);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
         Assertions.assertEquals(expected.size(), actual.size());
 
         for (int i = 0; i < actual.size(); i++) {

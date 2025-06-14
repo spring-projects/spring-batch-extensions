@@ -123,8 +123,7 @@ public abstract class BigQueryBaseItemWriter<T> implements ItemWriter<T>, Initia
                 this.logger.debug(String.format("Mapping %d elements", items.size()));
             }
 
-            final ByteBuffer byteBuffer = mapDataToBigQueryFormat(items);
-            doWriteDataToBigQuery(byteBuffer);
+            doWriteDataToBigQuery(mapDataToBigQueryFormat(items));
         }
     }
 
