@@ -63,15 +63,6 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> {
         }
     }
 
-    /**
-     * Row mapper which transforms single BigQuery row into a desired type.
-     *
-     * @param rowMapper your row mapper
-     */
-    public void setRowMapper(Converter<T, byte[]> rowMapper) {
-        this.rowMapper = rowMapper;
-    }
-
     @Override
     protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
         return items
@@ -103,6 +94,15 @@ public class BigQueryCsvItemWriter<T> extends BigQueryBaseItemWriter<T> {
         String format = FormatOptions.csv().getType();
         Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
 
+    }
+
+    /**
+     * Row mapper which transforms single BigQuery row into a desired type.
+     *
+     * @param rowMapper your row mapper
+     */
+    public void setRowMapper(Converter<T, byte[]> rowMapper) {
+        this.rowMapper = rowMapper;
     }
 
     private byte[] mapItemToCsv(T t) {

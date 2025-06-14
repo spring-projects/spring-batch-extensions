@@ -24,6 +24,7 @@ import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryBaseItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.BigQueryItemWriterException;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
@@ -141,6 +142,46 @@ class BigQueryBaseItemWriterTest extends AbstractBigQueryTest {
         Mockito.verify(channel).write(Mockito.any(ByteBuffer.class));
         Mockito.verify(channel).close();
         Mockito.verify(channel, Mockito.times(2)).getJob();
+        Mockito.verifyNoMoreInteractions(channel);
+    }
+
+    @Test
+    void testWrite_Exception() throws Exception {
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryBaseItemWriter.class, MethodHandles.lookup());
+        AtomicBoolean consumerCalled = new AtomicBoolean();
+
+        Job job = Mockito.mock(Job.class);
+        Mockito.when(job.getJobId()).thenReturn(JobId.newBuilder().build());
+
+        TableDataWriteChannel channel = Mockito.mock(TableDataWriteChannel.class);
+        Mockito.when(channel.getJob()).thenReturn(job);
+        Mockito.when(channel.write(Mockito.any(ByteBuffer.class))).thenThrow(BigQueryException.class);
+
+        BigQuery bigQuery = prepareMockedBigQuery();
+        Mockito.when(bigQuery.writer(Mockito.any(WriteChannelConfiguration.class))).thenReturn(channel);
+
+        TestWriter writer = new TestWriter();
+        writer.setBigQuery(bigQuery);
+        writer.setJobConsumer(j -> consumerCalled.set(true));
+        writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID));
+
+        BigQueryItemWriterException actual = Assertions.assertThrows(BigQueryItemWriterException.class, () -> writer.write(TestConstants.CHUNK));
+        Assertions.assertEquals("Error on write happened", actual.getMessage());
+
+        AtomicLong actualCounter = (AtomicLong) handle
+                .findVarHandle(BigQueryBaseItemWriter.class, "bigQueryWriteCounter", AtomicLong.class)
+                .get(writer);
+
+        boolean writeFailed = (Boolean) handle
+                .findVarHandle(BigQueryBaseItemWriter.class, "writeFailed", boolean.class)
+                .get(writer);
+
+        Assertions.assertEquals(0L, actualCounter.get());
+        Assertions.assertTrue(writeFailed);
+        Assertions.assertFalse(consumerCalled.get());
+
+        Mockito.verify(channel).write(Mockito.any(ByteBuffer.class));
+        Mockito.verify(channel).close();
         Mockito.verifyNoMoreInteractions(channel);
     }
 

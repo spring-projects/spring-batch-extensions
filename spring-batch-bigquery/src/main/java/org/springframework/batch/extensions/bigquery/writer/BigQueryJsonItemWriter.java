@@ -46,15 +46,6 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
         // Unused
     }
 
-    /**
-     * Converter that transforms a single row into a {@link String}.
-     *
-     * @param marshaller your JSON mapper
-     */
-    public void setMarshaller(JsonObjectMarshaller<T> marshaller) {
-        this.marshaller = marshaller;
-    }
-
     @Override
     protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
         return items
@@ -89,6 +80,15 @@ public class BigQueryJsonItemWriter<T> extends BigQueryBaseItemWriter<T> {
 
         String format = FormatOptions.json().getType();
         Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
+    }
+
+    /**
+     * Converter that transforms a single row into a {@link String}.
+     *
+     * @param marshaller your JSON mapper
+     */
+    public void setMarshaller(JsonObjectMarshaller<T> marshaller) {
+        this.marshaller = marshaller;
     }
 
     /**
