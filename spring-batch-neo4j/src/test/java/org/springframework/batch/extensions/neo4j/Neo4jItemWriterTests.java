@@ -405,6 +405,21 @@ public class Neo4jItemWriterTests {
         }
 
         @Override
+        public boolean hasVectorProperty() {
+            return false;
+        }
+
+        @Override
+        public Neo4jPersistentProperty getVectorProperty() {
+            return null;
+        }
+
+        @Override
+        public Neo4jPersistentProperty getRequiredVectorProperty() {
+            return null;
+        }
+
+        @Override
         public String getPrimaryLabel() {
             return "MyEntity";
         }
