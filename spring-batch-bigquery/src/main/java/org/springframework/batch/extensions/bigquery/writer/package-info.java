@@ -18,17 +18,8 @@
  * Google BigQuery related functionality.
  * <p>
  * These writers use a Java client from Google, so we cannot control this flow fully.
- * Take into account that this writer produces {@link com.google.cloud.bigquery.JobConfiguration.Type#LOAD} {@link com.google.cloud.bigquery.Job}.
- *
- * <p>Supported formats:
- * <ul>
- *     <li>JSON</li>
- *     <li>CSV</li>
- * </ul>
- *
- * <p>For example if you generate {@link com.google.cloud.bigquery.TableDataWriteChannel} and you {@link com.google.cloud.bigquery.TableDataWriteChannel#close()} it,
- * there is no guarantee that single {@link com.google.cloud.bigquery.Job} will be created.
  * <p>
+ *
  * Take into account that BigQuery has rate limits, and it is very easy to exceed those in concurrent environment.
  * <p>
  * Also, worth mentioning that you should ensure ordering of the fields in DTO that you are going to send to the BigQuery.

@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.springframework.batch.extensions.bigquery.emulator.base.BigQueryBaseDockerConfiguration;
+import org.springframework.batch.extensions.bigquery.emulator.base.EmulatorBigQueryBaseDockerConfiguration;
 import wiremock.com.google.common.net.HttpHeaders;
 
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 public final class SpyResponseExtension implements ResponseTransformerV2 {
 
     private static final String BQ_DOCKER_URL_PREFIX = "http://0.0.0.0:";
-    private static final String BQ_DOCKER_URL = BQ_DOCKER_URL_PREFIX + BigQueryBaseDockerConfiguration.PORT;
+    private static final String BQ_DOCKER_URL = BQ_DOCKER_URL_PREFIX + EmulatorBigQueryBaseDockerConfiguration.REST_PORT;
 
     private int wireMockPort;
 

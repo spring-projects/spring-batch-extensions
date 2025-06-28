@@ -13,6 +13,7 @@
     </appender>
 
     <logger name="org.springframework.batch.extensions.bigquery" level="DEBUG"/>
+    <logger name="io.grpc.netty.shaded.io.grpc.netty" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

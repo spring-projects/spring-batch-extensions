@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
@@ -108,8 +109,8 @@ class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
         MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
 
         QueryJobConfiguration jobConfiguration = QueryJobConfiguration
-                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 2")
-                .setDestinationTable(TableId.of(TestConstants.DATASET, "persons_duplicate"))
+                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.csv p LIMIT 2")
+                .setDestinationTable(TableId.of(TestConstants.DATASET, TestConstants.CSV))
                 .build();
 
         BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
@@ -146,10 +147,20 @@ class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
 
     private static Stream<Arguments> brokenBuilders() {
         final class HumanDto {}
+        BigQuery bigQuery = Mockito.mock(BigQuery.class);
         return Stream.of(
-                Arguments.of("No target type provided", new BigQueryQueryItemReaderBuilder<PersonDto>()),
-                Arguments.of("Only Java record supported", new BigQueryQueryItemReaderBuilder<HumanDto>().targetType(HumanDto.class)),
-                Arguments.of("No query provided", new BigQueryQueryItemReaderBuilder<PersonDto>().rowMapper(source -> null))
+                Arguments.of(
+                        "No target type provided",
+                        new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery)
+                ),
+                Arguments.of(
+                        "Only Java record supported",
+                        new BigQueryQueryItemReaderBuilder<HumanDto>().bigQuery(bigQuery).targetType(HumanDto.class)
+                ),
+                Arguments.of(
+                        "No query provided",
+                        new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery).rowMapper(source -> null)
+                )
         );
     }
 }
