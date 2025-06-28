@@ -29,6 +29,8 @@ public final class TestConstants {
     private TestConstants() {}
 
     public static final String DATASET = "spring_batch_extensions";
+    public static final String PROJECT = "batch-test";
+
     public static final String NAME = "name";
     public static final String AGE = "age";
     public static final String CSV = "csv";

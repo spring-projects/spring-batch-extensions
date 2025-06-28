@@ -17,6 +17,7 @@
 package org.springframework.batch.extensions.bigquery.reader.builder;
 
 import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import org.springframework.batch.extensions.bigquery.reader.BigQueryQueryItemReader;
@@ -113,7 +114,7 @@ public class BigQueryQueryItemReaderBuilder<T> {
     public BigQueryQueryItemReader<T> build() {
         final BigQueryQueryItemReader<T> reader = new BigQueryQueryItemReader<>();
 
-        reader.setBigQuery(this.bigQuery);
+        reader.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
 
         if (this.rowMapper == null) {
             Assert.notNull(this.targetType, "No target type provided");

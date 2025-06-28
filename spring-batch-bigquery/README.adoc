@@ -2,26 +2,41 @@
 
 Spring Batch extension which contains an `ItemWriter` and `ItemReader` implementations for https://cloud.google.com/bigquery[BigQuery].
 
-`ItemWriter` supports next formats (https://cloud.google.com/bigquery/docs/batch-loading-data[load jobs]):
+`ItemWriter` support:
 
-* https://en.wikipedia.org/wiki/Comma-separated_values[CSV]
-* https://en.wikipedia.org/wiki/JSON[JSON]
+[cols="h,1,1"]
+|===
+|  |https://cloud.google.com/bigquery/docs/batch-loading-data[Load job] |https://cloud.google.com/bigquery/docs/write-api#committed_type[Write API (Commited)]
+
+|https://en.wikipedia.org/wiki/JSON[JSON]                    |Supported |Supported
+|https://en.wikipedia.org/wiki/Comma-separated_values[CSV]    |Supported |
+|===
+
+`ItemReader` support:
+
+[cols="h,1"]
+|===
+
+|https://en.wikipedia.org/wiki/JSON[JSON]                  |Supported
+|https://en.wikipedia.org/wiki/Comma-separated_values[CSV]   |Supported
+|===
+
 
 Based on https://github.com/googleapis/java-bigquery[Java BigQuery].
 
-== Example of `BigQueryCsvItemWriter`
+== Example of `BigQueryLoadJobCsvItemWriter`
 
 [source,java]
 ----
 @Bean
-BigQueryCsvItemWriter<MyDto> bigQueryCsvWriter() {
+BigQueryLoadJobCsvItemWriter<MyDto> bigQueryCsvWriter() {
     WriteChannelConfiguration writeConfiguration = WriteChannelConfiguration
         .newBuilder(TableId.of("csv_dataset", "csv_table"))
         .setAutodetect(true)
         .setFormatOptions(FormatOptions.csv())
         .build();
 
-    return new BigQueryCsvItemWriterBuilder<MyDto>()
+    return new BigQueryLoadJobCsvItemWriterBuilder<MyDto>()
         .bigQuery(bigQueryService)
         .writeChannelConfig(writeConfiguration)
         .build();
