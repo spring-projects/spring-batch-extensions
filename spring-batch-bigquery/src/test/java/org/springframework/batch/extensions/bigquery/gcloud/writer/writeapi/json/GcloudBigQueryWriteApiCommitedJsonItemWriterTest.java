@@ -3,7 +3,7 @@ package org.springframework.batch.extensions.bigquery.gcloud.writer.writeapi.jso
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.extensions.bigquery.gcloud.writer.GcloudBaseBigQueryItemWriterTest;
 
-public class GcloudBigQueryWriteApiJsonItemWriterTest extends GcloudBaseBigQueryItemWriterTest {
+public class GcloudBigQueryWriteApiCommitedJsonItemWriterTest extends GcloudBaseBigQueryItemWriterTest {
 
     @Test
     void testWrite() {

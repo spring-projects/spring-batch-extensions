@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
-import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiJsonItemWriter;
-import org.springframework.batch.extensions.bigquery.writer.writeapi.json.builder.BigQueryWriteApiJsonItemWriterBuilder;
+import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiPendingJsonItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.writeapi.json.builder.BigQueryWriteApiPendingJsonItemWriterBuilder;
 import org.springframework.batch.item.json.GsonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -36,54 +36,54 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-class BigQueryWriteApiJsonItemWriterBuilderTest {
+class BigQueryWriteApiPendingJsonItemWriterBuilderTest {
 
     @Test
     void testBigQueryWriteClient() throws IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriterBuilder.class, MethodHandles.lookup());
-        BigQueryWriteApiJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiJsonItemWriterBuilder<>();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriterBuilder.class, MethodHandles.lookup());
+        BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiPendingJsonItemWriterBuilder<>();
         BigQueryWriteClient expected = Mockito.mock(BigQueryWriteClient.class);
 
         builder.bigQueryWriteClient(expected);
 
         BigQueryWriteClient actual = (BigQueryWriteClient) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriterBuilder.class, "bigQueryWriteClient", BigQueryWriteClient.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriterBuilder.class, "bigQueryWriteClient", BigQueryWriteClient.class)
                 .get(builder);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void testTableName() throws IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriterBuilder.class, MethodHandles.lookup());
-        BigQueryWriteApiJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiJsonItemWriterBuilder<>();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriterBuilder.class, MethodHandles.lookup());
+        BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiPendingJsonItemWriterBuilder<>();
         TableName expected = TableName.of(TestConstants.PROJECT, TestConstants.DATASET, TestConstants.JSON);
 
         builder.tableName(expected);
 
         TableName actual = (TableName) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriterBuilder.class, "tableName", TableName.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriterBuilder.class, "tableName", TableName.class)
                 .get(builder);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void testMarshaller() throws IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriterBuilder.class, MethodHandles.lookup());
-        BigQueryWriteApiJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiJsonItemWriterBuilder<>();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriterBuilder.class, MethodHandles.lookup());
+        BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiPendingJsonItemWriterBuilder<>();
         JsonObjectMarshaller<PersonDto> expected = new GsonJsonObjectMarshaller<>();
 
         builder.marshaller(expected);
 
         JsonObjectMarshaller<PersonDto> actual = (JsonObjectMarshaller<PersonDto>) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriterBuilder.class, "marshaller", JsonObjectMarshaller.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriterBuilder.class, "marshaller", JsonObjectMarshaller.class)
                 .get(builder);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void testApiFutureCallback() throws IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriterBuilder.class, MethodHandles.lookup());
-        BigQueryWriteApiJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiJsonItemWriterBuilder<>();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriterBuilder.class, MethodHandles.lookup());
+        BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiPendingJsonItemWriterBuilder<>();
 
         ApiFutureCallback<AppendRowsResponse> expected = new ApiFutureCallback<>() {
             @Override
@@ -96,28 +96,28 @@ class BigQueryWriteApiJsonItemWriterBuilderTest {
         builder.apiFutureCallback(expected);
 
         ApiFutureCallback<AppendRowsResponse> actual = (ApiFutureCallback<AppendRowsResponse>) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriterBuilder.class, "apiFutureCallback", ApiFutureCallback.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriterBuilder.class, "apiFutureCallback", ApiFutureCallback.class)
                 .get(builder);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void testExecutor() throws IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriterBuilder.class, MethodHandles.lookup());
-        BigQueryWriteApiJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiJsonItemWriterBuilder<>();
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriterBuilder.class, MethodHandles.lookup());
+        BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto> builder = new BigQueryWriteApiPendingJsonItemWriterBuilder<>();
         Executor expected = Executors.newSingleThreadExecutor();
 
         builder.executor(expected);
 
         Executor actual = (Executor) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriterBuilder.class, "executor", Executor.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriterBuilder.class, "executor", Executor.class)
                 .get(builder);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void testBuild() throws IOException, IllegalAccessException, NoSuchFieldException {
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiJsonItemWriter.class, MethodHandles.lookup());
+        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryWriteApiPendingJsonItemWriter.class, MethodHandles.lookup());
         JsonObjectMarshaller<PersonDto> expectedMarshaller = new JacksonJsonObjectMarshaller<>();
         BigQueryWriteClient expectedWriteClient = Mockito.mock(BigQueryWriteClient.class);
         Executor expectedExecutor = Executors.newCachedThreadPool();
@@ -133,7 +133,7 @@ class BigQueryWriteApiJsonItemWriterBuilderTest {
             }
         };
 
-        BigQueryWriteApiJsonItemWriter<PersonDto> writer = new BigQueryWriteApiJsonItemWriterBuilder<PersonDto>()
+        BigQueryWriteApiPendingJsonItemWriter<PersonDto> writer = new BigQueryWriteApiPendingJsonItemWriterBuilder<PersonDto>()
                 .marshaller(expectedMarshaller)
                 .bigQueryWriteClient(expectedWriteClient)
                 .apiFutureCallback(expectedCallback)
@@ -144,23 +144,23 @@ class BigQueryWriteApiJsonItemWriterBuilderTest {
         Assertions.assertNotNull(writer);
 
         JsonObjectMarshaller<PersonDto> actualMarshaller = (JsonObjectMarshaller<PersonDto>) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
                 .get(writer);
 
         BigQueryWriteClient actualWriteClient = (BigQueryWriteClient) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriter.class, "bigQueryWriteClient", BigQueryWriteClient.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriter.class, "bigQueryWriteClient", BigQueryWriteClient.class)
                 .get(writer);
 
         ApiFutureCallback<AppendRowsResponse> actualCallback = (ApiFutureCallback<AppendRowsResponse>) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriter.class, "apiFutureCallback", ApiFutureCallback.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriter.class, "apiFutureCallback", ApiFutureCallback.class)
                 .get(writer);
 
         Executor actualExecutor = (Executor) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriter.class, "executor", Executor.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriter.class, "executor", Executor.class)
                 .get(writer);
 
         TableName actualTableName = (TableName) handle
-                .findVarHandle(BigQueryWriteApiJsonItemWriter.class, "tableName", TableName.class)
+                .findVarHandle(BigQueryWriteApiPendingJsonItemWriter.class, "tableName", TableName.class)
                 .get(writer);
 
         Assertions.assertEquals(expectedMarshaller, actualMarshaller);

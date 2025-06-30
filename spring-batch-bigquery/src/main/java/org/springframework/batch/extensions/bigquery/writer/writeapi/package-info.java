@@ -20,6 +20,7 @@
  * Supported types:
  * <ul>
  *     <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#COMMITTED}</li>
+ *     <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#PENDING}</li>
  * </ul>
  *
  * Supported formats:

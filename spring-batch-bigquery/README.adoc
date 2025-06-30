@@ -4,12 +4,12 @@ Spring Batch extension which contains an `ItemWriter` and `ItemReader` implement
 
 `ItemWriter` support:
 
-[cols="h,1,1"]
+[cols="h,1,1, 1"]
 |===
-|  |https://cloud.google.com/bigquery/docs/batch-loading-data[Load job] |https://cloud.google.com/bigquery/docs/write-api#committed_type[Write API (Commited)]
+|  |https://cloud.google.com/bigquery/docs/batch-loading-data[Load job] |https://cloud.google.com/bigquery/docs/write-api#committed_type[Write API (Commited)] | https://cloud.google.com/bigquery/docs/write-api#pending_type[Write API (Pending)]
 
-|https://en.wikipedia.org/wiki/JSON[JSON]                    |Supported |Supported
-|https://en.wikipedia.org/wiki/Comma-separated_values[CSV]    |Supported |
+|https://en.wikipedia.org/wiki/JSON[JSON]                    |Supported |Supported | Supported
+|https://en.wikipedia.org/wiki/Comma-separated_values[CSV]    |Supported | |
 |===
 
 `ItemReader` support:
