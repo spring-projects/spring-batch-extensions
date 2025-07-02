@@ -21,7 +21,7 @@ import com.google.cloud.bigquery.storage.v1.AppendRowsResponse;
 import com.google.cloud.bigquery.storage.v1.BigQueryWriteClient;
 import com.google.cloud.bigquery.storage.v1.TableName;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiJsonItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiPendingJsonItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
 
@@ -29,14 +29,14 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 /**
- * A builder for {@link BigQueryWriteApiJsonItemWriter}.
+ * A builder for {@link BigQueryWriteApiPendingJsonItemWriter}.
  *
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/json/builder/BigQueryWriteApiJsonItemWriterBuilderTests.java">Examples</a>
+ * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/json/builder/BigQueryWriteApiPendingJsonItemWriterBuilderTests.java">Examples</a>
  */
-public class BigQueryWriteApiJsonItemWriterBuilder<T> {
+public class BigQueryWriteApiPendingJsonItemWriterBuilder<T> {
 
     private BigQueryWriteClient bigQueryWriteClient;
     private TableName tableName;
@@ -48,10 +48,10 @@ public class BigQueryWriteApiJsonItemWriterBuilder<T> {
      * GRPC client that will be responsible for communication with BigQuery.
      *
      * @param bigQueryWriteClient a client
-     * @return {@link BigQueryWriteApiJsonItemWriterBuilder}
-     * @see BigQueryWriteApiJsonItemWriter#setBigQueryWriteClient(BigQueryWriteClient)
+     * @return {@link BigQueryWriteApiPendingJsonItemWriterBuilder}
+     * @see BigQueryWriteApiPendingJsonItemWriter#setBigQueryWriteClient(BigQueryWriteClient)
      */
-    public BigQueryWriteApiJsonItemWriterBuilder<T> bigQueryWriteClient(final BigQueryWriteClient bigQueryWriteClient) {
+    public BigQueryWriteApiPendingJsonItemWriterBuilder<T> bigQueryWriteClient(final BigQueryWriteClient bigQueryWriteClient) {
         this.bigQueryWriteClient = bigQueryWriteClient;
         return this;
     }
@@ -60,10 +60,10 @@ public class BigQueryWriteApiJsonItemWriterBuilder<T> {
      * A table name along with a full path.
      *
      * @param tableName a name
-     * @return {@link BigQueryWriteApiJsonItemWriterBuilder}
-     * @see BigQueryWriteApiJsonItemWriter#setTableName(TableName)
+     * @return {@link BigQueryWriteApiPendingJsonItemWriterBuilder}
+     * @see BigQueryWriteApiPendingJsonItemWriter#setTableName(TableName)
      */
-    public BigQueryWriteApiJsonItemWriterBuilder<T> tableName(final TableName tableName) {
+    public BigQueryWriteApiPendingJsonItemWriterBuilder<T> tableName(final TableName tableName) {
         this.tableName = tableName;
         return this;
     }
@@ -72,10 +72,10 @@ public class BigQueryWriteApiJsonItemWriterBuilder<T> {
      * Converts your DTO into a {@link String}.
      *
      * @param marshaller your mapper
-     * @return {@link BigQueryWriteApiJsonItemWriterBuilder}
-     * @see BigQueryWriteApiJsonItemWriter#setMarshaller(JsonObjectMarshaller)
+     * @return {@link BigQueryWriteApiPendingJsonItemWriterBuilder}
+     * @see BigQueryWriteApiPendingJsonItemWriter#setMarshaller(JsonObjectMarshaller)
      */
-    public BigQueryWriteApiJsonItemWriterBuilder<T> marshaller(final JsonObjectMarshaller<T> marshaller) {
+    public BigQueryWriteApiPendingJsonItemWriterBuilder<T> marshaller(final JsonObjectMarshaller<T> marshaller) {
         this.marshaller = marshaller;
         return this;
     }
@@ -84,10 +84,10 @@ public class BigQueryWriteApiJsonItemWriterBuilder<T> {
      * A {@link ApiFutureCallback} that will be called on successful or failed event.
      *
      * @param apiFutureCallback a callback
-     * @return {@link BigQueryWriteApiJsonItemWriterBuilder}
-     * @see BigQueryWriteApiJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+     * @return {@link BigQueryWriteApiPendingJsonItemWriterBuilder}
+     * @see BigQueryWriteApiPendingJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
      */
-    public BigQueryWriteApiJsonItemWriterBuilder<T> apiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
+    public BigQueryWriteApiPendingJsonItemWriterBuilder<T> apiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
         this.apiFutureCallback = apiFutureCallback;
         return this;
     }
@@ -96,23 +96,23 @@ public class BigQueryWriteApiJsonItemWriterBuilder<T> {
      * {@link Executor} that will be used for {@link ApiFutureCallback}.
      *
      * @param executor an executor
-     * @return {@link BigQueryWriteApiJsonItemWriterBuilder}
-     * @see BigQueryWriteApiJsonItemWriter#setExecutor(Executor)
-     * @see BigQueryWriteApiJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+     * @return {@link BigQueryWriteApiPendingJsonItemWriterBuilder}
+     * @see BigQueryWriteApiPendingJsonItemWriter#setExecutor(Executor)
+     * @see BigQueryWriteApiPendingJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
      */
-    public BigQueryWriteApiJsonItemWriterBuilder<T> executor(final Executor executor) {
+    public BigQueryWriteApiPendingJsonItemWriterBuilder<T> executor(final Executor executor) {
         this.executor = executor;
         return this;
     }
 
     /**
-     * Please remember about {@link BigQueryWriteApiJsonItemWriter#afterPropertiesSet()}.
+     * Please remember about {@link BigQueryWriteApiPendingJsonItemWriter#afterPropertiesSet()}.
      *
-     * @return {@link BigQueryWriteApiJsonItemWriter}
+     * @return {@link BigQueryWriteApiPendingJsonItemWriter}
      * @throws IOException in case when {@link BigQueryWriteClient} failed to be created automatically
      */
-    public BigQueryWriteApiJsonItemWriter<T> build() throws IOException {
-        BigQueryWriteApiJsonItemWriter<T> writer = new BigQueryWriteApiJsonItemWriter<>();
+    public BigQueryWriteApiPendingJsonItemWriter<T> build() throws IOException {
+        BigQueryWriteApiPendingJsonItemWriter<T> writer = new BigQueryWriteApiPendingJsonItemWriter<>();
 
         writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
         writer.setBigQueryWriteClient(this.bigQueryWriteClient == null ? BigQueryWriteClient.create() : this.bigQueryWriteClient);

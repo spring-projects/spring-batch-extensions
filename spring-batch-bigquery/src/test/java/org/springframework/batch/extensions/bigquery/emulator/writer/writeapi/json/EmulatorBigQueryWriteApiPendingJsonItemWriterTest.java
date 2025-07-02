@@ -14,14 +14,14 @@ import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.emulator.writer.base.EmulatorBaseItemWriterTest;
-import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiJsonItemWriter;
+import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiPendingJsonItemWriter;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class EmulatorBigQueryWriteApiJsonItemWriterTest extends EmulatorBaseItemWriterTest {
+class EmulatorBigQueryWriteApiPendingJsonItemWriterTest extends EmulatorBaseItemWriterTest {
 
     @Test
     void testWrite() throws Exception {
@@ -32,7 +32,7 @@ class EmulatorBigQueryWriteApiJsonItemWriterTest extends EmulatorBaseItemWriterT
 
         Chunk<PersonDto> expected = TestConstants.CHUNK;
 
-        BigQueryWriteApiJsonItemWriter<Object> writer = new BigQueryWriteApiJsonItemWriter<>();
+        BigQueryWriteApiPendingJsonItemWriter<Object> writer = new BigQueryWriteApiPendingJsonItemWriter<>();
         writer.setBigQueryWriteClient(bigQueryWriteClient);
         writer.setTableName(TableName.of(tableId.getProject(), tableId.getDataset(), tableId.getTable()));
         writer.setMarshaller(new JacksonJsonObjectMarshaller<>());

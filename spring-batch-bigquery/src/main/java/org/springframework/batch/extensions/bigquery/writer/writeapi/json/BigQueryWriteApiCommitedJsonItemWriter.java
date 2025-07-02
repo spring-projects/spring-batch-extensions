@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @see <a href="https://cloud.google.com/bigquery/docs/write-api#committed_type">Commited type storage write API</a>
  * @since 0.2.0
  */
-public class BigQueryWriteApiJsonItemWriter<T> implements ItemWriter<T>, InitializingBean {
+public class BigQueryWriteApiCommitedJsonItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
     /**
      * Logger that can be reused
@@ -112,7 +112,10 @@ public class BigQueryWriteApiJsonItemWriter<T> implements ItemWriter<T>, Initial
                 throw new BigQueryItemWriterException("Error on write happened", e);
             } finally {
                 if (StringUtils.hasText(streamName)) {
-                    bigQueryWriteClient.finalizeWriteStream(streamName);
+                    long rowCount = bigQueryWriteClient.finalizeWriteStream(streamName).getRowCount();
+                    if (chunk.size() != rowCount) {
+                        logger.warn("Finalized response row count=%d is not the same as chunk size=%d".formatted(rowCount, chunk.size()));
+                    }
                 }
 
                 if (!writeFailed && logger.isDebugEnabled()) {
@@ -164,7 +167,7 @@ public class BigQueryWriteApiJsonItemWriter<T> implements ItemWriter<T>, Initial
      * {@link ApiFutureCallback} that will be called in case of successful of failed response.
      *
      * @param apiFutureCallback a callback
-     * @see BigQueryWriteApiJsonItemWriter#setExecutor(Executor)
+     * @see BigQueryWriteApiCommitedJsonItemWriter#setExecutor(Executor)
      */
     public void setApiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
         this.apiFutureCallback = apiFutureCallback;
@@ -174,7 +177,7 @@ public class BigQueryWriteApiJsonItemWriter<T> implements ItemWriter<T>, Initial
      * An {@link Executor} that will be calling a {@link ApiFutureCallback}.
      *
      * @param executor an executor
-     * @see BigQueryWriteApiJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+     * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
      */
     public void setExecutor(final Executor executor) {
         this.executor = executor;

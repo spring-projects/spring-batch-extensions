@@ -35,4 +35,12 @@ public class BigQueryItemWriterException extends ItemWriterException {
     public BigQueryItemWriterException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    /**
+     * Create a new {@link BigQueryItemWriterException} based on a message.
+     * @param message the message for this {@link Exception}
+     */
+    public BigQueryItemWriterException(String message) {
+        super(message);
+    }
 }
