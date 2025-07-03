@@ -32,93 +32,92 @@ import java.util.function.Consumer;
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/builder/BigQueryCsvItemWriterBuilderTests.java">Examples</a>
+ * @see <a href=
+ * "https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/builder/BigQueryCsvItemWriterBuilderTests.java">Examples</a>
  */
-public class BigQueryCsvItemWriterBuilder<T>  {
+public class BigQueryCsvItemWriterBuilder<T> {
 
-    private Converter<T, byte[]> rowMapper;
+	private Converter<T, byte[]> rowMapper;
 
-    private Consumer<Job> jobConsumer;
-    private DatasetInfo datasetInfo;
-    private WriteChannelConfiguration writeChannelConfig;
-    private BigQuery bigQuery;
+	private Consumer<Job> jobConsumer;
 
-    /**
-     * Row mapper which transforms single BigQuery row into desired type.
-     *
-     * @param rowMapper your row mapper
-     * @return {@link BigQueryCsvItemWriterBuilder}
-     * @see BigQueryLoadJobCsvItemWriter#setRowMapper(Converter)
-     */
-    public BigQueryCsvItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
-        this.rowMapper = rowMapper;
-        return this;
-    }
+	private DatasetInfo datasetInfo;
 
-    /**
-     * Provides additional information about the {@link com.google.cloud.bigquery.Dataset}.
-     *
-     * @param datasetInfo BigQuery dataset info
-     * @return {@link BigQueryCsvItemWriterBuilder}
-     * @see BigQueryLoadJobCsvItemWriter#setDatasetInfo(DatasetInfo)
-     */
-    public BigQueryCsvItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
-        this.datasetInfo = datasetInfo;
-        return this;
-    }
+	private WriteChannelConfiguration writeChannelConfig;
 
-    /**
-     * Callback when {@link Job} will be finished.
-     *
-     * @param consumer your consumer
-     * @return {@link BigQueryCsvItemWriterBuilder}
-     * @see BigQueryLoadJobCsvItemWriter#setJobConsumer(Consumer)
-     */
-    public BigQueryCsvItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
-        this.jobConsumer = consumer;
-        return this;
-    }
+	private BigQuery bigQuery;
 
-    /**
-     * Describes what should be written (format) and its destination (table).
-     *
-     * @param configuration BigQuery channel configuration
-     * @return {@link BigQueryCsvItemWriterBuilder}
-     * @see BigQueryLoadJobCsvItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
-     */
-    public BigQueryCsvItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
-        this.writeChannelConfig = configuration;
-        return this;
-    }
+	/**
+	 * Row mapper which transforms single BigQuery row into desired type.
+	 * @param rowMapper your row mapper
+	 * @return {@link BigQueryCsvItemWriterBuilder}
+	 * @see BigQueryLoadJobCsvItemWriter#setRowMapper(Converter)
+	 */
+	public BigQueryCsvItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
+		this.rowMapper = rowMapper;
+		return this;
+	}
 
-    /**
-     * BigQuery service, responsible for API calls.
-     *
-     * @param bigQuery BigQuery service
-     * @return {@link BigQueryCsvItemWriterBuilder}
-     * @see BigQueryLoadJobCsvItemWriter#setBigQuery(BigQuery)
-     */
-    public BigQueryCsvItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
-        this.bigQuery = bigQuery;
-        return this;
-    }
+	/**
+	 * Provides additional information about the
+	 * {@link com.google.cloud.bigquery.Dataset}.
+	 * @param datasetInfo BigQuery dataset info
+	 * @return {@link BigQueryCsvItemWriterBuilder}
+	 * @see BigQueryLoadJobCsvItemWriter#setDatasetInfo(DatasetInfo)
+	 */
+	public BigQueryCsvItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
+		this.datasetInfo = datasetInfo;
+		return this;
+	}
 
-    /**
-     * Please remember about {@link BigQueryLoadJobCsvItemWriter#afterPropertiesSet()}.
-     *
-     * @return {@link BigQueryLoadJobCsvItemWriter}
-     */
-    public BigQueryLoadJobCsvItemWriter<T> build() {
-        BigQueryLoadJobCsvItemWriter<T> writer = new BigQueryLoadJobCsvItemWriter<>();
+	/**
+	 * Callback when {@link Job} will be finished.
+	 * @param consumer your consumer
+	 * @return {@link BigQueryCsvItemWriterBuilder}
+	 * @see BigQueryLoadJobCsvItemWriter#setJobConsumer(Consumer)
+	 */
+	public BigQueryCsvItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
+		this.jobConsumer = consumer;
+		return this;
+	}
 
-        writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
+	/**
+	 * Describes what should be written (format) and its destination (table).
+	 * @param configuration BigQuery channel configuration
+	 * @return {@link BigQueryCsvItemWriterBuilder}
+	 * @see BigQueryLoadJobCsvItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
+	 */
+	public BigQueryCsvItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
+		this.writeChannelConfig = configuration;
+		return this;
+	}
 
-        writer.setRowMapper(this.rowMapper);
-        writer.setWriteChannelConfig(this.writeChannelConfig);
-        writer.setJobConsumer(this.jobConsumer);
-        writer.setDatasetInfo(this.datasetInfo);
+	/**
+	 * BigQuery service, responsible for API calls.
+	 * @param bigQuery BigQuery service
+	 * @return {@link BigQueryCsvItemWriterBuilder}
+	 * @see BigQueryLoadJobCsvItemWriter#setBigQuery(BigQuery)
+	 */
+	public BigQueryCsvItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
+		this.bigQuery = bigQuery;
+		return this;
+	}
 
-        return writer;
-    }
+	/**
+	 * Please remember about {@link BigQueryLoadJobCsvItemWriter#afterPropertiesSet()}.
+	 * @return {@link BigQueryLoadJobCsvItemWriter}
+	 */
+	public BigQueryLoadJobCsvItemWriter<T> build() {
+		BigQueryLoadJobCsvItemWriter<T> writer = new BigQueryLoadJobCsvItemWriter<>();
+
+		writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
+
+		writer.setRowMapper(this.rowMapper);
+		writer.setWriteChannelConfig(this.writeChannelConfig);
+		writer.setJobConsumer(this.jobConsumer);
+		writer.setDatasetInfo(this.datasetInfo);
+
+		return writer;
+	}
 
 }

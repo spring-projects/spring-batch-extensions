@@ -37,101 +37,105 @@ import java.util.List;
 
 class BigQueryItemReaderTest extends AbstractBigQueryTest {
 
-    @Test
-    void testSetBigQuery() throws IllegalAccessException, NoSuchFieldException {
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
-        BigQuery bigQuery = prepareMockedBigQuery();
+	@Test
+	void testSetBigQuery() throws IllegalAccessException, NoSuchFieldException {
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
+		BigQuery bigQuery = prepareMockedBigQuery();
 
-        reader.setBigQuery(bigQuery);
+		reader.setBigQuery(bigQuery);
 
-        BigQuery actualBigQuery = (BigQuery) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
-                .get(reader);
+		BigQuery actualBigQuery = (BigQuery) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
+			.get(reader);
 
-        Assertions.assertEquals(bigQuery, actualBigQuery);
-    }
+		Assertions.assertEquals(bigQuery, actualBigQuery);
+	}
 
-    @Test
-    void testSetRowMapper() throws IllegalAccessException, NoSuchFieldException {
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
-        Converter<FieldValueList, PersonDto> rowMapper = source -> null;
+	@Test
+	void testSetRowMapper() throws IllegalAccessException, NoSuchFieldException {
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
+		Converter<FieldValueList, PersonDto> rowMapper = source -> null;
 
-        reader.setRowMapper(rowMapper);
+		reader.setRowMapper(rowMapper);
 
-        Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
-                .get(reader);
+		Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
+			.get(reader);
 
-        Assertions.assertEquals(rowMapper, actualRowMapper);
-    }
+		Assertions.assertEquals(rowMapper, actualRowMapper);
+	}
 
-    @Test
-    void testSetJobConfiguration() throws IllegalAccessException, NoSuchFieldException {
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
-        QueryJobConfiguration jobConfiguration = QueryJobConfiguration.newBuilder("select").build();
+	@Test
+	void testSetJobConfiguration() throws IllegalAccessException, NoSuchFieldException {
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
+		QueryJobConfiguration jobConfiguration = QueryJobConfiguration.newBuilder("select").build();
 
-        reader.setJobConfiguration(jobConfiguration);
+		reader.setJobConfiguration(jobConfiguration);
 
-        QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
-                .get(reader);
+		QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
+			.get(reader);
 
-        Assertions.assertEquals(jobConfiguration, actualJobConfiguration);
-    }
+		Assertions.assertEquals(jobConfiguration, actualJobConfiguration);
+	}
 
-    @Test
-    void testRead() throws Exception {
-        BigQuery bigQuery = prepareMockedBigQuery();
-        List<PersonDto> items = TestConstants.CHUNK.getItems();
+	@Test
+	void testRead() throws Exception {
+		BigQuery bigQuery = prepareMockedBigQuery();
+		List<PersonDto> items = TestConstants.CHUNK.getItems();
 
-        Field name = Field.of(TestConstants.NAME, StandardSQLTypeName.STRING);
-        Field age = Field.of(TestConstants.AGE, StandardSQLTypeName.INT64);
+		Field name = Field.of(TestConstants.NAME, StandardSQLTypeName.STRING);
+		Field age = Field.of(TestConstants.AGE, StandardSQLTypeName.INT64);
 
-        PersonDto person1 = items.get(0);
-        FieldValue value10 = FieldValue.of(FieldValue.Attribute.PRIMITIVE, person1.name());
-        FieldValue value11 = FieldValue.of(FieldValue.Attribute.PRIMITIVE, person1.age().toString());
+		PersonDto person1 = items.get(0);
+		FieldValue value10 = FieldValue.of(FieldValue.Attribute.PRIMITIVE, person1.name());
+		FieldValue value11 = FieldValue.of(FieldValue.Attribute.PRIMITIVE, person1.age().toString());
 
-        FieldValueList row1 = FieldValueList.of(List.of(value10, value11), name, age);
+		FieldValueList row1 = FieldValueList.of(List.of(value10, value11), name, age);
 
-        TableResult tableResult = Mockito.mock(TableResult.class);
-        Mockito.when(tableResult.getValues()).thenReturn(List.of(row1));
+		TableResult tableResult = Mockito.mock(TableResult.class);
+		Mockito.when(tableResult.getValues()).thenReturn(List.of(row1));
 
-        Mockito.when(bigQuery.query(Mockito.any(QueryJobConfiguration.class))).thenReturn(tableResult);
+		Mockito.when(bigQuery.query(Mockito.any(QueryJobConfiguration.class))).thenReturn(tableResult);
 
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
-        reader.setRowMapper(TestConstants.PERSON_MAPPER);
-        reader.setBigQuery(bigQuery);
-        reader.setJobConfiguration(QueryJobConfiguration.of("select"));
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
+		reader.setRowMapper(TestConstants.PERSON_MAPPER);
+		reader.setBigQuery(bigQuery);
+		reader.setJobConfiguration(QueryJobConfiguration.of("select"));
 
-        // First call
-        PersonDto actual = reader.read();
-        Assertions.assertEquals(person1.name(), actual.name());
-        Assertions.assertEquals(person1.age(), actual.age());
+		// First call
+		PersonDto actual = reader.read();
+		Assertions.assertEquals(person1.name(), actual.name());
+		Assertions.assertEquals(person1.age(), actual.age());
 
-        // Second call
-        Assertions.assertNull(reader.read());
-    }
+		// Second call
+		Assertions.assertNull(reader.read());
+	}
 
-    @Test
-    void testAfterPropertiesSet() {
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
+	@Test
+	void testAfterPropertiesSet() {
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReader<>();
 
-        // bigQuery
-        Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
+		// bigQuery
+		Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
 
-        // rowMapper
-        reader.setBigQuery(prepareMockedBigQuery());
-        Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
+		// rowMapper
+		reader.setBigQuery(prepareMockedBigQuery());
+		Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
 
-        // jobConfiguration
-        reader.setRowMapper(TestConstants.PERSON_MAPPER);
-        Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
+		// jobConfiguration
+		reader.setRowMapper(TestConstants.PERSON_MAPPER);
+		Assertions.assertThrows(IllegalArgumentException.class, reader::afterPropertiesSet);
 
-        // No exception
-        reader.setJobConfiguration(QueryJobConfiguration.of("select"));
-        Assertions.assertDoesNotThrow(reader::afterPropertiesSet);
-    }
+		// No exception
+		reader.setJobConfiguration(QueryJobConfiguration.of("select"));
+		Assertions.assertDoesNotThrow(reader::afterPropertiesSet);
+	}
+
 }

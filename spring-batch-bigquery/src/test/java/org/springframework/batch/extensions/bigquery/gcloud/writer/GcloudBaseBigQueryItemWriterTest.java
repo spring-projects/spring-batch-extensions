@@ -28,15 +28,15 @@ import org.springframework.batch.extensions.bigquery.gcloud.base.GcloudBaseBigQu
 
 public abstract class GcloudBaseBigQueryItemWriterTest extends GcloudBaseBigQueryIntegrationTest {
 
-    protected void verifyResults(String tableName) {
-        Dataset dataset = BIG_QUERY.getDataset(TestConstants.DATASET);
-        Table table = BIG_QUERY.getTable(TableId.of(TestConstants.DATASET, tableName));
-        TableId tableId = table.getTableId();
-        TableResult tableResult = BIG_QUERY.listTableData(tableId, BigQuery.TableDataListOption.pageSize(2L));
+	protected void verifyResults(String tableName) {
+		Dataset dataset = BIG_QUERY.getDataset(TestConstants.DATASET);
+		Table table = BIG_QUERY.getTable(TableId.of(TestConstants.DATASET, tableName));
+		TableId tableId = table.getTableId();
+		TableResult tableResult = BIG_QUERY.listTableData(tableId, BigQuery.TableDataListOption.pageSize(2L));
 
-        Assertions.assertNotNull(dataset.getDatasetId());
-        Assertions.assertNotNull(tableId);
-        ResultVerifier.verifyTableResult(TestConstants.CHUNK, tableResult);
-    }
+		Assertions.assertNotNull(dataset.getDatasetId());
+		Assertions.assertNotNull(tableId);
+		ResultVerifier.verifyTableResult(TestConstants.CHUNK, tableResult);
+	}
 
 }

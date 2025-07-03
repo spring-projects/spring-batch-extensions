@@ -21,26 +21,30 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.ItemWriterException;
 
 /**
- * Unchecked {@link Exception} indicating that an error has occurred on during {@link ItemWriter#write(Chunk)}.
+ * Unchecked {@link Exception} indicating that an error has occurred on during
+ * {@link ItemWriter#write(Chunk)}.
+ *
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
  */
 public class BigQueryItemWriterException extends ItemWriterException {
 
-    /**
-     * Create a new {@link BigQueryItemWriterException} based on a message and another {@link Exception}.
-     * @param message the message for this {@link Exception}
-     * @param cause the other {@link Exception}
-     */
-    public BigQueryItemWriterException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	/**
+	 * Create a new {@link BigQueryItemWriterException} based on a message and another
+	 * {@link Exception}.
+	 * @param message the message for this {@link Exception}
+	 * @param cause the other {@link Exception}
+	 */
+	public BigQueryItemWriterException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    /**
-     * Create a new {@link BigQueryItemWriterException} based on a message.
-     * @param message the message for this {@link Exception}
-     */
-    public BigQueryItemWriterException(String message) {
-        super(message);
-    }
+	/**
+	 * Create a new {@link BigQueryItemWriterException} based on a message.
+	 * @param message the message for this {@link Exception}
+	 */
+	public BigQueryItemWriterException(String message) {
+		super(message);
+	}
+
 }

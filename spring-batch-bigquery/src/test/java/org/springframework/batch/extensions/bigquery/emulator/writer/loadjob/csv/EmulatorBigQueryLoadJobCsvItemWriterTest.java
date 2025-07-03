@@ -33,29 +33,30 @@ import org.springframework.batch.item.Chunk;
 
 class EmulatorBigQueryLoadJobCsvItemWriterTest extends EmulatorBaseItemWriterTest {
 
-    // TODO find out why data is not persisted into the sqlite database
-    // at the same time it works fine with json/insertAll job/yaml file
-    // cover 2 scenarios (predefined schema + generate on the fly)
-    @Test
-    @Disabled("Not working at the moment")
-    void testWrite() throws Exception {
-        TableId tableId = TableId.of(TestConstants.DATASET, NameUtils.generateTableName(TestConstants.CSV));
-        Chunk<PersonDto> expectedChunk = Chunk.of(new PersonDto("Ivan", 30));
+	// TODO find out why data is not persisted into the sqlite database
+	// at the same time it works fine with json/insertAll job/yaml file
+	// cover 2 scenarios (predefined schema + generate on the fly)
+	@Test
+	@Disabled("Not working at the moment")
+	void testWrite() throws Exception {
+		TableId tableId = TableId.of(TestConstants.DATASET, NameUtils.generateTableName(TestConstants.CSV));
+		Chunk<PersonDto> expectedChunk = Chunk.of(new PersonDto("Ivan", 30));
 
-        WriteChannelConfiguration channelConfig = WriteChannelConfiguration
-                .newBuilder(tableId)
-                .setFormatOptions(FormatOptions.csv())
-                .setSchema(PersonDto.getBigQuerySchema())
-                .build();
+		WriteChannelConfiguration channelConfig = WriteChannelConfiguration.newBuilder(tableId)
+			.setFormatOptions(FormatOptions.csv())
+			.setSchema(PersonDto.getBigQuerySchema())
+			.build();
 
-        BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
-                .bigQuery(bigQuery)
-                .writeChannelConfig(channelConfig)
-                .build();
-        writer.afterPropertiesSet();
+		BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
+			.bigQuery(bigQuery)
+			.writeChannelConfig(channelConfig)
+			.build();
+		writer.afterPropertiesSet();
 
-        writer.write(expectedChunk);
+		writer.write(expectedChunk);
 
-        ResultVerifier.verifyTableResult(expectedChunk, bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
-    }
+		ResultVerifier.verifyTableResult(expectedChunk,
+				bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
+	}
+
 }

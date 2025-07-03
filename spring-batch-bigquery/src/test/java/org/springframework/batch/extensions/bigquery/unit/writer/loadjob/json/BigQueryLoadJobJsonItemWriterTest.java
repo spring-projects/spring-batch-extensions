@@ -44,129 +44,127 @@ import java.util.stream.Stream;
 
 class BigQueryLoadJobJsonItemWriterTest extends AbstractBigQueryTest {
 
-    private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.JSON);
+	private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.JSON);
 
-    @Test
-    void testSetMarshaller() throws IllegalAccessException, NoSuchFieldException {
-        BigQueryLoadJobJsonItemWriter<PersonDto> reader = new BigQueryLoadJobJsonItemWriter<>();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobJsonItemWriter.class, MethodHandles.lookup());
-        JsonObjectMarshaller<PersonDto> expected = new JacksonJsonObjectMarshaller<>();
+	@Test
+	void testSetMarshaller() throws IllegalAccessException, NoSuchFieldException {
+		BigQueryLoadJobJsonItemWriter<PersonDto> reader = new BigQueryLoadJobJsonItemWriter<>();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobJsonItemWriter.class,
+				MethodHandles.lookup());
+		JsonObjectMarshaller<PersonDto> expected = new JacksonJsonObjectMarshaller<>();
 
-        reader.setMarshaller(expected);
+		reader.setMarshaller(expected);
 
-        JsonObjectMarshaller<PersonDto> actual = (JsonObjectMarshaller<PersonDto>) handle
-                .findVarHandle(BigQueryLoadJobJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
-                .get(reader);
+		JsonObjectMarshaller<PersonDto> actual = (JsonObjectMarshaller<PersonDto>) handle
+			.findVarHandle(BigQueryLoadJobJsonItemWriter.class, "marshaller", JsonObjectMarshaller.class)
+			.get(reader);
 
-        Assertions.assertEquals(expected, actual);
-    }
+		Assertions.assertEquals(expected, actual);
+	}
 
-    @Test
-    void testConvertObjectsToByteArrays() {
-        TestWriter writer = new TestWriter();
-        writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
+	@Test
+	void testConvertObjectsToByteArrays() {
+		TestWriter writer = new TestWriter();
+		writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
 
-        // Empty
-        Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
+		// Empty
+		Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
 
-        // Not empty
-        writer.setMarshaller(Record::toString);
-        List<byte[]> actual = writer.testConvert(TestConstants.CHUNK.getItems());
+		// Not empty
+		writer.setMarshaller(Record::toString);
+		List<byte[]> actual = writer.testConvert(TestConstants.CHUNK.getItems());
 
-        List<byte[]> expected = TestConstants.CHUNK
-                .getItems()
-                .stream()
-                .map(PersonDto::toString)
-                .map(s -> s.concat("\n"))
-                .map(String::getBytes)
-                .toList();
+		List<byte[]> expected = TestConstants.CHUNK.getItems()
+			.stream()
+			.map(PersonDto::toString)
+			.map(s -> s.concat("\n"))
+			.map(String::getBytes)
+			.toList();
 
-        Assertions.assertEquals(expected.size(), actual.size());
+		Assertions.assertEquals(expected.size(), actual.size());
 
-        for (int i = 0; i < actual.size(); i++) {
-            Assertions.assertArrayEquals(expected.get(i), actual.get(i));
-        }
-    }
+		for (int i = 0; i < actual.size(); i++) {
+			Assertions.assertArrayEquals(expected.get(i), actual.get(i));
+		}
+	}
 
-    @Test
-    void testPerformFormatSpecificChecks() {
-        TestWriter writer = new TestWriter();
+	@Test
+	void testPerformFormatSpecificChecks() {
+		TestWriter writer = new TestWriter();
 
-        Table table = Mockito.mock(Table.class);
-        StandardTableDefinition tableDefinition = StandardTableDefinition
-                .newBuilder()
-                .setSchema(Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING)))
-                .build();
-        Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
+		Table table = Mockito.mock(Table.class);
+		StandardTableDefinition tableDefinition = StandardTableDefinition.newBuilder()
+			.setSchema(Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING)))
+			.build();
+		Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
 
-        BigQuery bigQuery = prepareMockedBigQuery();
-        Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
+		BigQuery bigQuery = prepareMockedBigQuery();
+		Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
 
-        // marshaller
-        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Marshaller must be provided", actual.getMessage());
+		// marshaller
+		IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class,
+				writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Marshaller must be provided", actual.getMessage());
 
-        // schema
-        writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
-        writer.setBigQuery(bigQuery);
-        writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID, FormatOptions.csv()));
-        actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Schema must be provided", actual.getMessage());
+		// schema
+		writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
+		writer.setBigQuery(bigQuery);
+		writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID, FormatOptions.csv()));
+		actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Schema must be provided", actual.getMessage());
 
-        // schema equality
-        WriteChannelConfiguration channelConfig = WriteChannelConfiguration
-                .newBuilder(TABLE_ID)
-                .setSchema(Schema.of(Field.of(TestConstants.NAME, StandardSQLTypeName.STRING)))
-                .setFormatOptions(FormatOptions.json())
-                .build();
-        writer.setWriteChannelConfig(channelConfig);
-        actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Schema must be the same", actual.getMessage());
-    }
+		// schema equality
+		WriteChannelConfiguration channelConfig = WriteChannelConfiguration.newBuilder(TABLE_ID)
+			.setSchema(Schema.of(Field.of(TestConstants.NAME, StandardSQLTypeName.STRING)))
+			.setFormatOptions(FormatOptions.json())
+			.build();
+		writer.setWriteChannelConfig(channelConfig);
+		actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Schema must be the same", actual.getMessage());
+	}
 
-    @ParameterizedTest
-    @MethodSource("invalidFormats")
-    void testPerformFormatSpecificChecks_Format(FormatOptions formatOptions) {
-        Table table = Mockito.mock(Table.class);
-        StandardTableDefinition tableDefinition = StandardTableDefinition
-                .newBuilder()
-                .setSchema(Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING)))
-                .build();
-        Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
+	@ParameterizedTest
+	@MethodSource("invalidFormats")
+	void testPerformFormatSpecificChecks_Format(FormatOptions formatOptions) {
+		Table table = Mockito.mock(Table.class);
+		StandardTableDefinition tableDefinition = StandardTableDefinition.newBuilder()
+			.setSchema(Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING)))
+			.build();
+		Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
 
-        BigQuery bigQuery = prepareMockedBigQuery();
-        Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
+		BigQuery bigQuery = prepareMockedBigQuery();
+		Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
 
-        TestWriter writer = new TestWriter();
-        writer.setBigQuery(bigQuery);
-        writer.setMarshaller(new GsonJsonObjectMarshaller<>());
+		TestWriter writer = new TestWriter();
+		writer.setBigQuery(bigQuery);
+		writer.setMarshaller(new GsonJsonObjectMarshaller<>());
 
-        writer.setWriteChannelConfig(WriteChannelConfiguration.newBuilder(TABLE_ID).setAutodetect(true).setFormatOptions(formatOptions).build());
-        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Only %s format is allowed".formatted(FormatOptions.json().getType()), actual.getMessage());
-    }
+		writer.setWriteChannelConfig(WriteChannelConfiguration.newBuilder(TABLE_ID)
+			.setAutodetect(true)
+			.setFormatOptions(formatOptions)
+			.build());
+		IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class,
+				writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Only %s format is allowed".formatted(FormatOptions.json().getType()),
+				actual.getMessage());
+	}
 
-    static Stream<FormatOptions> invalidFormats() {
-        return Stream.of(
-                FormatOptions.parquet(),
-                FormatOptions.avro(),
-                FormatOptions.bigtable(),
-                FormatOptions.datastoreBackup(),
-                FormatOptions.googleSheets(),
-                FormatOptions.iceberg(),
-                FormatOptions.orc(),
-                FormatOptions.csv()
-        );
-    }
+	static Stream<FormatOptions> invalidFormats() {
+		return Stream.of(FormatOptions.parquet(), FormatOptions.avro(), FormatOptions.bigtable(),
+				FormatOptions.datastoreBackup(), FormatOptions.googleSheets(), FormatOptions.iceberg(),
+				FormatOptions.orc(), FormatOptions.csv());
+	}
 
-    private static final class TestWriter extends BigQueryLoadJobJsonItemWriter<PersonDto> {
+	private static final class TestWriter extends BigQueryLoadJobJsonItemWriter<PersonDto> {
 
-        public List<byte[]> testConvert(List<PersonDto> items) {
-            return convertObjectsToByteArrays(items);
-        }
+		public List<byte[]> testConvert(List<PersonDto> items) {
+			return convertObjectsToByteArrays(items);
+		}
 
-        public void testPerformFormatSpecificChecks() {
-            performFormatSpecificChecks();
-        }
-    }
+		public void testPerformFormatSpecificChecks() {
+			performFormatSpecificChecks();
+		}
+
+	}
+
 }

@@ -40,80 +40,78 @@ import java.util.function.Predicate;
  */
 public class BigQueryLoadJobCsvItemWriter<T> extends BigQueryLoadJobBaseItemWriter<T> {
 
-    private Converter<T, byte[]> rowMapper;
-    private ObjectWriter objectWriter;
-    private Class<?> itemClass;
+	private Converter<T, byte[]> rowMapper;
 
-    /**
-     * Actual type of incoming data can be obtained only in runtime
-     */
-    @Override
-    protected synchronized void doInitializeProperties(List<? extends T> items) {
-        if (this.itemClass == null) {
-            T firstItem = items.stream().findFirst().orElseThrow(() -> {
-                logger.warn("Class type was not found");
-                return new IllegalStateException("Class type was not found");
-            });
-            this.itemClass = firstItem.getClass();
+	private ObjectWriter objectWriter;
 
-            if (this.rowMapper == null) {
-                this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
-            }
+	private Class<?> itemClass;
 
-            logger.debug("Writer setup is completed");
-        }
-    }
+	/**
+	 * Actual type of incoming data can be obtained only in runtime
+	 */
+	@Override
+	protected synchronized void doInitializeProperties(List<? extends T> items) {
+		if (this.itemClass == null) {
+			T firstItem = items.stream().findFirst().orElseThrow(() -> {
+				logger.warn("Class type was not found");
+				return new IllegalStateException("Class type was not found");
+			});
+			this.itemClass = firstItem.getClass();
 
-    @Override
-    protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
-        return items
-                .stream()
-                .map(this::mapItemToCsv)
-                .filter(Predicate.not(ObjectUtils::isEmpty))
-                .toList();
-    }
+			if (this.rowMapper == null) {
+				this.objectWriter = new CsvMapper().writerWithTypedSchemaFor(this.itemClass);
+			}
 
-    @Override
-    protected void performFormatSpecificChecks() {
-        Table table = getTable();
+			logger.debug("Writer setup is completed");
+		}
+	}
 
-        if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
-            if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
-                logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
-            }
-        } else {
-            Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
+	@Override
+	protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
+		return items.stream().map(this::mapItemToCsv).filter(Predicate.not(ObjectUtils::isEmpty)).toList();
+	}
 
-            if (tableHasDefinedSchema(table)) {
-                Assert.isTrue(
-                        Objects.equals(table.getDefinition().getSchema(), super.writeChannelConfig.getSchema()),
-                        "Schema must be the same"
-                );
-            }
-        }
+	@Override
+	protected void performFormatSpecificChecks() {
+		Table table = getTable();
 
-        String format = FormatOptions.csv().getType();
-        Assert.isTrue(Objects.equals(format, super.writeChannelConfig.getFormat()), "Only %s format is allowed".formatted(format));
+		if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
+			if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
+				logger.warn("Mixing autodetect mode with already defined schema may lead to errors on BigQuery side");
+			}
+		}
+		else {
+			Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
 
-    }
+			if (tableHasDefinedSchema(table)) {
+				boolean schemaEquals = Objects.equals(table.getDefinition().getSchema(),
+						super.writeChannelConfig.getSchema());
+				Assert.isTrue(schemaEquals, "Schema must be the same");
+			}
+		}
 
-    /**
-     * Row mapper which transforms single BigQuery row into a desired type.
-     *
-     * @param rowMapper your row mapper
-     */
-    public void setRowMapper(Converter<T, byte[]> rowMapper) {
-        this.rowMapper = rowMapper;
-    }
+		String format = FormatOptions.csv().getType();
+		boolean formatEquals = Objects.equals(format, super.writeChannelConfig.getFormat());
+		Assert.isTrue(formatEquals, "Only %s format is allowed".formatted(format));
 
-    private byte[] mapItemToCsv(T t) {
-        try {
-            return rowMapper == null ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
-        }
-        catch (JsonProcessingException e) {
-            logger.error("Error during processing of the line: ", e);
-            return new byte[]{};
-        }
-    }
+	}
+
+	/**
+	 * Row mapper which transforms single BigQuery row into a desired type.
+	 * @param rowMapper your row mapper
+	 */
+	public void setRowMapper(Converter<T, byte[]> rowMapper) {
+		this.rowMapper = rowMapper;
+	}
+
+	private byte[] mapItemToCsv(T t) {
+		try {
+			return rowMapper == null ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
+		}
+		catch (JsonProcessingException e) {
+			logger.error("Error during processing of the line: ", e);
+			return new byte[] {};
+		}
+	}
 
 }

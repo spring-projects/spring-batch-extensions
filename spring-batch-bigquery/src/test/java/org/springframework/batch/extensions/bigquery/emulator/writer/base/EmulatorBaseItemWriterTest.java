@@ -43,53 +43,60 @@ import java.util.logging.LogManager;
 @Testcontainers
 public abstract class EmulatorBaseItemWriterTest extends EmulatorBaseTest {
 
-    @Container
-    protected static final GenericContainer<?> BIG_QUERY_CONTAINER = EmulatorBigQueryBaseDockerConfiguration.CONTAINER
-            .withCommand("--project=" + TestConstants.PROJECT, "--log-level=debug", "--data-from-yaml=/writer-test.yaml", "--database=/test-db")
-            .withCopyFileToContainer(MountableFile.forClasspathResource("writer-test.yaml"), "/writer-test.yaml");
+	@Container
+	protected static final GenericContainer<?> BIG_QUERY_CONTAINER = EmulatorBigQueryBaseDockerConfiguration.CONTAINER
+		.withCommand("--project=" + TestConstants.PROJECT, "--log-level=debug", "--data-from-yaml=/writer-test.yaml",
+				"--database=/test-db")
+		.withCopyFileToContainer(MountableFile.forClasspathResource("writer-test.yaml"), "/writer-test.yaml");
 
-    protected static BigQuery bigQuery;
-    protected static BigQueryWriteClient bigQueryWriteClient;
+	protected static BigQuery bigQuery;
 
-    private static WireMockServer wireMockServer;
+	protected static BigQueryWriteClient bigQueryWriteClient;
 
-    static {
-        try {
-            LogManager.getLogManager().readConfiguration(new ClassPathResource("java-util-logging.properties").getInputStream());
-        } catch (IOException e) {
-            throw new IllegalStateException();
-        }
-    }
+	private static WireMockServer wireMockServer;
 
-    @BeforeAll
-    static void setupAll() throws IOException {
-        SpyResponseExtension extension = new SpyResponseExtension();
+	static {
+		try {
+			LogManager.getLogManager()
+				.readConfiguration(new ClassPathResource("java-util-logging.properties").getInputStream());
+		}
+		catch (IOException e) {
+			throw new IllegalStateException();
+		}
+	}
 
-        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(extension));
-        wireMockServer.start();
-        extension.setWireMockPort(wireMockServer.port());
+	@BeforeAll
+	static void setupAll() throws IOException {
+		SpyResponseExtension extension = new SpyResponseExtension();
 
-        wireMockServer.stubFor(
-                WireMock.any(WireMock.urlMatching(".*")).willReturn(WireMock.aResponse().proxiedFrom(getBigQueryUrl(BIG_QUERY_CONTAINER)))
-        );
+		wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(extension));
+		wireMockServer.start();
+		extension.setWireMockPort(wireMockServer.port());
 
-        bigQuery = prepareBigQueryBuilder().setHost(wireMockServer.baseUrl()).build().getService();
+		wireMockServer.stubFor(WireMock.any(WireMock.urlMatching(".*"))
+			.willReturn(WireMock.aResponse().proxiedFrom(getBigQueryUrl(BIG_QUERY_CONTAINER))));
 
-        InstantiatingGrpcChannelProvider grpc = BigQueryWriteSettings
-                .defaultGrpcTransportProviderBuilder()
-                .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
-                .build();
-        BigQueryWriteSettings settings = BigQueryWriteSettings.newBuilder()
-                .setCredentialsProvider(NoCredentialsProvider.create())
-                .setEndpoint("127.0.0.1:" + BIG_QUERY_CONTAINER.getMappedPort(EmulatorBigQueryBaseDockerConfiguration.GRPC_PORT))
-                .setTransportChannelProvider(grpc)
-                .build();
-        bigQueryWriteClient = BigQueryWriteClient.create(settings);
-    }
+		bigQuery = prepareBigQueryBuilder().setHost(wireMockServer.baseUrl()).build().getService();
 
-    @AfterAll
-    static void shutdownAll() {
-        Optional.ofNullable(wireMockServer).ifPresent(WireMockServer::stop);
-    }
+		InstantiatingGrpcChannelProvider grpc = BigQueryWriteSettings.defaultGrpcTransportProviderBuilder()
+			.setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
+			.build();
+
+		String endpoint = "127.0.0.1:"
+				+ BIG_QUERY_CONTAINER.getMappedPort(EmulatorBigQueryBaseDockerConfiguration.GRPC_PORT);
+
+		BigQueryWriteSettings settings = BigQueryWriteSettings.newBuilder()
+			.setCredentialsProvider(NoCredentialsProvider.create())
+			.setEndpoint(endpoint)
+			.setTransportChannelProvider(grpc)
+			.build();
+
+		bigQueryWriteClient = BigQueryWriteClient.create(settings);
+	}
+
+	@AfterAll
+	static void shutdownAll() {
+		Optional.ofNullable(wireMockServer).ifPresent(WireMockServer::stop);
+	}
 
 }

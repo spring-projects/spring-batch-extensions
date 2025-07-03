@@ -33,92 +33,92 @@ import java.util.function.Consumer;
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/json/builder/BigQueryLoadJobJsonItemWriterBuilderTests.java">Examples</a>
+ * @see <a href=
+ * "https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/loadjob/json/builder/BigQueryLoadJobJsonItemWriterBuilderTests.java">Examples</a>
  */
-public class BigQueryLoadJobJsonItemWriterBuilder<T>  {
+public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 
-    private JsonObjectMarshaller<T> marshaller;
-    private Consumer<Job> jobConsumer;
-    private DatasetInfo datasetInfo;
-    private WriteChannelConfiguration writeChannelConfig;
-    private BigQuery bigQuery;
+	private JsonObjectMarshaller<T> marshaller;
 
-    /**
-     * Converts your DTO into a {@link String}.
-     *
-     * @param marshaller your mapper
-     * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
-     * @see BigQueryLoadJobJsonItemWriter#setMarshaller(JsonObjectMarshaller)
-     */
-    public BigQueryLoadJobJsonItemWriterBuilder<T> marshaller(JsonObjectMarshaller<T> marshaller) {
-        this.marshaller = marshaller;
-        return this;
-    }
+	private Consumer<Job> jobConsumer;
 
-    /**
-     * Provides additional information about the {@link com.google.cloud.bigquery.Dataset}.
-     *
-     * @param datasetInfo BigQuery dataset info
-     * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
-     * @see BigQueryLoadJobJsonItemWriter#setDatasetInfo(DatasetInfo)
-     */
-    public BigQueryLoadJobJsonItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
-        this.datasetInfo = datasetInfo;
-        return this;
-    }
+	private DatasetInfo datasetInfo;
 
-    /**
-     * Callback when {@link Job} will be finished.
-     *
-     * @param consumer your consumer
-     * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
-     * @see BigQueryLoadJobJsonItemWriter#setJobConsumer(Consumer)
-     */
-    public BigQueryLoadJobJsonItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
-        this.jobConsumer = consumer;
-        return this;
-    }
+	private WriteChannelConfiguration writeChannelConfig;
 
-    /**
-     * Describes what should be written (format) and its destination (table).
-     *
-     * @param configuration BigQuery channel configuration
-     * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
-     * @see BigQueryLoadJobJsonItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
-     */
-    public BigQueryLoadJobJsonItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
-        this.writeChannelConfig = configuration;
-        return this;
-    }
+	private BigQuery bigQuery;
 
-    /**
-     * BigQuery service, responsible for API calls.
-     *
-     * @param bigQuery BigQuery service
-     * @return {@link BigQueryLoadJobJsonItemWriter}
-     * @see BigQueryLoadJobJsonItemWriter#setBigQuery(BigQuery)
-     */
-    public BigQueryLoadJobJsonItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
-        this.bigQuery = bigQuery;
-        return this;
-    }
+	/**
+	 * Converts your DTO into a {@link String}.
+	 * @param marshaller your mapper
+	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
+	 * @see BigQueryLoadJobJsonItemWriter#setMarshaller(JsonObjectMarshaller)
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder<T> marshaller(JsonObjectMarshaller<T> marshaller) {
+		this.marshaller = marshaller;
+		return this;
+	}
 
-    /**
-     * Please remember about {@link BigQueryLoadJobJsonItemWriter#afterPropertiesSet()}.
-     *
-     * @return {@link BigQueryLoadJobJsonItemWriter}
-     */
-    public BigQueryLoadJobJsonItemWriter<T> build() {
-        BigQueryLoadJobJsonItemWriter<T> writer = new BigQueryLoadJobJsonItemWriter<>();
+	/**
+	 * Provides additional information about the
+	 * {@link com.google.cloud.bigquery.Dataset}.
+	 * @param datasetInfo BigQuery dataset info
+	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
+	 * @see BigQueryLoadJobJsonItemWriter#setDatasetInfo(DatasetInfo)
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
+		this.datasetInfo = datasetInfo;
+		return this;
+	}
 
-        writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
-        writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
+	/**
+	 * Callback when {@link Job} will be finished.
+	 * @param consumer your consumer
+	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
+	 * @see BigQueryLoadJobJsonItemWriter#setJobConsumer(Consumer)
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
+		this.jobConsumer = consumer;
+		return this;
+	}
 
-        writer.setWriteChannelConfig(this.writeChannelConfig);
-        writer.setJobConsumer(this.jobConsumer);
-        writer.setDatasetInfo(this.datasetInfo);
+	/**
+	 * Describes what should be written (format) and its destination (table).
+	 * @param configuration BigQuery channel configuration
+	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
+	 * @see BigQueryLoadJobJsonItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
+		this.writeChannelConfig = configuration;
+		return this;
+	}
 
-        return writer;
-    }
+	/**
+	 * BigQuery service, responsible for API calls.
+	 * @param bigQuery BigQuery service
+	 * @return {@link BigQueryLoadJobJsonItemWriter}
+	 * @see BigQueryLoadJobJsonItemWriter#setBigQuery(BigQuery)
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
+		this.bigQuery = bigQuery;
+		return this;
+	}
+
+	/**
+	 * Please remember about {@link BigQueryLoadJobJsonItemWriter#afterPropertiesSet()}.
+	 * @return {@link BigQueryLoadJobJsonItemWriter}
+	 */
+	public BigQueryLoadJobJsonItemWriter<T> build() {
+		BigQueryLoadJobJsonItemWriter<T> writer = new BigQueryLoadJobJsonItemWriter<>();
+
+		writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
+		writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
+
+		writer.setWriteChannelConfig(this.writeChannelConfig);
+		writer.setJobConsumer(this.jobConsumer);
+		writer.setDatasetInfo(this.datasetInfo);
+
+		return writer;
+	}
 
 }

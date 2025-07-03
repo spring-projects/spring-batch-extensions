@@ -23,14 +23,15 @@ import org.testcontainers.containers.GenericContainer;
 
 public abstract class EmulatorBaseTest {
 
-    protected static BigQueryOptions.Builder prepareBigQueryBuilder() {
-        return BigQueryOptions
-                .newBuilder()
-                .setProjectId(TestConstants.PROJECT)
-                .setCredentials(NoCredentials.getInstance());
-    }
+	protected static BigQueryOptions.Builder prepareBigQueryBuilder() {
+		return BigQueryOptions.newBuilder()
+			.setProjectId(TestConstants.PROJECT)
+			.setCredentials(NoCredentials.getInstance());
+	}
 
-    protected static String getBigQueryUrl(GenericContainer<?> container) {
-        return "http://%s:%d".formatted(container.getHost(), container.getMappedPort(EmulatorBigQueryBaseDockerConfiguration.REST_PORT));
-    }
+	protected static String getBigQueryUrl(GenericContainer<?> container) {
+		return "http://" + container.getHost() + ":"
+				+ container.getMappedPort(EmulatorBigQueryBaseDockerConfiguration.REST_PORT);
+	}
+
 }

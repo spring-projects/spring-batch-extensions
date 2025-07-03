@@ -20,5 +20,7 @@ import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 
 public abstract class GcloudBaseBigQueryIntegrationTest {
-    protected static final BigQuery BIG_QUERY = BigQueryOptions.getDefaultInstance().getService();
+
+	protected static final BigQuery BIG_QUERY = BigQueryOptions.getDefaultInstance().getService();
+
 }

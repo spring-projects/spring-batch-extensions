@@ -46,163 +46,160 @@ import java.util.stream.Stream;
 
 class BigQueryLoadJobCsvItemWriterTest extends AbstractBigQueryTest {
 
-    private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
-    private static final Schema SCHEMA = Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING));
+	private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
 
-    @Test
-    void testDoInitializeProperties() throws IllegalAccessException, NoSuchFieldException {
-        TestWriter writer = new TestWriter();
-        List<PersonDto> items = TestConstants.CHUNK.getItems();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobCsvItemWriter.class, MethodHandles.lookup());
+	private static final Schema SCHEMA = Schema.of(Field.of(TestConstants.AGE, StandardSQLTypeName.STRING));
 
-        // Exception
-        Assertions.assertThrows(IllegalStateException.class, () -> writer.testInitializeProperties(List.of()));
+	@Test
+	void testDoInitializeProperties() throws IllegalAccessException, NoSuchFieldException {
+		TestWriter writer = new TestWriter();
+		List<PersonDto> items = TestConstants.CHUNK.getItems();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobCsvItemWriter.class,
+				MethodHandles.lookup());
 
-        // No exception
-        writer.testInitializeProperties(items);
-        Assertions.assertEquals(
-                PersonDto.class.getSimpleName(),
-                ((Class<PersonDto>) handle.findVarHandle(BigQueryLoadJobCsvItemWriter.class, "itemClass", Class.class).get(writer)).getSimpleName()
-        );
-        ObjectWriter objectWriter = (ObjectWriter) handle
-                .findVarHandle(BigQueryLoadJobCsvItemWriter.class, "objectWriter", ObjectWriter.class)
-                .get(writer);
-        Assertions.assertInstanceOf(CsvFactory.class, objectWriter.getFactory());
-    }
+		// Exception
+		Assertions.assertThrows(IllegalStateException.class, () -> writer.testInitializeProperties(List.of()));
 
-    @Test
-    void testSetRowMapper() throws IllegalAccessException, NoSuchFieldException {
-        BigQueryLoadJobCsvItemWriter<PersonDto> reader = new BigQueryLoadJobCsvItemWriter<>();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobCsvItemWriter.class, MethodHandles.lookup());
-        Converter<PersonDto, byte[]> expected = source -> null;
+		// No exception
+		writer.testInitializeProperties(items);
+		Class<PersonDto> personClass = ((Class<PersonDto>) handle
+			.findVarHandle(BigQueryLoadJobCsvItemWriter.class, "itemClass", Class.class)
+			.get(writer));
+		Assertions.assertEquals(PersonDto.class.getSimpleName(), personClass.getSimpleName());
 
-        reader.setRowMapper(expected);
+		ObjectWriter objectWriter = (ObjectWriter) handle
+			.findVarHandle(BigQueryLoadJobCsvItemWriter.class, "objectWriter", ObjectWriter.class)
+			.get(writer);
+		Assertions.assertInstanceOf(CsvFactory.class, objectWriter.getFactory());
+	}
 
-        Converter<PersonDto, byte[]> actual = (Converter<PersonDto, byte[]>) handle
-                .findVarHandle(BigQueryLoadJobCsvItemWriter.class, "rowMapper", Converter.class)
-                .get(reader);
+	@Test
+	void testSetRowMapper() throws IllegalAccessException, NoSuchFieldException {
+		BigQueryLoadJobCsvItemWriter<PersonDto> reader = new BigQueryLoadJobCsvItemWriter<>();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobCsvItemWriter.class,
+				MethodHandles.lookup());
+		Converter<PersonDto, byte[]> expected = source -> null;
 
-        Assertions.assertEquals(expected, actual);
-    }
+		reader.setRowMapper(expected);
 
-    @Test
-    void testConvertObjectsToByteArrays() {
-        TestWriter writer = new TestWriter();
-        List<PersonDto> items = TestConstants.CHUNK.getItems();
+		Converter<PersonDto, byte[]> actual = (Converter<PersonDto, byte[]>) handle
+			.findVarHandle(BigQueryLoadJobCsvItemWriter.class, "rowMapper", Converter.class)
+			.get(reader);
 
-        // Empty
-        Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
+		Assertions.assertEquals(expected, actual);
+	}
 
-        // Not empty (row mapper)
-        writer.setRowMapper(source -> source.toString().getBytes());
-        List<byte[]> actual = writer.testConvert(items);
-        List<byte[]> expected = items.stream().map(PersonDto::toString).map(String::getBytes).toList();
-        Assertions.assertEquals(expected.size(), actual.size());
+	@Test
+	void testConvertObjectsToByteArrays() {
+		TestWriter writer = new TestWriter();
+		List<PersonDto> items = TestConstants.CHUNK.getItems();
 
-        for (int i = 0; i < actual.size(); i++) {
-            Assertions.assertArrayEquals(expected.get(i), actual.get(i));
-        }
+		// Empty
+		Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());
 
-        // Not empty (object writer)
-        ObjectWriter csvWriter = new CsvMapper().writerWithTypedSchemaFor(PersonDto.class);
-        writer.setRowMapper(null);
-        writer.testInitializeProperties(items);
-        actual = writer.testConvert(items);
+		// Not empty (row mapper)
+		writer.setRowMapper(source -> source.toString().getBytes());
+		List<byte[]> actual = writer.testConvert(items);
+		List<byte[]> expected = items.stream().map(PersonDto::toString).map(String::getBytes).toList();
+		Assertions.assertEquals(expected.size(), actual.size());
 
-        expected = items
-                .stream()
-                .map(pd -> {
-                    try {
-                        return csvWriter.writeValueAsBytes(pd);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+		for (int i = 0; i < actual.size(); i++) {
+			Assertions.assertArrayEquals(expected.get(i), actual.get(i));
+		}
 
-        Assertions.assertEquals(expected.size(), actual.size());
+		// Not empty (object writer)
+		ObjectWriter csvWriter = new CsvMapper().writerWithTypedSchemaFor(PersonDto.class);
+		writer.setRowMapper(null);
+		writer.testInitializeProperties(items);
+		actual = writer.testConvert(items);
 
-        for (int i = 0; i < actual.size(); i++) {
-            Assertions.assertArrayEquals(expected.get(i), actual.get(i));
-        }
-    }
+		expected = items.stream().map(pd -> {
+			try {
+				return csvWriter.writeValueAsBytes(pd);
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		}).toList();
 
-    @Test
-    void testPerformFormatSpecificChecks() {
-        TestWriter writer = new TestWriter();
+		Assertions.assertEquals(expected.size(), actual.size());
 
-        Table table = Mockito.mock(Table.class);
-        StandardTableDefinition tableDefinition = StandardTableDefinition
-                .newBuilder()
-                .setSchema(SCHEMA)
-                .build();
-        Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
+		for (int i = 0; i < actual.size(); i++) {
+			Assertions.assertArrayEquals(expected.get(i), actual.get(i));
+		}
+	}
 
-        BigQuery bigQuery = prepareMockedBigQuery();
-        Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
+	@Test
+	void testPerformFormatSpecificChecks() {
+		TestWriter writer = new TestWriter();
 
-        // schema
-        writer.setBigQuery(bigQuery);
-        writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID, FormatOptions.json()));
-        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Schema must be provided", actual.getMessage());
+		Table table = Mockito.mock(Table.class);
+		StandardTableDefinition tableDefinition = StandardTableDefinition.newBuilder().setSchema(SCHEMA).build();
+		Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
 
-        // schema equality
-        WriteChannelConfiguration channelConfig = WriteChannelConfiguration
-                .newBuilder(TABLE_ID)
-                .setSchema(Schema.of(Field.of(TestConstants.NAME, StandardSQLTypeName.STRING)))
-                .setFormatOptions(FormatOptions.csv())
-                .build();
-        writer.setWriteChannelConfig(channelConfig);
-        actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Schema must be the same", actual.getMessage());
-    }
+		BigQuery bigQuery = prepareMockedBigQuery();
+		Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
 
-    @ParameterizedTest
-    @MethodSource("invalidFormats")
-    void testPerformFormatSpecificChecks_Format(FormatOptions formatOptions) {
-        Table table = Mockito.mock(Table.class);
-        StandardTableDefinition tableDefinition = StandardTableDefinition
-                .newBuilder()
-                .setSchema(SCHEMA)
-                .build();
-        Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
+		// schema
+		writer.setBigQuery(bigQuery);
+		writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID, FormatOptions.json()));
+		IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class,
+				writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Schema must be provided", actual.getMessage());
 
-        BigQuery bigQuery = prepareMockedBigQuery();
-        Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
+		// schema equality
+		WriteChannelConfiguration channelConfig = WriteChannelConfiguration.newBuilder(TABLE_ID)
+			.setSchema(Schema.of(Field.of(TestConstants.NAME, StandardSQLTypeName.STRING)))
+			.setFormatOptions(FormatOptions.csv())
+			.build();
+		writer.setWriteChannelConfig(channelConfig);
+		actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Schema must be the same", actual.getMessage());
+	}
 
-        TestWriter writer = new TestWriter();
-        writer.setBigQuery(bigQuery);
+	@ParameterizedTest
+	@MethodSource("invalidFormats")
+	void testPerformFormatSpecificChecks_Format(FormatOptions formatOptions) {
+		Table table = Mockito.mock(Table.class);
+		StandardTableDefinition tableDefinition = StandardTableDefinition.newBuilder().setSchema(SCHEMA).build();
+		Mockito.when(table.getDefinition()).thenReturn(tableDefinition);
 
-        writer.setWriteChannelConfig(WriteChannelConfiguration.newBuilder(TABLE_ID).setAutodetect(true).setFormatOptions(formatOptions).build());
-        IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class, writer::testPerformFormatSpecificChecks);
-        Assertions.assertEquals("Only %s format is allowed".formatted(FormatOptions.csv().getType()), actual.getMessage());
-    }
+		BigQuery bigQuery = prepareMockedBigQuery();
+		Mockito.when(bigQuery.getTable(Mockito.any(TableId.class))).thenReturn(table);
 
-    static Stream<FormatOptions> invalidFormats() {
-        return Stream.of(
-                FormatOptions.parquet(),
-                FormatOptions.avro(),
-                FormatOptions.bigtable(),
-                FormatOptions.datastoreBackup(),
-                FormatOptions.googleSheets(),
-                FormatOptions.iceberg(),
-                FormatOptions.orc(),
-                FormatOptions.json()
-        );
-    }
+		TestWriter writer = new TestWriter();
+		writer.setBigQuery(bigQuery);
 
-    private static final class TestWriter extends BigQueryLoadJobCsvItemWriter<PersonDto> {
-        public void testInitializeProperties(List<PersonDto> items) {
-            doInitializeProperties(items);
-        }
+		writer.setWriteChannelConfig(WriteChannelConfiguration.newBuilder(TABLE_ID)
+			.setAutodetect(true)
+			.setFormatOptions(formatOptions)
+			.build());
+		IllegalArgumentException actual = Assertions.assertThrows(IllegalArgumentException.class,
+				writer::testPerformFormatSpecificChecks);
+		Assertions.assertEquals("Only %s format is allowed".formatted(FormatOptions.csv().getType()),
+				actual.getMessage());
+	}
 
-        public List<byte[]> testConvert(List<PersonDto> items) {
-            return convertObjectsToByteArrays(items);
-        }
+	static Stream<FormatOptions> invalidFormats() {
+		return Stream.of(FormatOptions.parquet(), FormatOptions.avro(), FormatOptions.bigtable(),
+				FormatOptions.datastoreBackup(), FormatOptions.googleSheets(), FormatOptions.iceberg(),
+				FormatOptions.orc(), FormatOptions.json());
+	}
 
-        public void testPerformFormatSpecificChecks() {
-            performFormatSpecificChecks();
-        }
-    }
+	private static final class TestWriter extends BigQueryLoadJobCsvItemWriter<PersonDto> {
+
+		public void testInitializeProperties(List<PersonDto> items) {
+			doInitializeProperties(items);
+		}
+
+		public List<byte[]> testConvert(List<PersonDto> items) {
+			return convertObjectsToByteArrays(items);
+		}
+
+		public void testPerformFormatSpecificChecks() {
+			performFormatSpecificChecks();
+		}
+
+	}
+
 }

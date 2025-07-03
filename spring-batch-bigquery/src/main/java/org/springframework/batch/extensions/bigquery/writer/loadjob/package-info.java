@@ -15,16 +15,19 @@
  */
 
 /**
- * {@link com.google.cloud.bigquery.JobConfiguration.Type#LOAD} {@link com.google.cloud.bigquery.Job}
+ * {@link com.google.cloud.bigquery.JobConfiguration.Type#LOAD}
+ * {@link com.google.cloud.bigquery.Job}
  *
- * <p>Supported formats:
+ * <p>
+ * Supported formats:
  * <ul>
- *     <li>JSON</li>
- *     <li>CSV</li>
+ * <li>JSON</li>
+ * <li>CSV</li>
  * </ul>
  *
- * <p>If you generate {@link com.google.cloud.bigquery.TableDataWriteChannel}
- * and you {@link com.google.cloud.bigquery.TableDataWriteChannel#close()} it,
- * there is no guarantee that single {@link com.google.cloud.bigquery.Job} will be created.
+ * <p>
+ * If you generate {@link com.google.cloud.bigquery.TableDataWriteChannel} and you
+ * {@link com.google.cloud.bigquery.TableDataWriteChannel#close()} it, there is no
+ * guarantee that single {@link com.google.cloud.bigquery.Job} will be created.
  */
 package org.springframework.batch.extensions.bigquery.writer.loadjob;

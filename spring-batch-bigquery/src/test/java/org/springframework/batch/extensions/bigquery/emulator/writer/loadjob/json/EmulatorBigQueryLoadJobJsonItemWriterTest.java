@@ -37,39 +37,38 @@ import java.util.stream.Stream;
 
 class EmulatorBigQueryLoadJobJsonItemWriterTest extends EmulatorBaseItemWriterTest {
 
-    @ParameterizedTest
-    @MethodSource("tables")
-    void testWrite(String table, boolean autodetect) throws Exception {
-        TableId tableId = TableId.of(TestConstants.DATASET, table);
-        Chunk<PersonDto> expectedChunk = Chunk.of(new PersonDto("Ivan", 30));
+	@ParameterizedTest
+	@MethodSource("tables")
+	void testWrite(String table, boolean autodetect) throws Exception {
+		TableId tableId = TableId.of(TestConstants.DATASET, table);
+		Chunk<PersonDto> expectedChunk = Chunk.of(new PersonDto("Ivan", 30));
 
-        WriteChannelConfiguration channelConfig = WriteChannelConfiguration
-                .newBuilder(tableId)
-                .setFormatOptions(FormatOptions.json())
-                .setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
-                .setAutodetect(autodetect)
-                .build();
+		WriteChannelConfiguration channelConfig = WriteChannelConfiguration.newBuilder(tableId)
+			.setFormatOptions(FormatOptions.json())
+			.setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
+			.setAutodetect(autodetect)
+			.build();
 
-        BigQueryLoadJobJsonItemWriter<PersonDto> writer = new BigQueryLoadJobJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(bigQuery)
-                .writeChannelConfig(channelConfig)
-                .marshaller(new JacksonJsonObjectMarshaller<>())
-                .build();
-        writer.afterPropertiesSet();
+		BigQueryLoadJobJsonItemWriter<PersonDto> writer = new BigQueryLoadJobJsonItemWriterBuilder<PersonDto>()
+			.bigQuery(bigQuery)
+			.writeChannelConfig(channelConfig)
+			.marshaller(new JacksonJsonObjectMarshaller<>())
+			.build();
+		writer.afterPropertiesSet();
 
-        writer.write(expectedChunk);
+		writer.write(expectedChunk);
 
-        ResultVerifier.verifyTableResult(expectedChunk, bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
-    }
+		ResultVerifier.verifyTableResult(expectedChunk,
+				bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
+	}
 
-    private static Stream<Arguments> tables() {
-        return Stream.of(
-                Arguments.of(NameUtils.generateTableName(TestConstants.JSON), false),
+	private static Stream<Arguments> tables() {
+		return Stream.of(Arguments.of(NameUtils.generateTableName(TestConstants.JSON), false),
 
-                // TODO auto detect is broken on big query container side?
-                // Arguments.of(TableUtils.generateTableName(TestConstants.JSON), true),
+				// TODO auto detect is broken on big query container side?
+				// Arguments.of(TableUtils.generateTableName(TestConstants.JSON), true),
 
-                Arguments.of(TestConstants.JSON, false)
-        );
-    }
+				Arguments.of(TestConstants.JSON, false));
+	}
+
 }

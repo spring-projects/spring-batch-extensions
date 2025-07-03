@@ -33,32 +33,33 @@ import java.lang.reflect.Constructor;
  */
 public final class RecordMapper<T> {
 
-    private final SimpleTypeConverter simpleConverter = new SimpleTypeConverter();
+	private final SimpleTypeConverter simpleConverter = new SimpleTypeConverter();
 
-    /**
-     * Generates a conversion from BigQuery response to a Java record.
-     *
-     * @param targetType a Java record {@link Class}
-     * @return {@link Converter}
-     * @see org.springframework.batch.item.file.mapping.RecordFieldSetMapper
-     */
-    public Converter<FieldValueList, T> generateMapper(Class<T> targetType) {
-        Constructor<T> constructor = BeanUtils.getResolvableConstructor(targetType);
-        Assert.isTrue(constructor.getParameterCount() > 0, "Record without fields is redundant");
+	/**
+	 * Generates a conversion from BigQuery response to a Java record.
+	 * @param targetType a Java record {@link Class}
+	 * @return {@link Converter}
+	 * @see org.springframework.batch.item.file.mapping.RecordFieldSetMapper
+	 */
+	public Converter<FieldValueList, T> generateMapper(Class<T> targetType) {
+		Constructor<T> constructor = BeanUtils.getResolvableConstructor(targetType);
+		Assert.isTrue(constructor.getParameterCount() > 0, "Record without fields is redundant");
 
-        String[] parameterNames = BeanUtils.getParameterNames(constructor);
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
+		String[] parameterNames = BeanUtils.getParameterNames(constructor);
+		Class<?>[] parameterTypes = constructor.getParameterTypes();
 
-        Object[] args = new Object[parameterNames.length];
+		Object[] args = new Object[parameterNames.length];
 
-        return source -> {
-            if (args[0] == null) {
-                for (int i = 0; i < args.length; i++) {
-                    args[i] = simpleConverter.convertIfNecessary(source.get(parameterNames[i]).getValue(), parameterTypes[i]);
-                }
-            }
+		return source -> {
+			if (args[0] == null) {
+				for (int i = 0; i < args.length; i++) {
+					args[i] = simpleConverter.convertIfNecessary(source.get(parameterNames[i]).getValue(),
+							parameterTypes[i]);
+				}
+			}
 
-            return BeanUtils.instantiateClass(constructor, args);
-        };
-    }
+			return BeanUtils.instantiateClass(constructor, args);
+		};
+	}
+
 }
