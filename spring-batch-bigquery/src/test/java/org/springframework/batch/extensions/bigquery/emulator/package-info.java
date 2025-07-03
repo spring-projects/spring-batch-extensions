@@ -15,8 +15,8 @@
  */
 
 /**
- * These tests are run against BigQuery emulator. It is the next test level after unit tests.
- * An attempt to cover integration with fake BigQuery.
+ * These tests are run against BigQuery emulator. It is the next test level after unit
+ * tests. An attempt to cover integration with fake BigQuery.
  *
  * @see <a href="https://github.com/goccy/bigquery-emulator">GitHub</a>
  */

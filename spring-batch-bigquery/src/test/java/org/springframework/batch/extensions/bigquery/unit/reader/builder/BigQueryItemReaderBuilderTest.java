@@ -38,129 +38,129 @@ import java.util.stream.Stream;
 
 class BigQueryItemReaderBuilderTest extends AbstractBigQueryTest {
 
-    @Test
-    void testBuild_WithoutJobConfiguration() throws IllegalAccessException, NoSuchFieldException {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-        String query = "SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1";
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
+	@Test
+	void testBuild_WithoutJobConfiguration() throws IllegalAccessException, NoSuchFieldException {
+		BigQuery mockedBigQuery = prepareMockedBigQuery();
+		String query = "SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1";
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
 
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .query(query)
-                .rowMapper(TestConstants.PERSON_MAPPER)
-                .build();
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
+			.bigQuery(mockedBigQuery)
+			.query(query)
+			.rowMapper(TestConstants.PERSON_MAPPER)
+			.build();
 
-        Assertions.assertNotNull(reader);
+		Assertions.assertNotNull(reader);
 
-        BigQuery actualBigQuery = (BigQuery) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
-                .get(reader);
+		BigQuery actualBigQuery = (BigQuery) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
+			.get(reader);
 
-        Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
-                .get(reader);
+		Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
+			.get(reader);
 
-        QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
-                .get(reader);
+		QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
+			.get(reader);
 
-        Assertions.assertEquals(mockedBigQuery, actualBigQuery);
-        Assertions.assertEquals(TestConstants.PERSON_MAPPER, actualRowMapper);
-        Assertions.assertEquals(QueryJobConfiguration.newBuilder(query).build(), actualJobConfiguration);
-    }
+		Assertions.assertEquals(mockedBigQuery, actualBigQuery);
+		Assertions.assertEquals(TestConstants.PERSON_MAPPER, actualRowMapper);
+		Assertions.assertEquals(QueryJobConfiguration.newBuilder(query).build(), actualJobConfiguration);
+	}
 
-    @Test
-    void testBuild_WithoutRowMapper() throws IllegalAccessException, NoSuchFieldException {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
+	@Test
+	void testBuild_WithoutRowMapper() throws IllegalAccessException, NoSuchFieldException {
+		BigQuery mockedBigQuery = prepareMockedBigQuery();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
 
-        QueryJobConfiguration expectedJobConfiguration = QueryJobConfiguration
-                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1")
-                .build();
+		QueryJobConfiguration expectedJobConfiguration = QueryJobConfiguration
+			.newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.persons p LIMIT 1")
+			.build();
 
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .jobConfiguration(expectedJobConfiguration)
-                .targetType(PersonDto.class)
-                .build();
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
+			.bigQuery(mockedBigQuery)
+			.jobConfiguration(expectedJobConfiguration)
+			.targetType(PersonDto.class)
+			.build();
 
-        Assertions.assertNotNull(reader);
+		Assertions.assertNotNull(reader);
 
-        BigQuery actualBigQuery = (BigQuery) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
-                .get(reader);
+		BigQuery actualBigQuery = (BigQuery) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
+			.get(reader);
 
-        Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
-                .get(reader);
+		Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
+			.get(reader);
 
-        QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
-                .get(reader);
+		QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
+			.get(reader);
 
-        Assertions.assertEquals(mockedBigQuery, actualBigQuery);
-        Assertions.assertNotNull(actualRowMapper);
-        Assertions.assertEquals(expectedJobConfiguration, actualJobConfiguration);
-    }
+		Assertions.assertEquals(mockedBigQuery, actualBigQuery);
+		Assertions.assertNotNull(actualRowMapper);
+		Assertions.assertEquals(expectedJobConfiguration, actualJobConfiguration);
+	}
 
-    @Test
-    void testBuild() throws IllegalAccessException, NoSuchFieldException {
-        BigQuery mockedBigQuery = prepareMockedBigQuery();
-        MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class, MethodHandles.lookup());
+	@Test
+	void testBuild() throws IllegalAccessException, NoSuchFieldException {
+		BigQuery mockedBigQuery = prepareMockedBigQuery();
+		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryQueryItemReader.class,
+				MethodHandles.lookup());
 
-        QueryJobConfiguration jobConfiguration = QueryJobConfiguration
-                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.csv p LIMIT 2")
-                .setDestinationTable(TableId.of(TestConstants.DATASET, TestConstants.CSV))
-                .build();
+		QueryJobConfiguration jobConfiguration = QueryJobConfiguration
+			.newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.csv p LIMIT 2")
+			.setDestinationTable(TableId.of(TestConstants.DATASET, TestConstants.CSV))
+			.build();
 
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(mockedBigQuery)
-                .jobConfiguration(jobConfiguration)
-                .rowMapper(TestConstants.PERSON_MAPPER)
-                .build();
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
+			.bigQuery(mockedBigQuery)
+			.jobConfiguration(jobConfiguration)
+			.rowMapper(TestConstants.PERSON_MAPPER)
+			.build();
 
-        Assertions.assertNotNull(reader);
+		Assertions.assertNotNull(reader);
 
-        BigQuery actualBigQuery = (BigQuery) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
-                .get(reader);
+		BigQuery actualBigQuery = (BigQuery) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "bigQuery", BigQuery.class)
+			.get(reader);
 
-        Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
-                .get(reader);
+		Converter<FieldValueList, PersonDto> actualRowMapper = (Converter<FieldValueList, PersonDto>) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "rowMapper", Converter.class)
+			.get(reader);
 
-        QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
-                .findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
-                .get(reader);
+		QueryJobConfiguration actualJobConfiguration = (QueryJobConfiguration) handle
+			.findVarHandle(BigQueryQueryItemReader.class, "jobConfiguration", QueryJobConfiguration.class)
+			.get(reader);
 
-        Assertions.assertEquals(mockedBigQuery, actualBigQuery);
-        Assertions.assertEquals(TestConstants.PERSON_MAPPER, actualRowMapper);
-        Assertions.assertEquals(jobConfiguration, actualJobConfiguration);
-    }
+		Assertions.assertEquals(mockedBigQuery, actualBigQuery);
+		Assertions.assertEquals(TestConstants.PERSON_MAPPER, actualRowMapper);
+		Assertions.assertEquals(jobConfiguration, actualJobConfiguration);
+	}
 
-    @ParameterizedTest
-    @MethodSource("brokenBuilders")
-    void testBuild_Exception(String expectedMessage, BigQueryQueryItemReaderBuilder<?> builder) {
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, builder::build);
-        Assertions.assertEquals(expectedMessage, ex.getMessage());
-    }
+	@ParameterizedTest
+	@MethodSource("brokenBuilders")
+	void testBuild_Exception(String expectedMessage, BigQueryQueryItemReaderBuilder<?> builder) {
+		IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, builder::build);
+		Assertions.assertEquals(expectedMessage, ex.getMessage());
+	}
 
-    private static Stream<Arguments> brokenBuilders() {
-        final class HumanDto {}
-        BigQuery bigQuery = Mockito.mock(BigQuery.class);
-        return Stream.of(
-                Arguments.of(
-                        "No target type provided",
-                        new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery)
-                ),
-                Arguments.of(
-                        "Only Java record supported",
-                        new BigQueryQueryItemReaderBuilder<HumanDto>().bigQuery(bigQuery).targetType(HumanDto.class)
-                ),
-                Arguments.of(
-                        "No query provided",
-                        new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery).rowMapper(source -> null)
-                )
-        );
-    }
+	private static Stream<Arguments> brokenBuilders() {
+		final class HumanDto {
+
+		}
+		BigQuery bigQuery = Mockito.mock(BigQuery.class);
+
+		return Stream.of(
+				Arguments.of("No target type provided",
+						new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery)),
+				Arguments.of("Only Java record supported",
+						new BigQueryQueryItemReaderBuilder<HumanDto>().bigQuery(bigQuery).targetType(HumanDto.class)),
+				Arguments.of("No query provided",
+						new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(bigQuery).rowMapper(source -> null)));
+	}
+
 }

@@ -29,15 +29,16 @@ import org.testcontainers.utility.MountableFile;
 @Testcontainers
 public abstract class EmulatorBaseItemReaderTest extends EmulatorBaseTest {
 
-    @Container
-    private static final GenericContainer<?> CONTAINER = EmulatorBigQueryBaseDockerConfiguration.CONTAINER
-            .withCommand("--project=" + TestConstants.PROJECT, "--log-level=debug", "--data-from-yaml=/reader-test.yaml")
-            .withCopyFileToContainer(MountableFile.forClasspathResource("reader-test.yaml"), "/reader-test.yaml");
+	@Container
+	private static final GenericContainer<?> CONTAINER = EmulatorBigQueryBaseDockerConfiguration.CONTAINER
+		.withCommand("--project=" + TestConstants.PROJECT, "--log-level=debug", "--data-from-yaml=/reader-test.yaml")
+		.withCopyFileToContainer(MountableFile.forClasspathResource("reader-test.yaml"), "/reader-test.yaml");
 
-    protected static BigQuery bigQuery;
+	protected static BigQuery bigQuery;
 
-    @BeforeAll
-    static void init() {
-        bigQuery = prepareBigQueryBuilder().setHost(getBigQueryUrl(CONTAINER)).build().getService();
-    }
+	@BeforeAll
+	static void init() {
+		bigQuery = prepareBigQueryBuilder().setHost(getBigQueryUrl(CONTAINER)).build().getService();
+	}
+
 }

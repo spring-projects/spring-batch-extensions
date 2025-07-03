@@ -5,8 +5,9 @@ import org.springframework.batch.extensions.bigquery.gcloud.writer.GcloudBaseBig
 
 public class GcloudBigQueryWriteApiCommitedJsonItemWriterTest extends GcloudBaseBigQueryItemWriterTest {
 
-    @Test
-    void testWrite() {
-       // TODO
-    }
+	@Test
+	void testWrite() {
+		// TODO
+	}
+
 }

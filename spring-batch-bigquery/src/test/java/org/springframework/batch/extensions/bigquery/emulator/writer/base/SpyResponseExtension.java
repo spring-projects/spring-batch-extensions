@@ -28,49 +28,50 @@ import java.util.function.Predicate;
 
 public final class SpyResponseExtension implements ResponseTransformerV2 {
 
-    private static final String BQ_DOCKER_URL_PREFIX = "http://0.0.0.0:";
-    private static final String BQ_DOCKER_URL = BQ_DOCKER_URL_PREFIX + EmulatorBigQueryBaseDockerConfiguration.REST_PORT;
+	private static final String BQ_DOCKER_URL_PREFIX = "http://0.0.0.0:";
 
-    private int wireMockPort;
+	private static final String BQ_DOCKER_URL = BQ_DOCKER_URL_PREFIX
+			+ EmulatorBigQueryBaseDockerConfiguration.REST_PORT;
 
-    @Override
-    public Response transform(Response response, ServeEvent serveEvent) {
-        var originalHeaders = response.getHeaders();
-        HttpHeader originalLocationHeader = originalHeaders.getHeader(HttpHeaders.LOCATION);
+	private int wireMockPort;
 
-        List<String> locationHeaderValues = originalLocationHeader.getValues();
-        boolean containsLocationHeader = locationHeaderValues.stream().anyMatch(s -> s.startsWith(BQ_DOCKER_URL));
+	@Override
+	public Response transform(Response response, ServeEvent serveEvent) {
+		var originalHeaders = response.getHeaders();
+		HttpHeader originalLocationHeader = originalHeaders.getHeader(HttpHeaders.LOCATION);
 
-        if (containsLocationHeader) {
-            if (locationHeaderValues.size() > 1) {
-                throw new IllegalStateException();
-            }
+		List<String> locationHeaderValues = originalLocationHeader.getValues();
+		boolean containsLocationHeader = locationHeaderValues.stream().anyMatch(s -> s.startsWith(BQ_DOCKER_URL));
 
-            List<HttpHeader> headersWithoutLocation = originalHeaders
-                    .all()
-                    .stream()
-                    .filter(Predicate.not(hh -> hh.keyEquals(HttpHeaders.LOCATION)))
-                    .toList();
+		if (containsLocationHeader) {
+			if (locationHeaderValues.size() > 1) {
+				throw new IllegalStateException();
+			}
 
-            HttpHeader updatedHeader = HttpHeader.httpHeader(
-                    HttpHeaders.LOCATION, locationHeaderValues.get(0).replace(BQ_DOCKER_URL, BQ_DOCKER_URL_PREFIX + wireMockPort)
-            );
+			List<HttpHeader> headersWithoutLocation = originalHeaders.all()
+				.stream()
+				.filter(Predicate.not(hh -> hh.keyEquals(HttpHeaders.LOCATION)))
+				.toList();
 
-            return Response.Builder
-                    .like(response)
-                    .but()
-                    .headers(new com.github.tomakehurst.wiremock.http.HttpHeaders(headersWithoutLocation).plus(updatedHeader))
-                    .build();
-        }
-        return response;
-    }
+			HttpHeader updatedHeader = HttpHeader.httpHeader(HttpHeaders.LOCATION,
+					locationHeaderValues.get(0).replace(BQ_DOCKER_URL, BQ_DOCKER_URL_PREFIX + wireMockPort));
 
-    @Override
-    public String getName() {
-        return "spy-response-extension";
-    }
+			com.github.tomakehurst.wiremock.http.HttpHeaders headers = new com.github.tomakehurst.wiremock.http.HttpHeaders(
+					headersWithoutLocation)
+				.plus(updatedHeader);
 
-    public void setWireMockPort(int wireMockPort) {
-        this.wireMockPort = wireMockPort;
-    }
+			return Response.Builder.like(response).but().headers(headers).build();
+		}
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return "spy-response-extension";
+	}
+
+	public void setWireMockPort(int wireMockPort) {
+		this.wireMockPort = wireMockPort;
+	}
+
 }

@@ -41,56 +41,54 @@ import java.util.stream.Stream;
 
 class GcloudBigQueryLoadJobCsvItemWriterTest extends GcloudBaseBigQueryItemWriterTest {
 
-    private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
+	private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
 
-    @BeforeAll
-    static void prepareTest() {
-        if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
-            BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
-        }
+	@BeforeAll
+	static void prepareTest() {
+		if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
+			BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
+		}
 
-        if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.CSV) == null) {
-            TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
-        }
-    }
+		if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.CSV) == null) {
+			TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
+			BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
+		}
+	}
 
-    @AfterAll
-    static void cleanup() {
-        BIG_QUERY.delete(TABLE_ID);
-    }
+	@AfterAll
+	static void cleanup() {
+		BIG_QUERY.delete(TABLE_ID);
+	}
 
-    @ParameterizedTest
-    @MethodSource("tables")
-    void testWriteCsv(String tableName, boolean autodetect) throws Exception {
-        AtomicReference<Job> job = new AtomicReference<>();
+	@ParameterizedTest
+	@MethodSource("tables")
+	void testWriteCsv(String tableName, boolean autodetect) throws Exception {
+		AtomicReference<Job> job = new AtomicReference<>();
 
-        WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, tableName))
-                .setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
-                .setAutodetect(autodetect)
-                .setFormatOptions(FormatOptions.csv())
-                .build();
+		WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
+			.newBuilder(TableId.of(TestConstants.DATASET, tableName))
+			.setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
+			.setAutodetect(autodetect)
+			.setFormatOptions(FormatOptions.csv())
+			.build();
 
-        BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .writeChannelConfig(channelConfiguration)
-                .jobConsumer(job::set)
-                .build();
+		BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
+			.bigQuery(BIG_QUERY)
+			.writeChannelConfig(channelConfiguration)
+			.jobConsumer(job::set)
+			.build();
 
-        writer.afterPropertiesSet();
-        writer.write(TestConstants.CHUNK);
-        job.get().waitFor();
+		writer.afterPropertiesSet();
+		writer.write(TestConstants.CHUNK);
+		job.get().waitFor();
 
-        verifyResults(tableName);
-    }
+		verifyResults(tableName);
+	}
 
-    private static Stream<Arguments> tables() {
-        return Stream.of(
-                Arguments.of(NameUtils.generateTableName(TestConstants.CSV), false),
-                Arguments.of(NameUtils.generateTableName(TestConstants.CSV), true),
-                Arguments.of(TestConstants.CSV, false)
-        );
-    }
+	private static Stream<Arguments> tables() {
+		return Stream.of(Arguments.of(NameUtils.generateTableName(TestConstants.CSV), false),
+				Arguments.of(NameUtils.generateTableName(TestConstants.CSV), true),
+				Arguments.of(TestConstants.CSV, false));
+	}
 
 }

@@ -26,26 +26,30 @@ import java.util.stream.Stream;
 
 public final class TestConstants {
 
-    private TestConstants() {}
+	private TestConstants() {
+	}
 
-    public static final String DATASET = "spring_batch_extensions";
-    public static final String PROJECT = "batch-test";
+	public static final String DATASET = "spring_batch_extensions";
 
-    public static final String NAME = "name";
-    public static final String AGE = "age";
-    public static final String CSV = "csv";
-    public static final String JSON = "json";
+	public static final String PROJECT = "batch-test";
 
-    public static final Converter<FieldValueList, PersonDto> PERSON_MAPPER = res -> new PersonDto(
-            res.get(NAME).getStringValue(), res.get(AGE).getNumericValue().intValue()
-    );
+	public static final String NAME = "name";
 
-    /** Order must be defined so later executed queries results could be predictable */
-    private static final List<PersonDto> PERSONS = Stream
-            .of(new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26))
-            .sorted(Comparator.comparing(PersonDto::name))
-            .toList();
+	public static final String AGE = "age";
 
-    public static final Chunk<PersonDto> CHUNK = new Chunk<>(PERSONS);
+	public static final String CSV = "csv";
+
+	public static final String JSON = "json";
+
+	public static final Converter<FieldValueList, PersonDto> PERSON_MAPPER = res -> new PersonDto(
+			res.get(NAME).getStringValue(), res.get(AGE).getNumericValue().intValue());
+
+	/** Order must be defined so later executed queries results could be predictable */
+	private static final List<PersonDto> PERSONS = Stream
+		.of(new PersonDto("Volodymyr", 27), new PersonDto("Oleksandra", 26))
+		.sorted(Comparator.comparing(PersonDto::name))
+		.toList();
+
+	public static final Chunk<PersonDto> CHUNK = new Chunk<>(PERSONS);
 
 }

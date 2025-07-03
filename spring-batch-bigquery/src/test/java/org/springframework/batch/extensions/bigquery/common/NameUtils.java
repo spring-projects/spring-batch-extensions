@@ -19,11 +19,14 @@ package org.springframework.batch.extensions.bigquery.common;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class NameUtils {
-    private static final String DASH = "-";
-    private NameUtils() {}
 
-    public static String generateTableName(String testType) {
-        return testType + DASH + ThreadLocalRandom.current().nextInt(100);
-    }
+	private static final String DASH = "-";
+
+	private NameUtils() {
+	}
+
+	public static String generateTableName(String testType) {
+		return testType + DASH + ThreadLocalRandom.current().nextInt(100);
+	}
 
 }

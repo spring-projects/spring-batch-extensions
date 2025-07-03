@@ -24,31 +24,31 @@ import org.springframework.batch.item.Chunk;
 import java.util.List;
 
 public final class ResultVerifier {
-    private ResultVerifier() {
-    }
 
-    public static void verifyTableResult(Chunk<PersonDto> expected, TableResult actual) {
-        List<FieldValueList> actualList = actual.streamValues().toList();
+	private ResultVerifier() {
+	}
 
-        Assertions.assertEquals(expected.size(), actual.getTotalRows());
-        Assertions.assertEquals(expected.size(), actualList.size());
+	public static void verifyTableResult(Chunk<PersonDto> expected, TableResult actual) {
+		List<FieldValueList> actualList = actual.streamValues().toList();
 
-        actualList.forEach(field -> {
-            boolean containsName = expected
-                    .getItems()
-                    .stream()
-                    .map(PersonDto::name)
-                    .anyMatch(name -> field.get(0).getStringValue().equals(name));
+		Assertions.assertEquals(expected.size(), actual.getTotalRows());
+		Assertions.assertEquals(expected.size(), actualList.size());
 
-            boolean containsAge = expected
-                    .getItems()
-                    .stream()
-                    .map(PersonDto::age)
-                    .map(Long::valueOf)
-                    .anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
+		actualList.forEach(field -> {
+			boolean containsName = expected.getItems()
+				.stream()
+				.map(PersonDto::name)
+				.anyMatch(name -> field.get(0).getStringValue().equals(name));
 
-            Assertions.assertTrue(containsName);
-            Assertions.assertTrue(containsAge);
-        });
-    }
+			boolean containsAge = expected.getItems()
+				.stream()
+				.map(PersonDto::age)
+				.map(Long::valueOf)
+				.anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
+
+			Assertions.assertTrue(containsName);
+			Assertions.assertTrue(containsAge);
+		});
+	}
+
 }

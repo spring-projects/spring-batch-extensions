@@ -47,139 +47,146 @@ import java.util.concurrent.atomic.AtomicLong;
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @see <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>
- * @see <a href="https://cloud.google.com/bigquery/docs/write-api#committed_type">Commited type storage write API</a>
+ * @see <a href="https://cloud.google.com/bigquery/docs/write-api#committed_type">Commited
+ * type storage write API</a>
  * @since 0.2.0
  */
 public class BigQueryWriteApiCommitedJsonItemWriter<T> implements ItemWriter<T>, InitializingBean {
 
-    /**
-     * Logger that can be reused
-     */
-    private final Log logger = LogFactory.getLog(getClass());
+	/**
+	 * Logger that can be reused
+	 */
+	private final Log logger = LogFactory.getLog(getClass());
 
-    private final AtomicLong bigQueryWriteCounter = new AtomicLong();
+	private final AtomicLong bigQueryWriteCounter = new AtomicLong();
 
-    private BigQueryWriteClient bigQueryWriteClient;
-    private TableName tableName;
-    private JsonObjectMarshaller<T> marshaller;
-    private ApiFutureCallback<AppendRowsResponse> apiFutureCallback;
-    private Executor executor;
+	private BigQueryWriteClient bigQueryWriteClient;
 
-    private boolean writeFailed;
+	private TableName tableName;
 
-    @Override
-    public void write(final Chunk<? extends T> chunk) throws Exception {
-        if (!chunk.isEmpty()) {
-            final List<? extends T> items = chunk.getItems();
-            String streamName = null;
+	private JsonObjectMarshaller<T> marshaller;
 
-            try {
-                WriteStream writeStreamToCreate = WriteStream.newBuilder()
-                        .setType(WriteStream.Type.COMMITTED)
-                        .build();
+	private ApiFutureCallback<AppendRowsResponse> apiFutureCallback;
 
-                CreateWriteStreamRequest createStreamRequest = CreateWriteStreamRequest.newBuilder()
-                        .setParent(tableName.toString())
-                        .setWriteStream(writeStreamToCreate)
-                        .build();
+	private Executor executor;
 
-                WriteStream writeStream = bigQueryWriteClient.createWriteStream(createStreamRequest);
-                streamName = writeStream.getName();
+	private boolean writeFailed;
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Created a stream=" + streamName);
-                }
+	@Override
+	public void write(final Chunk<? extends T> chunk) throws Exception {
+		if (!chunk.isEmpty()) {
+			final List<? extends T> items = chunk.getItems();
+			String streamName = null;
 
-                try (final JsonStreamWriter writer = JsonStreamWriter.newBuilder(writeStream.getName(), bigQueryWriteClient).build()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Mapping %d elements", items.size()));
-                    }
-                    final JSONArray array = new JSONArray();
-                    items.stream().map(marshaller::marshal).map(JSONObject::new).forEach(array::put);
+			try {
+				WriteStream writeStreamToCreate = WriteStream.newBuilder().setType(WriteStream.Type.COMMITTED).build();
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Writing data to BigQuery");
-                    }
-                    final ApiFuture<AppendRowsResponse> future = writer.append(array);
+				CreateWriteStreamRequest createStreamRequest = CreateWriteStreamRequest.newBuilder()
+					.setParent(tableName.toString())
+					.setWriteStream(writeStreamToCreate)
+					.build();
 
-                    if (apiFutureCallback != null) {
-                        ApiFutures.addCallback(future, apiFutureCallback, executor);
-                    }
-                }
-            } catch (Exception e) {
-                writeFailed = true;
-                logger.error("BigQuery error", e);
-                throw new BigQueryItemWriterException("Error on write happened", e);
-            } finally {
-                if (StringUtils.hasText(streamName)) {
-                    long rowCount = bigQueryWriteClient.finalizeWriteStream(streamName).getRowCount();
-                    if (chunk.size() != rowCount) {
-                        logger.warn("Finalized response row count=%d is not the same as chunk size=%d".formatted(rowCount, chunk.size()));
-                    }
-                }
+				WriteStream writeStream = bigQueryWriteClient.createWriteStream(createStreamRequest);
+				streamName = writeStream.getName();
 
-                if (!writeFailed && logger.isDebugEnabled()) {
-                    logger.debug("Write operation submitted: " + bigQueryWriteCounter.incrementAndGet());
-                }
-            }
-        }
-    }
+				if (logger.isDebugEnabled()) {
+					logger.debug("Created a stream=" + streamName);
+				}
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.bigQueryWriteClient, "BigQuery write client must be provided");
-        Assert.notNull(this.tableName, "Table name must be provided");
-        Assert.notNull(this.marshaller, "Marshaller must be provided");
+				final JsonStreamWriter jsonWriter = JsonStreamWriter
+					.newBuilder(writeStream.getName(), bigQueryWriteClient)
+					.build();
 
-        if (this.apiFutureCallback != null) {
-            Assert.notNull(this.executor, "Executor must be provided");
-        }
-    }
+				try (jsonWriter) {
+					if (logger.isDebugEnabled()) {
+						logger.debug(String.format("Mapping %d elements", items.size()));
+					}
+					final JSONArray array = new JSONArray();
+					items.stream().map(marshaller::marshal).map(JSONObject::new).forEach(array::put);
 
-    /**
-     * GRPC client that wraps communication with BigQuery.
-     *
-     * @param bigQueryWriteClient a client
-     */
-    public void setBigQueryWriteClient(final BigQueryWriteClient bigQueryWriteClient) {
-        this.bigQueryWriteClient = bigQueryWriteClient;
-    }
+					if (logger.isDebugEnabled()) {
+						logger.debug("Writing data to BigQuery");
+					}
+					final ApiFuture<AppendRowsResponse> future = jsonWriter.append(array);
 
-    /**
-     * A full path to the BigQuery table.
-     *
-     * @param tableName a name
-     */
-    public void setTableName(final TableName tableName) {
-        this.tableName = tableName;
-    }
+					if (apiFutureCallback != null) {
+						ApiFutures.addCallback(future, apiFutureCallback, executor);
+					}
+				}
+			}
+			catch (Exception e) {
+				writeFailed = true;
+				logger.error("BigQuery error", e);
+				throw new BigQueryItemWriterException("Error on write happened", e);
+			}
+			finally {
+				if (StringUtils.hasText(streamName)) {
+					final long rowCount = bigQueryWriteClient.finalizeWriteStream(streamName).getRowCount();
+					if (chunk.size() != rowCount) {
+						logger.warn("Finalized response row count=%d is not the same as chunk size=%d"
+							.formatted(rowCount, chunk.size()));
+					}
+				}
 
-    /**
-     * Converter that transforms a single row into a {@link String}.
-     *
-     * @param marshaller your JSON mapper
-     */
-    public void setMarshaller(final JsonObjectMarshaller<T> marshaller) {
-        this.marshaller = marshaller;
-    }
+				if (!writeFailed && logger.isDebugEnabled()) {
+					logger.debug("Write operation submitted: " + bigQueryWriteCounter.incrementAndGet());
+				}
+			}
+		}
+	}
 
-    /**
-     * {@link ApiFutureCallback} that will be called in case of successful of failed response.
-     *
-     * @param apiFutureCallback a callback
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setExecutor(Executor)
-     */
-    public void setApiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
-        this.apiFutureCallback = apiFutureCallback;
-    }
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(this.bigQueryWriteClient, "BigQuery write client must be provided");
+		Assert.notNull(this.tableName, "Table name must be provided");
+		Assert.notNull(this.marshaller, "Marshaller must be provided");
 
-    /**
-     * An {@link Executor} that will be calling a {@link ApiFutureCallback}.
-     *
-     * @param executor an executor
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
-     */
-    public void setExecutor(final Executor executor) {
-        this.executor = executor;
-    }
+		if (this.apiFutureCallback != null) {
+			Assert.notNull(this.executor, "Executor must be provided");
+		}
+	}
+
+	/**
+	 * GRPC client that wraps communication with BigQuery.
+	 * @param bigQueryWriteClient a client
+	 */
+	public void setBigQueryWriteClient(final BigQueryWriteClient bigQueryWriteClient) {
+		this.bigQueryWriteClient = bigQueryWriteClient;
+	}
+
+	/**
+	 * A full path to the BigQuery table.
+	 * @param tableName a name
+	 */
+	public void setTableName(final TableName tableName) {
+		this.tableName = tableName;
+	}
+
+	/**
+	 * Converter that transforms a single row into a {@link String}.
+	 * @param marshaller your JSON mapper
+	 */
+	public void setMarshaller(final JsonObjectMarshaller<T> marshaller) {
+		this.marshaller = marshaller;
+	}
+
+	/**
+	 * {@link ApiFutureCallback} that will be called in case of successful of failed
+	 * response.
+	 * @param apiFutureCallback a callback
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setExecutor(Executor)
+	 */
+	public void setApiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
+		this.apiFutureCallback = apiFutureCallback;
+	}
+
+	/**
+	 * An {@link Executor} that will be calling a {@link ApiFutureCallback}.
+	 * @param executor an executor
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+	 */
+	public void setExecutor(final Executor executor) {
+		this.executor = executor;
+	}
+
 }

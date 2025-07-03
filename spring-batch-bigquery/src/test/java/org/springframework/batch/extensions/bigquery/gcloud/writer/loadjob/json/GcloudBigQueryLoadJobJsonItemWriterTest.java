@@ -41,56 +41,54 @@ import java.util.stream.Stream;
 
 class GcloudBigQueryLoadJobJsonItemWriterTest extends GcloudBaseBigQueryItemWriterTest {
 
-    private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.JSON);
+	private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.JSON);
 
-    @BeforeAll
-    static void prepareTest() {
-        if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
-            BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
-        }
+	@BeforeAll
+	static void prepareTest() {
+		if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
+			BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
+		}
 
-        if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.JSON) == null) {
-            TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
-        }
-    }
+		if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.JSON) == null) {
+			TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
+			BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
+		}
+	}
 
-    @AfterAll
-    static void cleanup() {
-        BIG_QUERY.delete(TABLE_ID);
-    }
+	@AfterAll
+	static void cleanup() {
+		BIG_QUERY.delete(TABLE_ID);
+	}
 
-    @ParameterizedTest
-    @MethodSource("tables")
-    void testWrite(String tableName, boolean autodetect) throws Exception {
-        AtomicReference<Job> job = new AtomicReference<>();
+	@ParameterizedTest
+	@MethodSource("tables")
+	void testWrite(String tableName, boolean autodetect) throws Exception {
+		AtomicReference<Job> job = new AtomicReference<>();
 
-        WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TableId.of(TestConstants.DATASET, tableName))
-                .setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
-                .setAutodetect(autodetect)
-                .setFormatOptions(FormatOptions.json())
-                .build();
+		WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
+			.newBuilder(TableId.of(TestConstants.DATASET, tableName))
+			.setSchema(autodetect ? null : PersonDto.getBigQuerySchema())
+			.setAutodetect(autodetect)
+			.setFormatOptions(FormatOptions.json())
+			.build();
 
-        BigQueryLoadJobJsonItemWriter<PersonDto> writer = new BigQueryLoadJobJsonItemWriterBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .writeChannelConfig(channelConfiguration)
-                .jobConsumer(job::set)
-                .build();
+		BigQueryLoadJobJsonItemWriter<PersonDto> writer = new BigQueryLoadJobJsonItemWriterBuilder<PersonDto>()
+			.bigQuery(BIG_QUERY)
+			.writeChannelConfig(channelConfiguration)
+			.jobConsumer(job::set)
+			.build();
 
-        writer.afterPropertiesSet();
-        writer.write(TestConstants.CHUNK);
-        job.get().waitFor();
+		writer.afterPropertiesSet();
+		writer.write(TestConstants.CHUNK);
+		job.get().waitFor();
 
-        verifyResults(tableName);
-    }
+		verifyResults(tableName);
+	}
 
-    private static Stream<Arguments> tables() {
-        return Stream.of(
-                Arguments.of(NameUtils.generateTableName(TestConstants.JSON), false),
-                Arguments.of(NameUtils.generateTableName(TestConstants.JSON), true),
-                Arguments.of(TestConstants.JSON, false)
-        );
-    }
+	private static Stream<Arguments> tables() {
+		return Stream.of(Arguments.of(NameUtils.generateTableName(TestConstants.JSON), false),
+				Arguments.of(NameUtils.generateTableName(TestConstants.JSON), true),
+				Arguments.of(TestConstants.JSON, false));
+	}
 
 }

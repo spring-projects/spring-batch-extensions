@@ -21,18 +21,14 @@ import org.mockito.Mockito;
 
 public abstract class AbstractBigQueryTest {
 
-    protected BigQuery prepareMockedBigQuery() {
-        BigQuery mockedBigQuery = Mockito.mock(BigQuery.class);
+	protected BigQuery prepareMockedBigQuery() {
+		BigQuery mockedBigQuery = Mockito.mock(BigQuery.class);
 
-        Mockito
-                .when(mockedBigQuery.getTable(Mockito.any()))
-                .thenReturn(null);
+		Mockito.when(mockedBigQuery.getTable(Mockito.any())).thenReturn(null);
 
-        Mockito
-                .when(mockedBigQuery.getDataset(Mockito.anyString()))
-                .thenReturn(null);
+		Mockito.when(mockedBigQuery.getDataset(Mockito.anyString())).thenReturn(null);
 
-        return mockedBigQuery;
-    }
+		return mockedBigQuery;
+	}
 
 }

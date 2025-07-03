@@ -31,7 +31,9 @@ import java.util.Iterator;
 /**
  * BigQuery {@link ItemReader} that accepts simple query as the input.
  * <p>
- * Internally BigQuery Java library creates a {@link com.google.cloud.bigquery.JobConfiguration.Type#QUERY} job.
+ * Internally BigQuery Java library creates a
+ * {@link com.google.cloud.bigquery.JobConfiguration.Type#QUERY} job.
+ * <p>
  * Which means that result is coming asynchronously.
  * <p>
  * Also, worth mentioning that you should take into account concurrency limits.
@@ -41,71 +43,76 @@ import java.util.Iterator;
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see <a href="https://cloud.google.com/bigquery/docs/running-queries#queries">Interactive queries</a>
- * @see <a href="https://cloud.google.com/bigquery/docs/running-queries#batch">Batch queries</a>
- * @see <a href="https://cloud.google.com/bigquery/quotas#concurrent_rate_interactive_queries">Concurrency limits</a>
+ * @see <a href=
+ * "https://cloud.google.com/bigquery/docs/running-queries#queries">Interactive
+ * queries</a>
+ * @see <a href="https://cloud.google.com/bigquery/docs/running-queries#batch">Batch
+ * queries</a>
+ * @see <a href=
+ * "https://cloud.google.com/bigquery/quotas#concurrent_rate_interactive_queries">Concurrency
+ * limits</a>
  */
 public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBean {
 
-    private final Log logger = LogFactory.getLog(getClass());
+	private final Log logger = LogFactory.getLog(getClass());
 
-    private BigQuery bigQuery;
-    private Converter<FieldValueList, T> rowMapper;
-    private QueryJobConfiguration jobConfiguration;
-    private Iterator<FieldValueList> iterator;
+	private BigQuery bigQuery;
 
-    /**
-     * BigQuery service, responsible for API calls.
-     *
-     * @param bigQuery BigQuery service
-     */
-    public void setBigQuery(BigQuery bigQuery) {
-        this.bigQuery = bigQuery;
-    }
+	private Converter<FieldValueList, T> rowMapper;
 
-    /**
-     * Row mapper which transforms single BigQuery row into a desired type.
-     *
-     * @param rowMapper your row mapper
-     */
-    public void setRowMapper(Converter<FieldValueList, T> rowMapper) {
-        this.rowMapper = rowMapper;
-    }
+	private QueryJobConfiguration jobConfiguration;
 
-    /**
-     * Specifies query to run, destination table, etc.
-     *
-     * @param jobConfiguration BigQuery job configuration
-     */
-    public void setJobConfiguration(QueryJobConfiguration jobConfiguration) {
-        this.jobConfiguration = jobConfiguration;
-    }
+	private Iterator<FieldValueList> iterator;
 
-    @Override
-    public T read() throws Exception {
-        if (iterator == null) {
-            doOpen();
-        }
+	/**
+	 * BigQuery service, responsible for API calls.
+	 * @param bigQuery BigQuery service
+	 */
+	public void setBigQuery(final BigQuery bigQuery) {
+		this.bigQuery = bigQuery;
+	}
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Reading next element");
-        }
+	/**
+	 * Row mapper which transforms single BigQuery row into a desired type.
+	 * @param rowMapper your row mapper
+	 */
+	public void setRowMapper(final Converter<FieldValueList, T> rowMapper) {
+		this.rowMapper = rowMapper;
+	}
 
-        return iterator.hasNext() ? rowMapper.convert(iterator.next()) : null;
-    }
+	/**
+	 * Specifies query to run, destination table, etc.
+	 * @param jobConfiguration BigQuery job configuration
+	 */
+	public void setJobConfiguration(final QueryJobConfiguration jobConfiguration) {
+		this.jobConfiguration = jobConfiguration;
+	}
 
-    private void doOpen() throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing query");
-        }
-        iterator = bigQuery.query(jobConfiguration).getValues().iterator();
-    }
+	@Override
+	public T read() throws Exception {
+		if (iterator == null) {
+			doOpen();
+		}
 
-    @Override
-    public void afterPropertiesSet() {
-        Assert.notNull(this.bigQuery, "BigQuery service must be provided");
-        Assert.notNull(this.rowMapper, "Row mapper must be provided");
-        Assert.notNull(this.jobConfiguration, "Job configuration must be provided");
-    }
+		if (logger.isDebugEnabled()) {
+			logger.debug("Reading next element");
+		}
+
+		return iterator.hasNext() ? rowMapper.convert(iterator.next()) : null;
+	}
+
+	private void doOpen() throws Exception {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Executing query");
+		}
+		iterator = bigQuery.query(jobConfiguration).getValues().iterator();
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		Assert.notNull(this.bigQuery, "BigQuery service must be provided");
+		Assert.notNull(this.rowMapper, "Row mapper must be provided");
+		Assert.notNull(this.jobConfiguration, "Job configuration must be provided");
+	}
 
 }

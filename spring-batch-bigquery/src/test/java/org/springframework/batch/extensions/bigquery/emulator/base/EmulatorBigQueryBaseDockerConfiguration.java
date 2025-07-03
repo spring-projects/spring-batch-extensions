@@ -20,11 +20,14 @@ import org.testcontainers.containers.GenericContainer;
 
 public final class EmulatorBigQueryBaseDockerConfiguration {
 
-    public static final int REST_PORT = 9050;
-    public static final int GRPC_PORT = 9060;
+	public static final int REST_PORT = 9050;
 
-    public static final GenericContainer<?> CONTAINER = new GenericContainer<>("ghcr.io/goccy/bigquery-emulator:0.6.6")
-            .withExposedPorts(REST_PORT, GRPC_PORT);
+	public static final int GRPC_PORT = 9060;
 
-    private EmulatorBigQueryBaseDockerConfiguration() {}
+	public static final GenericContainer<?> CONTAINER = new GenericContainer<>("ghcr.io/goccy/bigquery-emulator:0.6.6")
+		.withExposedPorts(REST_PORT, GRPC_PORT);
+
+	private EmulatorBigQueryBaseDockerConfiguration() {
+	}
+
 }

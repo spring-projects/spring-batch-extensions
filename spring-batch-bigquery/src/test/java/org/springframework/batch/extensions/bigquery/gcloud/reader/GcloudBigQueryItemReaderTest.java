@@ -41,98 +41,100 @@ import java.util.concurrent.atomic.AtomicReference;
 
 class GcloudBigQueryItemReaderTest extends GcloudBaseBigQueryIntegrationTest {
 
-    private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
+	private static final TableId TABLE_ID = TableId.of(TestConstants.DATASET, TestConstants.CSV);
 
-    @BeforeAll
-    static void init() throws Exception {
-        if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
-            BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
-        }
+	@BeforeAll
+	static void init() throws Exception {
+		if (BIG_QUERY.getDataset(TestConstants.DATASET) == null) {
+			BIG_QUERY.create(DatasetInfo.of(TestConstants.DATASET));
+		}
 
-        if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.CSV) == null) {
-            TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-            BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
-        }
+		if (BIG_QUERY.getTable(TestConstants.DATASET, TestConstants.CSV) == null) {
+			TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
+			BIG_QUERY.create(TableInfo.of(TABLE_ID, tableDefinition));
+		}
 
-        loadCsvSample();
-    }
+		loadCsvSample();
+	}
 
-    @AfterAll
-    static void cleanupTest() {
-        BIG_QUERY.delete(TABLE_ID);
-    }
+	@AfterAll
+	static void cleanupTest() {
+		BIG_QUERY.delete(TABLE_ID);
+	}
 
-    @Test
-    void testBatchQuery() throws Exception {
-        QueryJobConfiguration jobConfiguration = QueryJobConfiguration
-                .newBuilder("SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2".formatted(TestConstants.CSV))
-                .setDestinationTable(TABLE_ID)
-                .setPriority(QueryJobConfiguration.Priority.BATCH)
-                .build();
+	@Test
+	void testBatchQuery() throws Exception {
+		String query = "SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2"
+			.formatted(TestConstants.CSV);
 
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .rowMapper(TestConstants.PERSON_MAPPER)
-                .jobConfiguration(jobConfiguration)
-                .build();
+		QueryJobConfiguration jobConfiguration = QueryJobConfiguration.newBuilder(query)
+			.setDestinationTable(TABLE_ID)
+			.setPriority(QueryJobConfiguration.Priority.BATCH)
+			.build();
 
-        reader.afterPropertiesSet();
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(BIG_QUERY)
+			.rowMapper(TestConstants.PERSON_MAPPER)
+			.jobConfiguration(jobConfiguration)
+			.build();
 
-        verifyResult(reader);
-    }
+		reader.afterPropertiesSet();
 
-    @Test
-    void testInteractiveQuery() throws Exception {
-        BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .rowMapper(TestConstants.PERSON_MAPPER)
-                .query("SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2".formatted(TestConstants.CSV))
-                .build();
+		verifyResult(reader);
+	}
 
-        reader.afterPropertiesSet();
+	@Test
+	void testInteractiveQuery() throws Exception {
+		String query = "SELECT p.name, p.age FROM spring_batch_extensions.%s p ORDER BY p.name LIMIT 2"
+			.formatted(TestConstants.CSV);
 
-        verifyResult(reader);
-    }
+		BigQueryQueryItemReader<PersonDto> reader = new BigQueryQueryItemReaderBuilder<PersonDto>().bigQuery(BIG_QUERY)
+			.rowMapper(TestConstants.PERSON_MAPPER)
+			.query(query)
+			.build();
 
-    private void verifyResult(BigQueryQueryItemReader<PersonDto> reader) throws Exception {
-        PersonDto actualFirstPerson = reader.read();
-        PersonDto expectedFirstPerson = TestConstants.CHUNK.getItems().get(0);
+		reader.afterPropertiesSet();
 
-        PersonDto actualSecondPerson = reader.read();
-        PersonDto expectedSecondPerson = TestConstants.CHUNK.getItems().get(1);
+		verifyResult(reader);
+	}
 
-        PersonDto actualThirdPerson = reader.read();
+	private void verifyResult(BigQueryQueryItemReader<PersonDto> reader) throws Exception {
+		PersonDto actualFirstPerson = reader.read();
+		PersonDto expectedFirstPerson = TestConstants.CHUNK.getItems().get(0);
 
-        Assertions.assertNotNull(actualFirstPerson);
-        Assertions.assertEquals(expectedFirstPerson.name(), actualFirstPerson.name());
-        Assertions.assertEquals(0, expectedFirstPerson.age().compareTo(actualFirstPerson.age()));
+		PersonDto actualSecondPerson = reader.read();
+		PersonDto expectedSecondPerson = TestConstants.CHUNK.getItems().get(1);
 
-        Assertions.assertNotNull(actualSecondPerson);
-        Assertions.assertEquals(expectedSecondPerson.name(), actualSecondPerson.name());
-        Assertions.assertEquals(0, expectedSecondPerson.age().compareTo(actualSecondPerson.age()));
+		PersonDto actualThirdPerson = reader.read();
 
-        Assertions.assertNull(actualThirdPerson);
-    }
+		Assertions.assertNotNull(actualFirstPerson);
+		Assertions.assertEquals(expectedFirstPerson.name(), actualFirstPerson.name());
+		Assertions.assertEquals(0, expectedFirstPerson.age().compareTo(actualFirstPerson.age()));
 
-    private static void loadCsvSample() throws Exception {
-        AtomicReference<Job> job = new AtomicReference<>();
+		Assertions.assertNotNull(actualSecondPerson);
+		Assertions.assertEquals(expectedSecondPerson.name(), actualSecondPerson.name());
+		Assertions.assertEquals(0, expectedSecondPerson.age().compareTo(actualSecondPerson.age()));
 
-        WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration
-                .newBuilder(TABLE_ID)
-                .setSchema(PersonDto.getBigQuerySchema())
-                .setAutodetect(false)
-                .setFormatOptions(FormatOptions.csv())
-                .build();
+		Assertions.assertNull(actualThirdPerson);
+	}
 
-        BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
-                .bigQuery(BIG_QUERY)
-                .writeChannelConfig(channelConfiguration)
-                .jobConsumer(job::set)
-                .build();
+	private static void loadCsvSample() throws Exception {
+		AtomicReference<Job> job = new AtomicReference<>();
 
-        writer.afterPropertiesSet();
-        writer.write(TestConstants.CHUNK);
-        job.get().waitFor();
-    }
+		WriteChannelConfiguration channelConfiguration = WriteChannelConfiguration.newBuilder(TABLE_ID)
+			.setSchema(PersonDto.getBigQuerySchema())
+			.setAutodetect(false)
+			.setFormatOptions(FormatOptions.csv())
+			.build();
+
+		BigQueryLoadJobCsvItemWriter<PersonDto> writer = new BigQueryCsvItemWriterBuilder<PersonDto>()
+			.bigQuery(BIG_QUERY)
+			.writeChannelConfig(channelConfiguration)
+			.jobConsumer(job::set)
+			.build();
+
+		writer.afterPropertiesSet();
+		writer.write(TestConstants.CHUNK);
+		job.get().waitFor();
+	}
 
 }

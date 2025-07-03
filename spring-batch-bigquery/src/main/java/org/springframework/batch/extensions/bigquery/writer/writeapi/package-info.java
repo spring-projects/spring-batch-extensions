@@ -19,13 +19,13 @@
  *
  * Supported types:
  * <ul>
- *     <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#COMMITTED}</li>
- *     <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#PENDING}</li>
+ * <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#COMMITTED}</li>
+ * <li>{@link com.google.cloud.bigquery.storage.v1.WriteStream.Type#PENDING}</li>
  * </ul>
  *
  * Supported formats:
  * <ul>
- *     <li>JSON</li>
+ * <li>JSON</li>
  * </ul>
  */
 package org.springframework.batch.extensions.bigquery.writer.writeapi;

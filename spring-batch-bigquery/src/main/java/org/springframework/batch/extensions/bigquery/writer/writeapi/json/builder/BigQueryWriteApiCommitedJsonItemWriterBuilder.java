@@ -34,97 +34,102 @@ import java.util.concurrent.Executor;
  * @param <T> your DTO type
  * @author Volodymyr Perebykivskyi
  * @since 0.2.0
- * @see <a href="https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/json/builder/BigQueryWriteApiCommitedJsonItemWriterBuilderTests.java">Examples</a>
+ * @see <a href=
+ * "https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-bigquery/src/test/java/org/springframework/batch/extensions/bigquery/unit/writer/writeapi/json/builder/BigQueryWriteApiCommitedJsonItemWriterBuilderTest.java">Examples</a>
  */
 public class BigQueryWriteApiCommitedJsonItemWriterBuilder<T> {
 
-    private BigQueryWriteClient bigQueryWriteClient;
-    private TableName tableName;
-    private JsonObjectMarshaller<T> marshaller;
-    private ApiFutureCallback<AppendRowsResponse> apiFutureCallback;
-    private Executor executor;
+	private BigQueryWriteClient bigQueryWriteClient;
 
-    /**
-     * GRPC client that will be responsible for communication with BigQuery.
-     *
-     * @param bigQueryWriteClient a client
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setBigQueryWriteClient(BigQueryWriteClient)
-     */
-    public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> bigQueryWriteClient(final BigQueryWriteClient bigQueryWriteClient) {
-        this.bigQueryWriteClient = bigQueryWriteClient;
-        return this;
-    }
+	private TableName tableName;
 
-    /**
-     * A table name along with a full path.
-     *
-     * @param tableName a name
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setTableName(TableName)
-     */
-    public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> tableName(final TableName tableName) {
-        this.tableName = tableName;
-        return this;
-    }
+	private JsonObjectMarshaller<T> marshaller;
 
-    /**
-     * Converts your DTO into a {@link String}.
-     *
-     * @param marshaller your mapper
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setMarshaller(JsonObjectMarshaller)
-     */
-    public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> marshaller(final JsonObjectMarshaller<T> marshaller) {
-        this.marshaller = marshaller;
-        return this;
-    }
+	private ApiFutureCallback<AppendRowsResponse> apiFutureCallback;
 
-    /**
-     * A {@link ApiFutureCallback} that will be called on successful or failed event.
-     *
-     * @param apiFutureCallback a callback
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
-     */
-    public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> apiFutureCallback(final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
-        this.apiFutureCallback = apiFutureCallback;
-        return this;
-    }
+	private Executor executor;
 
-    /**
-     * {@link Executor} that will be used for {@link ApiFutureCallback}.
-     *
-     * @param executor an executor
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setExecutor(Executor)
-     * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
-     */
-    public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> executor(final Executor executor) {
-        this.executor = executor;
-        return this;
-    }
+	/**
+	 * GRPC client that will be responsible for communication with BigQuery.
+	 * @param bigQueryWriteClient a client
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setBigQueryWriteClient(BigQueryWriteClient)
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> bigQueryWriteClient(
+			final BigQueryWriteClient bigQueryWriteClient) {
+		this.bigQueryWriteClient = bigQueryWriteClient;
+		return this;
+	}
 
-    /**
-     * Please remember about {@link BigQueryWriteApiCommitedJsonItemWriter#afterPropertiesSet()}.
-     *
-     * @return {@link BigQueryWriteApiCommitedJsonItemWriter}
-     * @throws IOException in case when {@link BigQueryWriteClient} failed to be created automatically
-     */
-    public BigQueryWriteApiCommitedJsonItemWriter<T> build() throws IOException {
-        BigQueryWriteApiCommitedJsonItemWriter<T> writer = new BigQueryWriteApiCommitedJsonItemWriter<>();
+	/**
+	 * A table name along with a full path.
+	 * @param tableName a name
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setTableName(TableName)
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> tableName(final TableName tableName) {
+		this.tableName = tableName;
+		return this;
+	}
 
-        writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
-        writer.setBigQueryWriteClient(this.bigQueryWriteClient == null ? BigQueryWriteClient.create() : this.bigQueryWriteClient);
+	/**
+	 * Converts your DTO into a {@link String}.
+	 * @param marshaller your mapper
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setMarshaller(JsonObjectMarshaller)
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> marshaller(final JsonObjectMarshaller<T> marshaller) {
+		this.marshaller = marshaller;
+		return this;
+	}
 
-        if (apiFutureCallback != null) {
-            writer.setApiFutureCallback(apiFutureCallback);
-            writer.setExecutor(this.executor == null ? MoreExecutors.directExecutor() : this.executor);
-        }
+	/**
+	 * A {@link ApiFutureCallback} that will be called on successful or failed event.
+	 * @param apiFutureCallback a callback
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> apiFutureCallback(
+			final ApiFutureCallback<AppendRowsResponse> apiFutureCallback) {
+		this.apiFutureCallback = apiFutureCallback;
+		return this;
+	}
 
-        writer.setTableName(tableName);
+	/**
+	 * {@link Executor} that will be used for {@link ApiFutureCallback}.
+	 * @param executor an executor
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriterBuilder}
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setExecutor(Executor)
+	 * @see BigQueryWriteApiCommitedJsonItemWriter#setApiFutureCallback(ApiFutureCallback)
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder<T> executor(final Executor executor) {
+		this.executor = executor;
+		return this;
+	}
 
-        return writer;
-    }
+	/**
+	 * Please remember about
+	 * {@link BigQueryWriteApiCommitedJsonItemWriter#afterPropertiesSet()}.
+	 * @return {@link BigQueryWriteApiCommitedJsonItemWriter}
+	 * @throws IOException in case when {@link BigQueryWriteClient} failed to be created
+	 * automatically
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriter<T> build() throws IOException {
+		BigQueryWriteApiCommitedJsonItemWriter<T> writer = new BigQueryWriteApiCommitedJsonItemWriter<>();
+
+		writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
+
+		writer.setBigQueryWriteClient(
+				this.bigQueryWriteClient == null ? BigQueryWriteClient.create() : this.bigQueryWriteClient);
+
+		if (apiFutureCallback != null) {
+			writer.setApiFutureCallback(apiFutureCallback);
+			writer.setExecutor(this.executor == null ? MoreExecutors.directExecutor() : this.executor);
+		}
+
+		writer.setTableName(tableName);
+
+		return writer;
+	}
 
 }

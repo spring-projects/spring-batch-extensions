@@ -23,34 +23,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class EmulatorBigQueryWriteApiPendingJsonItemWriterTest extends EmulatorBaseItemWriterTest {
 
-    @Test
-    void testWrite() throws Exception {
-        AtomicBoolean consumerCalled = new AtomicBoolean();
-        TableId tableId = TableId.of(TestConstants.PROJECT, TestConstants.DATASET, NameUtils.generateTableName(TestConstants.JSON));
-        TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
-        bigQuery.create(TableInfo.of(tableId, tableDefinition));
+	@Test
+	void testWrite() throws Exception {
+		AtomicBoolean consumerCalled = new AtomicBoolean();
+		TableId tableId = TableId.of(TestConstants.PROJECT, TestConstants.DATASET,
+				NameUtils.generateTableName(TestConstants.JSON));
+		TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
+		bigQuery.create(TableInfo.of(tableId, tableDefinition));
 
-        Chunk<PersonDto> expected = TestConstants.CHUNK;
+		Chunk<PersonDto> expected = TestConstants.CHUNK;
 
-        BigQueryWriteApiPendingJsonItemWriter<Object> writer = new BigQueryWriteApiPendingJsonItemWriter<>();
-        writer.setBigQueryWriteClient(bigQueryWriteClient);
-        writer.setTableName(TableName.of(tableId.getProject(), tableId.getDataset(), tableId.getTable()));
-        writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
-        writer.setApiFutureCallback(new ApiFutureCallback<>() {
-            @Override
-            public void onFailure(Throwable t) {}
+		BigQueryWriteApiPendingJsonItemWriter<Object> writer = new BigQueryWriteApiPendingJsonItemWriter<>();
+		writer.setBigQueryWriteClient(bigQueryWriteClient);
+		writer.setTableName(TableName.of(tableId.getProject(), tableId.getDataset(), tableId.getTable()));
+		writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
+		writer.setApiFutureCallback(new ApiFutureCallback<>() {
+			@Override
+			public void onFailure(Throwable t) {
+			}
 
-            @Override
-            public void onSuccess(AppendRowsResponse result) {
-                consumerCalled.set(true);
-            }
-        });
-        writer.setExecutor(Executors.newSingleThreadExecutor());
+			@Override
+			public void onSuccess(AppendRowsResponse result) {
+				consumerCalled.set(true);
+			}
+		});
+		writer.setExecutor(Executors.newSingleThreadExecutor());
 
-        writer.write(expected);
+		writer.write(expected);
 
-        ResultVerifier.verifyTableResult(expected, bigQuery.listTableData(tableId));
-        Assertions.assertTrue(consumerCalled.get());
-    }
+		ResultVerifier.verifyTableResult(expected, bigQuery.listTableData(tableId));
+		Assertions.assertTrue(consumerCalled.get());
+	}
 
 }

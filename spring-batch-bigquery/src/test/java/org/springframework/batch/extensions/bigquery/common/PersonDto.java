@@ -23,27 +23,35 @@ import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.storage.v1.TableFieldSchema;
 import com.google.cloud.bigquery.storage.v1.TableSchema;
 
-@JsonPropertyOrder(value = {TestConstants.NAME, TestConstants.AGE})
+@JsonPropertyOrder(value = { TestConstants.NAME, TestConstants.AGE })
 public record PersonDto(String name, Integer age) {
 
-    public static Schema getBigQuerySchema() {
-        Field nameField = Field.newBuilder(TestConstants.NAME, StandardSQLTypeName.STRING).setMode(Field.Mode.REQUIRED).build();
-        Field ageField = Field.newBuilder(TestConstants.AGE, StandardSQLTypeName.INT64).setMode(Field.Mode.REQUIRED).build();
-        return Schema.of(nameField, ageField);
-    }
+	public static Schema getBigQuerySchema() {
+		Field nameField = Field.newBuilder(TestConstants.NAME, StandardSQLTypeName.STRING)
+			.setMode(Field.Mode.REQUIRED)
+			.build();
 
-    public static TableSchema getWriteApiSchema() {
-        TableFieldSchema name = TableFieldSchema.newBuilder()
-                .setType(TableFieldSchema.Type.STRING)
-                .setName(TestConstants.NAME)
-                .setMode(TableFieldSchema.Mode.REQUIRED)
-                .build();
-        TableFieldSchema age = TableFieldSchema.newBuilder()
-                .setType(TableFieldSchema.Type.INT64)
-                .setName(TestConstants.AGE)
-                .setMode(TableFieldSchema.Mode.REQUIRED)
-                .build();
-        return TableSchema.newBuilder().addFields(name).addFields(age).build();
-    }
+		Field ageField = Field.newBuilder(TestConstants.AGE, StandardSQLTypeName.INT64)
+			.setMode(Field.Mode.REQUIRED)
+			.build();
+
+		return Schema.of(nameField, ageField);
+	}
+
+	public static TableSchema getWriteApiSchema() {
+		TableFieldSchema name = TableFieldSchema.newBuilder()
+			.setType(TableFieldSchema.Type.STRING)
+			.setName(TestConstants.NAME)
+			.setMode(TableFieldSchema.Mode.REQUIRED)
+			.build();
+
+		TableFieldSchema age = TableFieldSchema.newBuilder()
+			.setType(TableFieldSchema.Type.INT64)
+			.setName(TestConstants.AGE)
+			.setMode(TableFieldSchema.Mode.REQUIRED)
+			.build();
+
+		return TableSchema.newBuilder().addFields(name).addFields(age).build();
+	}
 
 }
