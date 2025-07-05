@@ -1,0 +1,182 @@
+= spring-batch-s3
+:toc:
+:icons: font
+:source-highlighter: highlightjs
+
+Spring Batch extension for Amazon S3 (even other S3 compatible may be supported) which contains `S3ItemReader` and `S3ItemWriter` implementations
+for reading from and writing to S3 buckets, including support for multipart uploads.
+
+*Note*: these writers are based on the *AWS SDK V2*.
+
+== Installation
+
+To use the `spring-batch-s3` extension, you need to add the following dependency to your Maven or Gradle project:
+
+=== Maven
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.batch.extensions</groupId>
+    <artifactId>spring-batch-s3</artifactId>
+    <version>${spring-batch-extensions.version}</version>
+</dependency>
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>apache-client</artifactId>
+    <version>${aws.sdk.version}</version>
+</dependency>
+----
+
+=== Gradle
+
+[source,groovy]
+----
+implementation 'org.springframework.batch.extensions:spring-batch-s3:${springBatchExtensionsVersion}'
+implementation 'software.amazon.awssdk:apache-client:${awsSdkVersion}'
+----
+
+== Known limitations
+
+* The `S3ItemReader` and `S3ItemWriter` are designed to work with the synchronous AWS S3 client (`S3Client`). They do not support the asynchronous client (`S3AsyncClient`) at this time.
+
+== Pre-requisites
+
+In order to set up these components you need to provide some additional beans in your Spring Batch configuration:
+
+* An `S3Client` bean to interact with AWS S3.
+* In case you want to use the `S3ItemReader`: an instance of `S3Deserializer` for the data you want to read.
+* In case you want to use the `S3ItemWriter`: an instance of `S3Serializer` for the data you want to write.
+
+There are two examples of implementation for both `S3Serializer` and `S3Deserializer` provided in this project:
+
+* `S3StringSerializer`: take a `String` as input and writes it to S3 as a UTF-8 encoded byte array. The write functions add a line termination character at the end of each string.
+* `S3StringDeserializer`: takes a UTF-8 encoded byte array from S3 and converts it to a `String`. The implementation of this deserializer is *stateful* because lines may arrive in different chunks.
+
+More details in the JavaDocs of the classes.
+
+=== Configuration of the `S3Client`
+
+To use the `S3ItemReader` and `S3ItemWriter`, you need to configure the AWS S3 client.
+This can be done using Java configuration or XML configuration.
+
+So far only this synchronous client is supported, you can't use the `S3AsyncClient` with these components.
+
+==== Java Config
+
+[source,java]
+----
+@Bean
+public S3Client s3Client() {
+    return S3Client.builder().build();
+}
+----
+
+=== Configure `S3Serializer`
+
+`S3StringSerializer` is a simple implementation of `S3Serializer` that takes a `String` as input and writes it to S3 as a UTF-8 encoded byte array. You are encouraged to implement your own serializer if you need to handle different data types or formats.
+
+==== Java Config
+
+[source,java]
+----
+@Bean
+S3Serializer<String> s3Serializer() {
+    return new S3StringSerializer();
+}
+----
+
+=== Configure `S3Deserializer`
+
+Similarly, `S3StringDeserializer` is a simple implementation of `S3Deserializer` that takes a UTF-8 encoded byte array from S3 and converts it to a `String`. You can implement your own deserializer if you need to handle different data types or formats.
+
+In case you don't want to implement your serializer checkout the "Alternatives readers" section below.
+
+==== Java Config
+
+[source,java]
+----
+@Bean
+S3Deserializer<String> s3Deserializer() {
+    return new S3StringDeserializer();
+}
+----
+
+== Configuration of `S3ItemReader`
+
+Given the `S3Client` and `S3Deserializer` beans, you can now configure the `S3ItemReader`.
+
+=== Java Config
+
+To configure the `S3ItemReader`, you need to set up the AWS S3 client and specify the bucket and object key from which you want to read data.
+[source,java]
+----
+@Bean
+ItemReader<String> downloadItemReader() throws Exception {
+    return  new S3ItemReader.Builder<String>()
+            .s3Client(s3Client())
+            .bucketName("bucket_name")
+            .objectKey("object_key")
+            .deserializer(s3Deserializer())
+            .bufferSize(1024 * 1024) // Default 128 Bytes
+            .build();
+}
+----
+
+There is also an additional option to set the `bufferSize` which is the size of the buffer used to read data from S3. The default value is 128 bytes, but you can increase it to improve memory consumption The bast value for this parameter is the average length of the lines in your file.
+
+=== Alternative reader
+
+Instead `S3ItemReader` you can also use  `FlatFileItemReader` with `InputStreamResources` to read files from S3 as well.
+To do so this package exposes a `S3InputStreamResource` that can be used for that purpose. Below an example:
+
+[source,java]
+----
+@Bean
+ItemReader<String> itemReader() throws Exception {
+    final var inputStreamResource = new InputStreamResource(
+            new S3InputStream(s3Client(),
+                    "bucket_name",
+                    "object_key"));
+
+    return new FlatFileItemReaderBuilder<String>()
+            .name("itemReader")
+            .resource(inputStreamResource)
+            .lineMapper(new PassThroughLineMapper(  ))
+            .build();
+}
+----
+
+== Configuration of `S3ItemWriter`
+
+Given the `S3Client` and `S3Serializer` beans, you can now configure the `S3ItemWriter`.
+
+=== Java Config
+
+To configure the `S3ItemWriter`, you need to set up the AWS S3 client and specify the bucket and object key to which you want to write data.
+[source,java]
+----
+@Bean
+ItemWriter<String> uploadItemWriter() throws IOException {
+    return new S3ItemWriter.Builder<String>()
+            .s3Client(s3Client())
+            .bucketName("bucket_name")
+            .objectKey("object_key")
+            .multipartUpload(true) // Default is false
+            .partSize(10 * 1024 * 1024) // Default is 5 MB
+            .contentType("text/csv") // Default is application/octet-stream
+            .serializer(s3Serializer())
+            .build();
+}
+----
+
+There are several additional options you can set for the `S3ItemWriter`:
+* `multipartUpload`: If set to `true`, the writer will use multipart upload for large files. The default is `false`.
+* `partSize`: The size of each part in a multipart upload. The default is 5 MB.
+* `contentType`: The content type of the uploaded file. The default is `application/octet-stream`.
+
+== Links
+
+* https://github.com/spring-projects/spring-batch-extensions
+* https://spring.io/projects/spring-batch
+* https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html
