@@ -19,8 +19,6 @@ package org.springframework.batch.extensions.s3;
 import java.io.IOException;
 import java.util.Arrays;
 
-import software.amazon.awssdk.services.s3.S3Client;
-
 import org.springframework.batch.extensions.s3.serializer.S3Deserializer;
 import org.springframework.batch.extensions.s3.stream.S3InputStream;
 import org.springframework.batch.item.ItemReader;
@@ -87,54 +85,5 @@ public class S3ItemReader<T> implements ItemReader<T>, ItemStream {
 
 	public int getBufferSize() {
 		return this.bufferSize;
-	}
-
-	public static class Builder<T> {
-		private S3Client s3Client;
-
-		private String bucketName;
-
-		private String objectKey;
-
-		private S3Deserializer<T> deserializer;
-
-		private Integer bufferSize;
-
-		public Builder<T> s3Client(S3Client s3Client) {
-			this.s3Client = s3Client;
-			return this;
-		}
-
-		public Builder<T> bucketName(String bucketName) {
-			this.bucketName = bucketName;
-			return this;
-		}
-
-		public Builder<T> objectKey(String objectKey) {
-			this.objectKey = objectKey;
-			return this;
-		}
-
-		public Builder<T> deserializer(S3Deserializer<T> deserializer) {
-			this.deserializer = deserializer;
-			return this;
-		}
-
-		public Builder<T> bufferSize(int bufferSize) {
-			this.bufferSize = bufferSize;
-			return this;
-		}
-
-		public S3ItemReader<T> build() throws Exception {
-			if (this.s3Client == null || this.bucketName == null || this.objectKey == null || this.deserializer == null) {
-				throw new IllegalArgumentException("S3Client, bucketName, objectKey, and deserializer must be provided");
-			}
-			S3InputStream inputStream = new S3InputStream(this.s3Client, this.bucketName, this.objectKey);
-			S3ItemReader<T> reader = new S3ItemReader<>(inputStream, this.deserializer);
-			if (this.bufferSize != null) {
-				reader.setBufferSize(this.bufferSize);
-			}
-			return reader;
-		}
 	}
 }

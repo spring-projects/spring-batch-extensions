@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Simple deserializer for String items from S3. It reads lines from a byte array,
  * handling both \n and \r\n line endings.
- *
  * This is intended to be used with S3ItemReader to read text data from S3 objects.
  *
  * @author Andrea Cioni

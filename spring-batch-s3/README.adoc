@@ -3,8 +3,7 @@
 :icons: font
 :source-highlighter: highlightjs
 
-Spring Batch extension for Amazon S3 (even other S3 compatible may be supported) which contains `S3ItemReader` and `S3ItemWriter` implementations
-for reading from and writing to S3 buckets, including support for multipart uploads.
+https://spring.io/projects/spring-batch[Spring Batch] extension for https://aws.amazon.com/it/s3/[Amazon S3] which contains `S3ItemReader` and `S3ItemWriter` implementations for reading from and writing to S3 buckets, including support for multipart uploads. Other S3-compatible technologies (like as Google Cloud Storage, MinIO, etc.) may be supported, but they are not guaranteed to work.
 
 *Note*: these writers are based on the *AWS SDK V2*.
 
@@ -21,11 +20,6 @@ To use the `spring-batch-s3` extension, you need to add the following dependency
     <artifactId>spring-batch-s3</artifactId>
     <version>${spring-batch-extensions.version}</version>
 </dependency>
-<dependency>
-    <groupId>software.amazon.awssdk</groupId>
-    <artifactId>apache-client</artifactId>
-    <version>${aws.sdk.version}</version>
-</dependency>
 ----
 
 === Gradle
@@ -33,7 +27,6 @@ To use the `spring-batch-s3` extension, you need to add the following dependency
 [source,groovy]
 ----
 implementation 'org.springframework.batch.extensions:spring-batch-s3:${springBatchExtensionsVersion}'
-implementation 'software.amazon.awssdk:apache-client:${awsSdkVersion}'
 ----
 
 == Known limitations
@@ -57,20 +50,7 @@ More details in the JavaDocs of the classes.
 
 === Configuration of the `S3Client`
 
-To use the `S3ItemReader` and `S3ItemWriter`, you need to configure the AWS S3 client.
-This can be done using Java configuration or XML configuration.
-
-So far only this synchronous client is supported, you can't use the `S3AsyncClient` with these components.
-
-==== Java Config
-
-[source,java]
-----
-@Bean
-public S3Client s3Client() {
-    return S3Client.builder().build();
-}
-----
+To use the `S3ItemReader` and `S3ItemWriter`, you need to configure the AWS S3 client by providing a `S3Client`. Checkout the https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/http-configuration-apache.html[AWS SDK for Java] documentation for more details on how to configure this.
 
 === Configure `S3Serializer`
 
@@ -118,7 +98,7 @@ ItemReader<String> downloadItemReader() throws Exception {
             .bucketName("bucket_name")
             .objectKey("object_key")
             .deserializer(s3Deserializer())
-            .bufferSize(1024 * 1024) // Default 128 Bytes
+            .bufferSize((int) DataSize.ofMegabytes(1).toBytes()) // Default 128 Bytes
             .build();
 }
 ----
@@ -163,7 +143,7 @@ ItemWriter<String> uploadItemWriter() throws IOException {
             .bucketName("bucket_name")
             .objectKey("object_key")
             .multipartUpload(true) // Default is false
-            .partSize(10 * 1024 * 1024) // Default is 5 MB
+            .partSize((int) DataSize.ofMegabytes(10).toBytes()) // Default is 5 MB
             .contentType("text/csv") // Default is application/octet-stream
             .serializer(s3Serializer())
             .build();
@@ -171,12 +151,7 @@ ItemWriter<String> uploadItemWriter() throws IOException {
 ----
 
 There are several additional options you can set for the `S3ItemWriter`:
+
 * `multipartUpload`: If set to `true`, the writer will use multipart upload for large files. The default is `false`.
 * `partSize`: The size of each part in a multipart upload. The default is 5 MB.
 * `contentType`: The content type of the uploaded file. The default is `application/octet-stream`.
-
-== Links
-
-* https://github.com/spring-projects/spring-batch-extensions
-* https://spring.io/projects/spring-batch
-* https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html

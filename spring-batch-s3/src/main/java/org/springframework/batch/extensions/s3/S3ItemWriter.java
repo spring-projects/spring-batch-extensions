@@ -19,12 +19,8 @@ package org.springframework.batch.extensions.s3;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import software.amazon.awssdk.services.s3.S3Client;
-
 import org.springframework.batch.extensions.s3.serializer.S3Serializer;
 import org.springframework.batch.extensions.s3.stream.S3MultipartOutputStream;
-import org.springframework.batch.extensions.s3.stream.S3MultipartUploader;
-import org.springframework.batch.extensions.s3.stream.S3OutputStream;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
@@ -71,82 +67,4 @@ public class S3ItemWriter<T> implements ItemWriter<T>, ItemStream {
 			throw new ItemStreamException(ex);
 		}
 	}
-
-	public static class Builder<T> {
-		private S3Client s3Client;
-
-		private String bucket;
-
-		private String key;
-
-		private S3Serializer<T> serializer;
-
-		private boolean multipartUpload = false;
-
-		private String contentType;
-
-		private Integer partSize;
-
-		public Builder<T>  s3Client(S3Client s3Client) {
-			this.s3Client = s3Client;
-			return this;
-		}
-
-		public Builder<T> bucketName(String bucketName) {
-			this.bucket = bucketName;
-			return this;
-		}
-
-		public Builder<T> objectKey(String key) {
-			this.key = key;
-			return this;
-		}
-
-		public Builder<T>  serializer(S3Serializer<T> serializer) {
-			this.serializer = serializer;
-			return this;
-		}
-
-		public Builder<T> multipartUpload(boolean multipartUpload) {
-			this.multipartUpload = multipartUpload;
-			return this;
-		}
-
-		public Builder<T>  partSize(int partSize) {
-			this.partSize = partSize;
-			return this;
-		}
-
-		public Builder<T>  contentType(String contentType) {
-			this.contentType = contentType;
-			return this;
-		}
-
-		public  S3ItemWriter<T> build() throws IOException {
-			if (this.s3Client == null || this.bucket == null || this.key == null || this.serializer == null) {
-				throw new IllegalArgumentException("S3Client, bucket, key, and serializer must be provided");
-			}
-			OutputStream outputStream;
-			if (this.multipartUpload) {
-				S3MultipartUploader s3MultipartUploader = new S3MultipartUploader(this.s3Client, this.bucket, this.key);
-				if (this.contentType != null) {
-					s3MultipartUploader.setContentType(this.contentType);
-				}
-				if (this.partSize != null) {
-					s3MultipartUploader.setPartSize(this.partSize);
-				}
-
-				outputStream = new S3MultipartOutputStream(s3MultipartUploader);
-			}
-			else {
-				outputStream = new S3OutputStream(this.s3Client, this.bucket, this.key);
-				if (this.contentType != null) {
-					((S3OutputStream) outputStream).setContentType(this.contentType);
-				}
-			}
-
-			return new S3ItemWriter<T>(outputStream,  this.serializer);
-		}
-	}
-
 }

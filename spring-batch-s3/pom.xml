@@ -20,10 +20,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>spring-boot-starter-parent</artifactId>
 		<groupId>org.springframework.boot</groupId>
-		<relativePath/>
+		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.3</version>
+		<relativePath/>
 	</parent>
 
 	<groupId>org.springframework.batch.extensions</groupId>
@@ -59,6 +59,7 @@
 
 	<properties>
 		<aws.java.sdk.version>2.31.77</aws.java.sdk.version>
+		<spring-javaformat.version>0.0.47</spring-javaformat.version>
 	</properties>
 
 	<dependencyManagement>
@@ -82,10 +83,6 @@
 				<exclusion>
 					<artifactId>netty-nio-client</artifactId>
 					<groupId>software.amazon.awssdk</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>software.amazon.awssdk</groupId>
-					<artifactId>apache-client</artifactId>
 				</exclusion>
 			</exclusions>
 			<groupId>software.amazon.awssdk</groupId>
@@ -171,7 +168,7 @@
 					<dependency>
 						<artifactId>spring-javaformat-checkstyle</artifactId>
 						<groupId>io.spring.javaformat</groupId>
-						<version>0.0.43</version>
+						<version>${spring-javaformat.version}</version>
 					</dependency>
 				</dependencies>
 				<executions>

@@ -81,7 +81,7 @@ class S3MultipartUploaderTests {
 	}
 
 	@Test
-	void testUpload_AbortOnException() throws IOException {
+	void testUpload_AbortOnException() {
 		byte[] data = "HelloWorld".getBytes();
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
 

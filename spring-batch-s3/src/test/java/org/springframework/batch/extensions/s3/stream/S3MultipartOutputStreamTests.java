@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import org.springframework.util.unit.DataSize;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -71,7 +73,7 @@ class S3MultipartOutputStreamTests {
 
 	@Test
 	void testConstructorWithCustomPartSize() throws IOException {
-		int customPartSize = 10 * 1024 * 1024;
+		int customPartSize =  (int) DataSize.ofMegabytes(10).toBytes();
 		var s3Uploader = new S3MultipartUploader(this.s3Client, "bucket", "key");
 		s3Uploader.setPartSize(customPartSize);
 		S3MultipartOutputStream out = new S3MultipartOutputStream(s3Uploader);

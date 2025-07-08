@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.batch.extensions.s3.stream;
+/**
+ * Provides support for reading items from Amazon S3 using a stream-based approach. This
+ * package includes classes for reading items from S3 objects, deserializing them, and
+ * handling the input stream efficiently.
+ *
+ * <p>
+ * Classes in this package are designed to work with the AWS SDK for Java and provide a
+ * convenient way to read large datasets stored in S3 without loading them entirely into
+ * memory.
+ */
 
-import org.springframework.util.unit.DataSize;
-
-final class Defaults {
-	static final int DEFAULT_PART_SIZE = (int) DataSize.ofMegabytes(5).toBytes();
-
-	static  final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
-
-	private Defaults() { }
-}
+package org.springframework.batch.extensions.s3.builder;
