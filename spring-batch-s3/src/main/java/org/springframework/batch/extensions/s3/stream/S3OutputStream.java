@@ -54,7 +54,7 @@ public class S3OutputStream extends OutputStream {
 
 	private final PipedOutputStream pipedOutputStream;
 
-	private final ExecutorService singleThreadExecutor;
+	private ExecutorService singleThreadExecutor;
 
 	private volatile boolean uploading;
 
@@ -66,7 +66,6 @@ public class S3OutputStream extends OutputStream {
 		this.key = key;
 		this.pipedInputStream = new PipedInputStream();
 		this.pipedOutputStream = new PipedOutputStream(this.pipedInputStream);
-		this.singleThreadExecutor = Executors.newSingleThreadExecutor();
 		this.uploading = false;
 	}
 
@@ -80,6 +79,10 @@ public class S3OutputStream extends OutputStream {
 	}
 
 	private void runUploadThread() {
+		if(this.singleThreadExecutor == null) {
+			this.singleThreadExecutor = Executors.newSingleThreadExecutor();
+		}
+
 		this.singleThreadExecutor.execute(() -> {
 			try {
 				RequestBody body = RequestBody

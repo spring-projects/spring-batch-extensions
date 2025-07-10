@@ -44,7 +44,7 @@ public class S3MultipartOutputStream extends OutputStream {
 
 	private final PipedOutputStream pipedOutputStream;
 
-	private final ExecutorService singleThreadExecutor;
+	private  ExecutorService singleThreadExecutor;
 
 	private volatile boolean uploading;
 
@@ -57,7 +57,6 @@ public class S3MultipartOutputStream extends OutputStream {
 	public S3MultipartOutputStream(S3Uploader s3Uploader) throws IOException {
 		this.pipedInputStream = new PipedInputStream();
 		this.pipedOutputStream = new PipedOutputStream(this.pipedInputStream);
-		this.singleThreadExecutor = Executors.newSingleThreadExecutor();
 		this.uploading = false;
 		this.multipartUpload = s3Uploader;
 	}
@@ -73,6 +72,10 @@ public class S3MultipartOutputStream extends OutputStream {
 	}
 
 	private void startUpload() {
+		if(this.singleThreadExecutor == null) {
+			this.singleThreadExecutor = Executors.newSingleThreadExecutor();
+		}
+
 		this.singleThreadExecutor.execute(() -> {
 			try {
 				this.multipartUpload.upload(this.pipedInputStream);
@@ -114,4 +117,7 @@ public class S3MultipartOutputStream extends OutputStream {
 		super.close();
 	}
 
+	public void setSingleThreadExecutor(ExecutorService singleThreadExecutor) {
+		this.singleThreadExecutor = singleThreadExecutor;
+	}
 }
