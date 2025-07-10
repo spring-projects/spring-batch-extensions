@@ -72,7 +72,7 @@ public class S3MultipartOutputStream extends OutputStream {
 	}
 
 	private void startUpload() {
-		if(this.singleThreadExecutor == null) {
+		if (this.singleThreadExecutor == null) {
 			this.singleThreadExecutor = Executors.newSingleThreadExecutor();
 		}
 

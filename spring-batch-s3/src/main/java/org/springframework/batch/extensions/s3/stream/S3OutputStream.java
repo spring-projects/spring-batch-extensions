@@ -79,7 +79,7 @@ public class S3OutputStream extends OutputStream {
 	}
 
 	private void runUploadThread() {
-		if(this.singleThreadExecutor == null) {
+		if (this.singleThreadExecutor == null) {
 			this.singleThreadExecutor = Executors.newSingleThreadExecutor();
 		}
 
