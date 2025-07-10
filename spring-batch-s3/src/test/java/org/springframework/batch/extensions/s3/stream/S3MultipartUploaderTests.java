@@ -54,8 +54,7 @@ class S3MultipartUploaderTests {
 
 	@Test
 	void testUpload_SuccessfulUpload() throws IOException {
-		byte[] data = "HelloWorld!".getBytes(); // 11 bytes, 3 parts, 2 of 5 bytes each
-												// and one of 1 byte
+		byte[] data = "HelloWorld!".getBytes(); // 11 bytes, 3 parts, 2 of 5 bytes each and one of 1 byte
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
 
 		// given

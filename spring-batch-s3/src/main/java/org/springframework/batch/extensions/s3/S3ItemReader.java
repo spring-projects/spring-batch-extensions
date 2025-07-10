@@ -35,13 +35,13 @@ import org.springframework.batch.item.ItemStreamException;
  */
 public class S3ItemReader<T> implements ItemReader<T>, ItemStream {
 
-	private static final int DEFAULT_BUFFER_SIZE = 128;
+	private static final int DEFAULT_BUFFER_SIZE_BYTES = 128;
 
 	private final S3InputStream in;
 
 	private final S3Deserializer<T> deserializer;
 
-	private int bufferSize = DEFAULT_BUFFER_SIZE;
+	private int bufferSize = DEFAULT_BUFFER_SIZE_BYTES;
 
 	public S3ItemReader(S3InputStream in, S3Deserializer<T> deserializer) {
 		this.in = in;

@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
@@ -60,7 +59,7 @@ class S3ItemReaderTests {
 
 		// then
 		assertThat(result).isEqualTo("item");
-		then(this.s3InputStream).should(atLeastOnce()).read(any(byte[].class));
+		then(this.s3InputStream).should(times(1)).read(any(byte[].class));
 		then(this.mockDeserializer).should(times(2)).deserialize(any(byte[].class));
 	}
 
@@ -84,7 +83,7 @@ class S3ItemReaderTests {
 
 		// then
 		assertThat(result).isEqualTo("item");
-		then(this.s3InputStream).should(atLeastOnce()).read(any(byte[].class));
+		then(this.s3InputStream).should(times(1)).read(any(byte[].class));
 	}
 
 	@Test
@@ -133,8 +132,8 @@ class S3ItemReaderTests {
 		assertThat(result1).isEqualTo("item1");
 		assertThat(result2).isEqualTo("item2");
 		assertThat(result3).isNull();
-		then(this.s3InputStream).should(atLeastOnce()).read(any(byte[].class));
-		then(this.mockDeserializer).should(atLeastOnce()).deserialize(any(byte[].class));
+		then(this.s3InputStream).should(times(2)).read(any(byte[].class));
+		then(this.mockDeserializer).should(times(4)).deserialize(any(byte[].class));
 	}
 
 	@Test

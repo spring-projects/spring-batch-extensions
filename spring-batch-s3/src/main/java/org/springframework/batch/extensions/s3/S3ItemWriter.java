@@ -25,6 +25,7 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.util.ObjectUtils;
 
 /**
  * An {@link ItemWriter} that writes items to an S3 object using a specified serializer.
@@ -49,7 +50,7 @@ public class S3ItemWriter<T> implements ItemWriter<T>, ItemStream {
 	public void write(Chunk<? extends T> chunk) throws Exception {
 		for (T item : chunk.getItems()) {
 			byte[] serializedData = this.serializer.serialize(item);
-			if (serializedData != null && serializedData.length > 0) {
+			if (!ObjectUtils.isEmpty(serializedData)) {
 				this.out.write(serializedData);
 			}
 			else {

@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -50,9 +51,7 @@ class S3OutputStreamTests {
 			out.write(data);
 		}
 
-		// Wait for the upload thread to finish
-		Thread.sleep(200);
-
+		verify(this.s3Client, timeout(200)).putObject(any(Consumer.class), any(RequestBody.class));
 		verify(this.s3Client, times(1)).putObject(any(Consumer.class), any(RequestBody.class));
 	}
 

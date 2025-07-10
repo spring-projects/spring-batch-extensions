@@ -102,6 +102,7 @@ noted differently for individual extension Modules, but this should be the rare 
 
 **We look forward to your contributions!!**
 
+[Amazon S3]: https://aws.amazon.com/s3/
 [Apache Geode]: https://geode.apache.org
 [Apache License]: https://www.apache.org/licenses/LICENSE-2.0
 [Contributor Guidelines]: CONTRIBUTING.md

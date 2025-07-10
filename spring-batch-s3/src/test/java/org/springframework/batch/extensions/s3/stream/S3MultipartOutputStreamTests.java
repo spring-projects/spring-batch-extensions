@@ -18,6 +18,7 @@ package org.springframework.batch.extensions.s3.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class S3MultipartOutputStreamTests {
 		this.multipartUploadMock = mock(S3Uploader.class);
 
 		given(this.multipartUploadMock.upload(any())).willAnswer((invocation) -> {
-			Thread.sleep(100); // Simulate some delay for upload
+			TimeUnit.MILLISECONDS.sleep(100); // Simulate some delay for upload
 			return 1L;
 		});
 	}
