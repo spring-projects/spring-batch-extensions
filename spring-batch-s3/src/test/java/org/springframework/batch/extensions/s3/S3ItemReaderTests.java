@@ -158,6 +158,7 @@ class S3ItemReaderTests {
 		String result1 = reader.read();
 		String result2 = reader.read();
 		String result3 = reader.read();
+
 		// then
 
 		assertThat(result1).isEqualTo("item1");
