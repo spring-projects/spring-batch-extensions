@@ -88,7 +88,7 @@
       </exclusions>
     </dependency>
 
-    <!-- Spring Batch-->
+    <!-- Spring Batch -->
     <dependency>
       <groupId>org.springframework.batch</groupId>
       <artifactId>spring-batch-core</artifactId>
