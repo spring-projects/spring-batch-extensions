@@ -19,7 +19,7 @@ package org.springframework.batch.extensions.s3.stream;
 import org.springframework.util.unit.DataSize;
 
 final class Defaults {
-	static final int DEFAULT_PART_SIZE = (int) DataSize.ofMegabytes(5).toBytes();
+	static final int DEFAULT_PART_SIZE = (int) DataSize.ofMegabytes(5L).toBytes();
 
 	static  final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
