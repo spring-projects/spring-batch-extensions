@@ -36,7 +36,7 @@ public class S3ItemWriterBuilder<T> {
 
 	private S3Serializer<T> serializer;
 
-	private boolean multipartUpload = false;
+	private boolean multipartUpload;
 
 	private String contentType;
 
