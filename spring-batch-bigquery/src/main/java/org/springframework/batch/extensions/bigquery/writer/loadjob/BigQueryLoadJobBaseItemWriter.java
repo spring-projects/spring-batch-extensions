@@ -127,21 +127,18 @@ public abstract class BigQueryLoadJobBaseItemWriter<T> implements ItemWriter<T>,
 	}
 
 	private ByteBuffer mapDataToBigQueryFormat(final List<? extends T> items) throws IOException {
-		final ByteBuffer byteBuffer;
-		try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+		try (final var outputStream = new ByteArrayOutputStream()) {
+			final List<byte[]> bytes = convertObjectsToByteArrays(items);
 
-			final List<byte[]> data = convertObjectsToByteArrays(items);
-
-			for (byte[] byteArray : data) {
+			for (final byte[] byteArray : bytes) {
 				outputStream.write(byteArray);
 			}
 
 			// It is extremely important to create larger ByteBuffer.
 			// If you call TableDataWriteChannel too many times, it leads to BigQuery
 			// exceptions.
-			byteBuffer = ByteBuffer.wrap(outputStream.toByteArray());
+			return ByteBuffer.wrap(outputStream.toByteArray());
 		}
-		return byteBuffer;
 	}
 
 	private void doWriteDataToBigQuery(final ByteBuffer byteBuffer) {
@@ -276,7 +273,8 @@ public abstract class BigQueryLoadJobBaseItemWriter<T> implements ItemWriter<T>,
 	 * In reality is called once.
 	 * @param items current chunk
 	 */
-	protected abstract void doInitializeProperties(List<? extends T> items);
+	protected void doInitializeProperties(List<? extends T> items) {
+	}
 
 	/**
 	 * Converts chunk into a byte array. Each data type should be converted with respect

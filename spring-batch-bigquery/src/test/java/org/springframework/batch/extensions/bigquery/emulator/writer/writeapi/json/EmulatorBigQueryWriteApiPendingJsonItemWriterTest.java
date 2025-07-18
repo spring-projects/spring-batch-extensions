@@ -31,7 +31,7 @@ class EmulatorBigQueryWriteApiPendingJsonItemWriterTest extends EmulatorBaseItem
 		TableDefinition tableDefinition = StandardTableDefinition.of(PersonDto.getBigQuerySchema());
 		bigQuery.create(TableInfo.of(tableId, tableDefinition));
 
-		Chunk<PersonDto> expected = TestConstants.CHUNK;
+		Chunk<PersonDto> expected = TestConstants.JAVA_RECORD_CHUNK;
 
 		BigQueryWriteApiPendingJsonItemWriter<Object> writer = new BigQueryWriteApiPendingJsonItemWriter<>();
 		writer.setBigQueryWriteClient(bigQueryWriteClient);
@@ -51,7 +51,7 @@ class EmulatorBigQueryWriteApiPendingJsonItemWriterTest extends EmulatorBaseItem
 
 		writer.write(expected);
 
-		ResultVerifier.verifyTableResult(expected, bigQuery.listTableData(tableId));
+		ResultVerifier.verifyJavaRecordTableResult(expected, bigQuery.listTableData(tableId));
 		Assertions.assertTrue(consumerCalled.get());
 	}
 

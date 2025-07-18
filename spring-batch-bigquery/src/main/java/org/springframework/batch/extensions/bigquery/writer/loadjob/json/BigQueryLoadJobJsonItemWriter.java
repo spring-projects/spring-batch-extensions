@@ -43,11 +43,6 @@ public class BigQueryLoadJobJsonItemWriter<T> extends BigQueryLoadJobBaseItemWri
 	private JsonObjectMarshaller<T> marshaller;
 
 	@Override
-	protected void doInitializeProperties(List<? extends T> items) {
-		// Unused
-	}
-
-	@Override
 	protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
 		return items.stream()
 			.map(marshaller::marshal)

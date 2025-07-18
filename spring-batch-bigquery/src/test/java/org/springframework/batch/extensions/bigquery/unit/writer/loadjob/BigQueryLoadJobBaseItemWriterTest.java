@@ -136,7 +136,7 @@ class BigQueryLoadJobBaseItemWriterTest extends AbstractBigQueryTest {
 		writer.setJobConsumer(j -> consumerCalled.set(true));
 		writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID));
 
-		writer.write(TestConstants.CHUNK);
+		writer.write(TestConstants.JAVA_RECORD_CHUNK);
 
 		AtomicLong actual = (AtomicLong) handle
 			.findVarHandle(BigQueryLoadJobBaseItemWriter.class, "bigQueryWriteCounter", AtomicLong.class)
@@ -173,7 +173,7 @@ class BigQueryLoadJobBaseItemWriterTest extends AbstractBigQueryTest {
 		writer.setWriteChannelConfig(WriteChannelConfiguration.of(TABLE_ID));
 
 		BigQueryItemWriterException actual = Assertions.assertThrows(BigQueryItemWriterException.class,
-				() -> writer.write(TestConstants.CHUNK));
+				() -> writer.write(TestConstants.JAVA_RECORD_CHUNK));
 		Assertions.assertEquals("Error on write happened", actual.getMessage());
 
 		AtomicLong actualCounter = (AtomicLong) handle
@@ -304,10 +304,6 @@ class BigQueryLoadJobBaseItemWriterTest extends AbstractBigQueryTest {
 	}
 
 	private static final class TestWriter extends BigQueryLoadJobBaseItemWriter<PersonDto> {
-
-		@Override
-		protected void doInitializeProperties(List<? extends PersonDto> items) {
-		}
 
 		@Override
 		protected List<byte[]> convertObjectsToByteArrays(List<? extends PersonDto> items) {

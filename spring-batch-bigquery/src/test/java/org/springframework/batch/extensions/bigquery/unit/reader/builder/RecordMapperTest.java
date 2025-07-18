@@ -34,7 +34,7 @@ class RecordMapperTest {
 	@Test
 	void testGenerateMapper() {
 		RecordMapper<PersonDto> mapper = new RecordMapper<>();
-		List<PersonDto> expected = TestConstants.CHUNK.getItems();
+		List<PersonDto> expected = TestConstants.JAVA_RECORD_CHUNK.getItems();
 
 		Field name = Field.of(TestConstants.NAME, StandardSQLTypeName.STRING);
 		Field age = Field.of(TestConstants.AGE, StandardSQLTypeName.INT64);

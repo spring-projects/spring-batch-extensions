@@ -23,6 +23,7 @@
  * <ul>
  * <li>JSON</li>
  * <li>CSV</li>
+ * <li>Parquet</li>
  * </ul>
  *
  * <p>

@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "PersonAvroDto",
+  "namespace": "org.springframework.batch.extensions.bigquery.common.generated",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "age",
+      "type": "int"
+    }
+  ]
+}
