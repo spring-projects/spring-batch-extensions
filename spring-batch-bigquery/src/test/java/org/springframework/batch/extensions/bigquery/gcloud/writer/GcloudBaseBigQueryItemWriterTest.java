@@ -36,7 +36,7 @@ public abstract class GcloudBaseBigQueryItemWriterTest extends GcloudBaseBigQuer
 
 		Assertions.assertNotNull(dataset.getDatasetId());
 		Assertions.assertNotNull(tableId);
-		ResultVerifier.verifyTableResult(TestConstants.CHUNK, tableResult);
+		ResultVerifier.verifyJavaRecordTableResult(TestConstants.JAVA_RECORD_CHUNK, tableResult);
 	}
 
 }

@@ -10,6 +10,7 @@ Spring Batch extension which contains an `ItemWriter` and `ItemReader` implement
 
 |https://en.wikipedia.org/wiki/JSON[JSON]                    |Supported |Supported | Supported
 |https://en.wikipedia.org/wiki/Comma-separated_values[CSV]    |Supported | |
+|https://en.wikipedia.org/wiki/Apache_Parquet[Parquet]    |Supported | |
 |===
 
 `ItemReader` support:

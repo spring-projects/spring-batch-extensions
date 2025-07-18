@@ -23,6 +23,8 @@ import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.storage.v1.TableFieldSchema;
 import com.google.cloud.bigquery.storage.v1.TableSchema;
 
+import java.util.List;
+
 @JsonPropertyOrder(value = { TestConstants.NAME, TestConstants.AGE })
 public record PersonDto(String name, Integer age) {
 
@@ -52,6 +54,15 @@ public record PersonDto(String name, Integer age) {
 			.build();
 
 		return TableSchema.newBuilder().addFields(name).addFields(age).build();
+	}
+
+	public static org.apache.avro.Schema getAvroSchema() {
+		var name = new org.apache.avro.Schema.Field(TestConstants.NAME,
+				org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING));
+		var age = new org.apache.avro.Schema.Field(TestConstants.AGE,
+				org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT));
+		return org.apache.avro.Schema.createRecord("PersonAvroDto", "doc-1",
+				"org.springframework.batch.extensions.bigquery.common.generated", false, List.of(name, age));
 	}
 
 }

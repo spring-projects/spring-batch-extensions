@@ -88,7 +88,7 @@ class BigQueryItemReaderTest extends AbstractBigQueryTest {
 	@Test
 	void testRead() throws Exception {
 		BigQuery bigQuery = prepareMockedBigQuery();
-		List<PersonDto> items = TestConstants.CHUNK.getItems();
+		List<PersonDto> items = TestConstants.JAVA_RECORD_CHUNK.getItems();
 
 		Field name = Field.of(TestConstants.NAME, StandardSQLTypeName.STRING);
 		Field age = Field.of(TestConstants.AGE, StandardSQLTypeName.INT64);

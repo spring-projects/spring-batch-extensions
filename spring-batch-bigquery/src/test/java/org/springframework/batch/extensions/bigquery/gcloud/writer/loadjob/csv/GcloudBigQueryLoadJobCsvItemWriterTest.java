@@ -79,7 +79,7 @@ class GcloudBigQueryLoadJobCsvItemWriterTest extends GcloudBaseBigQueryItemWrite
 			.build();
 
 		writer.afterPropertiesSet();
-		writer.write(TestConstants.CHUNK);
+		writer.write(TestConstants.JAVA_RECORD_CHUNK);
 		job.get().waitFor();
 
 		verifyResults(tableName);
