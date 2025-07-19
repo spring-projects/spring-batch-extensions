@@ -3,7 +3,8 @@
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 ## Directory-based project format
-.idea/
+.idea/*
+!/.idea/icon.svg
 *.iml
 # if you remove the above rule, at least ignore user-specific stuff:
 # .idea/workspace.xml
