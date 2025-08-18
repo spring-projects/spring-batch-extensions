@@ -34,7 +34,7 @@ class StreamingXlsxMappingTests {
 
 	@Test
 	void readAndMapRowsUsingRowMapper() throws Exception {
-		var columns = new String[] {"id", "position", "lastName", "firstName", "birthYear", "debutYear", "comment"};
+		var columns = new String[] {"id", "position", "lastName", "firstName", "birthYear", "debutYear"};
 		var rowSetFactory = new DefaultRowSetFactory();
 		rowSetFactory.setColumnNameExtractor(new StaticColumnNameExtractor(columns));
 

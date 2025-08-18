@@ -77,12 +77,9 @@ public class DefaultRowSet implements RowSet {
 		}
 
 		Properties props = new Properties();
-		for (int i = 0; i < this.currentRow.length; i++) {
+		for (int i = 0; i < names.length; i++) {
 			String value = this.currentRow[i];
 			if (value != null) {
-				if (i > names.length - 1) {
-					break;
-				}
 				props.setProperty(names[i], value);
 			}
 		}
