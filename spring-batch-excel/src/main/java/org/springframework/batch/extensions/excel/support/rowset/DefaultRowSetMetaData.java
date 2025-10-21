@@ -53,4 +53,9 @@ public class DefaultRowSetMetaData implements RowSetMetaData {
 		return this.sheet.getName();
 	}
 
+	@Override
+	public int getRowsCount() {
+		return this.sheet.getNumberOfRows();
+	}
+
 }

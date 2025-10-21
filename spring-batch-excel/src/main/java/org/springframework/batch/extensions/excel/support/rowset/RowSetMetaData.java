@@ -36,4 +36,9 @@ public interface RowSetMetaData {
 	 */
 	String getSheetName();
 
+	/**
+	 * Retrieves the number of available rows for the current sheet.
+	 * @return total rows
+	 */
+	int getRowsCount();
 }
