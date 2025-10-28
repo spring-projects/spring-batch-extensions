@@ -38,6 +38,9 @@ public interface RowSetMetaData {
 
 	/**
 	 * Retrieves the number of available rows for the current sheet.
+	 * <p><strong>Note:</strong> The result might be indeterministic depending on the
+	 * {@code Sheet} implementation used in the {@code RowSetMetaData} implementation.
+	 * Some implementations may return an estimate or cached value rather than the exact count.
 	 * @return total rows
 	 */
 	int getRowsCount();
