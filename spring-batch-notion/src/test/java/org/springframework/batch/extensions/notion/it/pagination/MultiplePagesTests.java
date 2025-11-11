@@ -16,6 +16,7 @@
 package org.springframework.batch.extensions.notion.it.pagination;
 
 import org.json.JSONObject;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
@@ -25,6 +26,7 @@ import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
+import org.springframework.batch.extensions.notion.it.pagination.MultiplePagesTests.PaginatedJob.Item;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
 import org.springframework.batch.infrastructure.item.support.ListItemWriter;
 import org.springframework.batch.test.JobOperatorTestUtils;
@@ -71,7 +73,7 @@ class MultiplePagesTests {
 	JobOperatorTestUtils jobOperator;
 
 	@Autowired
-	ListItemWriter<PaginatedJob.Item> itemWriter;
+	ListItemWriter<Item> itemWriter;
 
 	@Test
 	void should_succeed() throws Exception {
@@ -107,9 +109,9 @@ class MultiplePagesTests {
 
 		then(itemWriter.getWrittenItems()).asInstanceOf(LIST)
 			.containsExactly( //
-					new PaginatedJob.Item("Another name string", "0987654321"), //
-					new PaginatedJob.Item("Name string", "123456"), //
-					new PaginatedJob.Item("", "abc-1234"));
+					new Item("Another name string", "0987654321"), //
+					new Item("Name string", "123456"), //
+					new Item("", "abc-1234"));
 	}
 
 	@SpringBootApplication
@@ -134,16 +136,12 @@ class MultiplePagesTests {
 
 		@Bean
 		NotionDatabaseItemReader<Item> itemReader() {
-			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>();
+			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>("token", DATABASE_ID.toString(),
+					new RecordPropertyMapper<>());
 
 			reader.setSaveState(false);
-
-			reader.setToken("token");
 			reader.setBaseUrl(wiremockBaseUrl);
-			reader.setDatabaseId(DATABASE_ID.toString());
-
 			reader.setPageSize(PAGE_SIZE);
-			reader.setPropertyMapper(new RecordPropertyMapper<>());
 
 			return reader;
 		}

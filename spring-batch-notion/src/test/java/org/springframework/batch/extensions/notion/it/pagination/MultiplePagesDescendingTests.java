@@ -26,6 +26,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
 import org.springframework.batch.extensions.notion.Sort;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
+import org.springframework.batch.extensions.notion.it.pagination.MultiplePagesDescendingTests.PaginatedDescendingJob.Item;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
 import org.springframework.batch.infrastructure.item.support.ListItemWriter;
 import org.springframework.batch.test.JobOperatorTestUtils;
@@ -74,7 +75,7 @@ class MultiplePagesDescendingTests {
 	JobOperatorTestUtils jobOperator;
 
 	@Autowired
-	ListItemWriter<PaginatedDescendingJob.Item> itemWriter;
+	ListItemWriter<Item> itemWriter;
 
 	@Test
 	void should_succeed() throws Exception {
@@ -110,9 +111,9 @@ class MultiplePagesDescendingTests {
 
 		then(itemWriter.getWrittenItems()).asInstanceOf(LIST)
 			.containsExactly( //
-					new PaginatedDescendingJob.Item("Name string", "123456"), //
-					new PaginatedDescendingJob.Item("Another name string", "0987654321"), //
-					new PaginatedDescendingJob.Item("", "abc-1234"));
+					new Item("Name string", "123456"), //
+					new Item("Another name string", "0987654321"), //
+					new Item("", "abc-1234"));
 	}
 
 	@SpringBootApplication
@@ -137,17 +138,13 @@ class MultiplePagesDescendingTests {
 
 		@Bean
 		NotionDatabaseItemReader<Item> itemReader() {
-			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>();
+			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>("token", DATABASE_ID.toString(),
+					new RecordPropertyMapper<>());
 
 			reader.setSaveState(false);
-
-			reader.setToken("token");
 			reader.setBaseUrl(wiremockBaseUrl);
-			reader.setDatabaseId(DATABASE_ID.toString());
-
 			reader.setPageSize(PAGE_SIZE);
 			reader.setSorts(Sort.by("Name", DESCENDING));
-			reader.setPropertyMapper(new RecordPropertyMapper<>());
 
 			return reader;
 		}

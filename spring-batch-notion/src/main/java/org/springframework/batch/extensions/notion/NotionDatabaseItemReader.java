@@ -25,11 +25,11 @@ import notion.api.v1.model.pages.Page;
 import notion.api.v1.model.pages.PageProperty;
 import notion.api.v1.model.pages.PageProperty.RichText;
 import notion.api.v1.request.databases.QueryDatabaseRequest;
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.data.AbstractPaginatedDataItemReader;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
@@ -57,29 +57,29 @@ import java.util.stream.Stream;
  * @author Stefano Cordio
  * @param <T> Type of item to be read
  */
-public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> implements InitializingBean {
+public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> {
 
 	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
 
 	private static final int DEFAULT_PAGE_SIZE = 100;
 
+	private final String token;
+
+	private final String databaseId;
+
+	private final PropertyMapper<T> propertyMapper;
+
 	private String baseUrl;
 
-	private String token;
+	private @Nullable QueryTopLevelFilter filter;
 
-	private String databaseId;
+	private @Nullable List<QuerySort> sorts;
 
-	private PropertyMapper<T> propertyMapper;
-
-	private QueryTopLevelFilter filter;
-
-	private List<QuerySort> sorts;
-
-	private NotionClient client;
+	private @Nullable NotionClient client;
 
 	private boolean hasMore;
 
-	private String nextCursor;
+	private @Nullable String nextCursor;
 
 	/**
 	 * Create a new {@link NotionDatabaseItemReader} with the following defaults:
@@ -87,10 +87,17 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * <li>{@code baseUrl} = {@value #DEFAULT_BASE_URL}</li>
 	 * <li>{@code pageSize} = {@value #DEFAULT_PAGE_SIZE}</li>
 	 * </ul>
+	 * @param token the Notion integration token
+	 * @param databaseId UUID of the database to read from
+	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping Notion
+	 * item properties into a Java object
 	 */
-	public NotionDatabaseItemReader() {
+	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
 		this.baseUrl = DEFAULT_BASE_URL;
 		this.pageSize = DEFAULT_PAGE_SIZE;
+		this.token = Objects.requireNonNull(token);
+		this.databaseId = Objects.requireNonNull(databaseId);
+		this.propertyMapper = Objects.requireNonNull(propertyMapper);
 	}
 
 	/**
@@ -104,37 +111,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 */
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = Objects.requireNonNull(baseUrl);
-	}
-
-	/**
-	 * The Notion integration token.
-	 * <p>
-	 * Always required.
-	 * @param token the token
-	 */
-	public void setToken(String token) {
-		this.token = Objects.requireNonNull(token);
-	}
-
-	/**
-	 * UUID of the database to read from.
-	 * <p>
-	 * Always required.
-	 * @param databaseId the database UUID
-	 */
-	public void setDatabaseId(String databaseId) {
-		this.databaseId = Objects.requireNonNull(databaseId);
-	}
-
-	/**
-	 * The {@link PropertyMapper} responsible for mapping Notion item properties into a
-	 * Java object.
-	 * <p>
-	 * Always required.
-	 * @param propertyMapper the property mapper
-	 */
-	public void setPropertyMapper(PropertyMapper<T> propertyMapper) {
-		this.propertyMapper = Objects.requireNonNull(propertyMapper);
 	}
 
 	/**
@@ -190,6 +166,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		request.setStartCursor(nextCursor);
 		request.setPageSize(pageSize);
 
+		@SuppressWarnings("DataFlowIssue")
 		QueryResults queryResults = client.queryDatabase(request);
 
 		hasMore = queryResults.getHasMore();
@@ -237,6 +214,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("DataFlowIssue")
 	@Override
 	protected void doClose() {
 		client.close();
@@ -253,16 +231,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		for (int i = 0; i < itemIndex; i++) {
 			read();
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void afterPropertiesSet() {
-		Assert.state(token != null, "'token' must be set");
-		Assert.state(databaseId != null, "'databaseId' must be set");
-		Assert.state(propertyMapper != null, "'propertyMapper' must be set");
 	}
 
 }
