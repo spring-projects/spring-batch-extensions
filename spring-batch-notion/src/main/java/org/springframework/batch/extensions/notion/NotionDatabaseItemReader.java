@@ -26,9 +26,9 @@ import notion.api.v1.model.pages.PageProperty;
 import notion.api.v1.model.pages.PageProperty.RichText;
 import notion.api.v1.request.databases.QueryDatabaseRequest;
 import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.data.AbstractPaginatedDataItemReader;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.data.AbstractPaginatedDataItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

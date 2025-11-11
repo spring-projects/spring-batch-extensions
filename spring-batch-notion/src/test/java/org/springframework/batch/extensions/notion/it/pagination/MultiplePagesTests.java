@@ -17,22 +17,21 @@ package org.springframework.batch.extensions.notion.it.pagination;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
-import org.springframework.batch.item.support.ListItemWriter;
-import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.infrastructure.item.support.ListItemWriter;
+import org.springframework.batch.test.JobOperatorTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Map;
 import java.util.UUID;
@@ -69,7 +68,7 @@ class MultiplePagesTests {
 	private static final int PAGE_SIZE = 2;
 
 	@Autowired
-	JobLauncherTestUtils launcher;
+	JobOperatorTestUtils jobOperator;
 
 	@Autowired
 	ListItemWriter<PaginatedJob.Item> itemWriter;
@@ -101,7 +100,7 @@ class MultiplePagesTests {
 			.willReturn(okJson(queryResponse(thirdResult))));
 
 		// WHEN
-		JobExecution jobExecution = launcher.launchJob();
+		JobExecution jobExecution = jobOperator.startJob();
 
 		// THEN
 		then(jobExecution.getExitStatus()).isEqualTo(COMPLETED);
@@ -121,13 +120,13 @@ class MultiplePagesTests {
 
 		@Bean
 		Job job(JobRepository jobRepository, Step step) {
-			return new JobBuilder("TEST-JOB", jobRepository).start(step).build();
+			return new JobBuilder(jobRepository).start(step).build();
 		}
 
 		@Bean
-		Step step(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-			return new StepBuilder("TEST-STEP", jobRepository) //
-				.<Item, Item>chunk(PAGE_SIZE, transactionManager) //
+		Step step(JobRepository jobRepository) {
+			return new StepBuilder(jobRepository) //
+				.<Item, Item>chunk(PAGE_SIZE) //
 				.reader(itemReader()) //
 				.writer(itemWriter()) //
 				.build();
