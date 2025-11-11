@@ -32,6 +32,7 @@ import org.springframework.batch.item.data.AbstractPaginatedDataItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -180,7 +181,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	@Override
 	protected Iterator<T> doPageRead() {
 		if (!hasMore) {
-			return null;
+			return Collections.emptyIterator();
 		}
 
 		QueryDatabaseRequest request = new QueryDatabaseRequest(databaseId);
