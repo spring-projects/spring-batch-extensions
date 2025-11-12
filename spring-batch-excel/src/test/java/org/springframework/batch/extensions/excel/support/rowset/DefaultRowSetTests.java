@@ -44,6 +44,11 @@ class DefaultRowSetTests {
 			public String getSheetName() {
 				return "Sheet1";
 			}
+
+			@Override
+			public int getRowsCount() {
+				return 1;
+			}
 		});
 	}
 

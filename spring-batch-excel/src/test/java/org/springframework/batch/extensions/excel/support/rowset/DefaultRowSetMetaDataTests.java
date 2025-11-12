@@ -77,4 +77,16 @@ class DefaultRowSetMetaDataTests {
 		verifyNoMoreInteractions(this.sheet);
 	}
 
+	@Test
+	void shouldReturnTotalAvailableRows() {
+
+		given(this.sheet.getNumberOfRows()).willReturn(1);
+
+		var rowsCount = this.rowSetMetaData.getRowsCount();
+
+		assertThat(rowsCount).isEqualTo(1);
+
+		verify(this.sheet, times(1)).getNumberOfRows();
+		verifyNoMoreInteractions(this.sheet);
+	}
 }
