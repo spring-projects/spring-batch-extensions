@@ -26,7 +26,7 @@ import java.util.Objects;
  * <p>
  * Sorts operate on property values or entry timestamps, and can be combined.
  * <p>
- * The direction defaults to {@link Direction#DEFAULT_DIRECTION}.
+ * The direction defaults to {@link Sort#DEFAULT_DIRECTION}.
  *
  * @author Stefano Cordio
  */
