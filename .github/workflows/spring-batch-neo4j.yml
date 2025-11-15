@@ -3,9 +3,11 @@ name: Spring Batch Neo4j
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-neo4j.yml'
       - 'spring-batch-neo4j/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-neo4j.yml'
       - 'spring-batch-neo4j/**'
 
 jobs:

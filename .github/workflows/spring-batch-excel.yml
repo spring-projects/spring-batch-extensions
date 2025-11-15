@@ -3,9 +3,11 @@ name: Spring Batch Excel
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-excel.yml'
       - 'spring-batch-excel/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-excel.yml'
       - 'spring-batch-excel/**'
 
 jobs:

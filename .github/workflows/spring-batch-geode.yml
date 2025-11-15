@@ -3,9 +3,11 @@ name: Spring Batch Geode
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-geode.yml'
       - 'spring-batch-geode/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-geode.yml'
       - 'spring-batch-geode/**'
 
 jobs:

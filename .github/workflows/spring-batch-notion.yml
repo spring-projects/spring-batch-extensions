@@ -7,6 +7,7 @@ on:
       - 'spring-batch-notion/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-notion.yml'
       - 'spring-batch-notion/**'
 
 env:

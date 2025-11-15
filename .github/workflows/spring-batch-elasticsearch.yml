@@ -3,9 +3,11 @@ name: Spring Batch Elasticsearch
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-elasticsearch.yml'
       - 'spring-batch-elasticsearch/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-elasticsearch.yml'
       - 'spring-batch-elasticsearch/**'
 
 jobs:
