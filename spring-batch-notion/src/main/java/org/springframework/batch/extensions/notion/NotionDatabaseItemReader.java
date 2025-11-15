@@ -59,9 +59,9 @@ import java.util.stream.Stream;
  */
 public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> {
 
-	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
-
 	private static final int DEFAULT_PAGE_SIZE = 100;
+
+	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
 
 	private final String token;
 
@@ -69,7 +69,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	private final PropertyMapper<T> propertyMapper;
 
-	private String baseUrl;
+	private String baseUrl = DEFAULT_BASE_URL;
 
 	private @Nullable QueryTopLevelFilter filter;
 
@@ -82,22 +82,17 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	private @Nullable String nextCursor;
 
 	/**
-	 * Create a new {@link NotionDatabaseItemReader} with the following defaults:
-	 * <ul>
-	 * <li>{@code baseUrl} = {@value #DEFAULT_BASE_URL}</li>
-	 * <li>{@code pageSize} = {@value #DEFAULT_PAGE_SIZE}</li>
-	 * </ul>
+	 * Create a new {@link NotionDatabaseItemReader}.
 	 * @param token the Notion integration token
 	 * @param databaseId UUID of the database to read from
 	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping Notion
 	 * item properties into a Java object
 	 */
 	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
-		this.baseUrl = DEFAULT_BASE_URL;
-		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.token = Objects.requireNonNull(token);
 		this.databaseId = Objects.requireNonNull(databaseId);
 		this.propertyMapper = Objects.requireNonNull(propertyMapper);
+		setPageSize(DEFAULT_PAGE_SIZE);
 	}
 
 	/**
@@ -155,6 +150,19 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected void doOpen() {
+		client = new NotionClient(token);
+		client.setHttpClient(new JavaNetHttpClient());
+		client.setLogger(new Slf4jLogger());
+		client.setBaseUrl(baseUrl);
+
+		hasMore = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected Iterator<T> doPageRead() {
 		if (!hasMore) {
 			return Collections.emptyIterator();
@@ -175,7 +183,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		return queryResults.getResults()
 			.stream()
 			.map(NotionDatabaseItemReader::getProperties)
-			.map(properties -> propertyMapper.map(properties))
+			.map(propertyMapper::map)
 			.iterator();
 	}
 
@@ -196,19 +204,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	private static String getPlainText(List<RichText> texts) {
 		return texts.isEmpty() ? "" : texts.get(0).getPlainText();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doOpen() {
-		client = new NotionClient(token);
-		client.setHttpClient(new JavaNetHttpClient());
-		client.setLogger(new Slf4jLogger());
-		client.setBaseUrl(baseUrl);
-
-		hasMore = true;
 	}
 
 	/**
