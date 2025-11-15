@@ -92,7 +92,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		this.token = Objects.requireNonNull(token);
 		this.databaseId = Objects.requireNonNull(databaseId);
 		this.propertyMapper = Objects.requireNonNull(propertyMapper);
-		setPageSize(DEFAULT_PAGE_SIZE);
+		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
 	/**

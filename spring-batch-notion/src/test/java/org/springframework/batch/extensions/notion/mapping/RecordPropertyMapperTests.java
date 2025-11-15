@@ -15,6 +15,7 @@
  */
 package org.springframework.batch.extensions.notion.mapping;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -92,7 +93,7 @@ class RecordPropertyMapperTests {
 	@Nested
 	class using_record_with_additional_constructors {
 
-		private record TestRecord(String field1, String field2) {
+		private record TestRecord(@Nullable String field1, @Nullable String field2) {
 
 			@SuppressWarnings("unused")
 			private TestRecord() {

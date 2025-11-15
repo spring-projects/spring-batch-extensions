@@ -15,6 +15,7 @@
  */
 package org.springframework.batch.extensions.notion.mapping;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.batch.extensions.notion.mapping.TestData.AllPropertiesSource;
@@ -82,25 +83,25 @@ class BeanWrapperPropertyMapperTests {
 
 	private static class TestBean {
 
-		private String field1;
+		private @Nullable String field1;
 
-		private String field2;
+		private @Nullable String field2;
 
-		public String getField1() {
+		public @Nullable String getField1() {
 			return field1;
 		}
 
 		@SuppressWarnings("unused")
-		public void setField1(String field1) {
+		public void setField1(@Nullable String field1) {
 			this.field1 = field1;
 		}
 
-		public String getField2() {
+		public @Nullable String getField2() {
 			return field2;
 		}
 
 		@SuppressWarnings("unused")
-		public void setField2(String field2) {
+		public void setField2(@Nullable String field2) {
 			this.field2 = field2;
 		}
 
