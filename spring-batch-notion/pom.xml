@@ -201,7 +201,7 @@ limitations under the License.
           </additionalDependencies>
           <failOnWarnings>true</failOnWarnings>
           <links>
-            <link>https://docs.spring.io/spring-batch/docs/${spring-batch.version}/api/</link>
+            <link>https://docs.spring.io/spring-batch/reference/${spring-batch.version}/api/</link>
             <link>https://docs.spring.io/spring-framework/docs/${spring-framework.version}/javadoc-api/</link>
           </links>
         </configuration>
