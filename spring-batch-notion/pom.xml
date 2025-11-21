@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.6</version>
+    <version>4.0.0</version>
     <relativePath/>
   </parent>
 
@@ -160,8 +160,31 @@ limitations under the License.
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerArgs>
-            <arg>-Xlint:all,-varargs</arg>
+            <compilerArg>-Xlint:all,-varargs</compilerArg>
+            <!-- https://errorprone.info/docs/installation#maven -->
+            <compilerArg>-XDcompilePolicy=simple</compilerArg>
+            <compilerArg>--should-stop=ifError=FLOW</compilerArg>
+            <compilerArg>
+              -Xplugin:ErrorProne
+              -XepDisableAllChecks
+              <!-- Check JSpecify annotations -->
+              -Xep:NullAway
+              -XepOpt:NullAway:OnlyNullMarked
+              -XepOpt:NullAway:SuppressionNameAliases=DataFlowIssue
+            </compilerArg>
           </compilerArgs>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.google.errorprone</groupId>
+              <artifactId>error_prone_core</artifactId>
+              <version>2.43.0</version>
+            </path>
+            <path>
+              <groupId>com.uber.nullaway</groupId>
+              <artifactId>nullaway</artifactId>
+              <version>0.12.11</version>
+            </path>
+          </annotationProcessorPaths>
           <failOnWarning>true</failOnWarning>
         </configuration>
       </plugin>
@@ -178,8 +201,8 @@ limitations under the License.
           </additionalDependencies>
           <failOnWarnings>true</failOnWarnings>
           <links>
-            <link>https://docs.spring.io/spring-batch/docs/${spring-batch.version}/api/</link>
             <link>https://docs.spring.io/spring-framework/docs/${spring-framework.version}/javadoc-api/</link>
+            <link>https://javadoc.io/static/org.springframework.batch/spring-batch-core/${spring-batch.version}/</link>
           </links>
         </configuration>
         <executions>
