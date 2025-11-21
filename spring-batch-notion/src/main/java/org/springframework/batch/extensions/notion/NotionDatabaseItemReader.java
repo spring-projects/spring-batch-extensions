@@ -85,8 +85,8 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * Create a new {@link NotionDatabaseItemReader}.
 	 * @param token the Notion integration token
 	 * @param databaseId UUID of the database to read from
-	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping Notion
-	 * item properties into a Java object
+	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping properties
+	 * of a Notion item into a Java object
 	 */
 	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
 		this.token = Objects.requireNonNull(token);
