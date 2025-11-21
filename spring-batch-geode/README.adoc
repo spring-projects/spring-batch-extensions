@@ -1,3 +1,0 @@
-# spring-batch-geode
-
-Spring Batch extension for Apache Geode.
