@@ -36,10 +36,10 @@ A minimal configuration of the item reader is as follows:
 
 ```java
 NotionDatabaseItemReader<Item> itemReader() {
-    String token = System.getenv("NOTION_TOKEN");
-    String databaseId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // UUID
-    PropertyMapper<Item> propertyMapper = new CustomPropertyMapper();
-    return new NotionDatabaseItemReader<>(token, databaseId, propertyMapper);
+	String token = System.getenv("NOTION_TOKEN");
+	String databaseId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // UUID
+	PropertyMapper<Item> propertyMapper = new CustomPropertyMapper();
+	return new NotionDatabaseItemReader<>(token, databaseId, propertyMapper);
 }
 ```
 
