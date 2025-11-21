@@ -11,7 +11,7 @@
 
   <groupId>org.springframework.batch.extensions</groupId>
   <artifactId>spring-batch-notion</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 
   <name>Spring Batch Notion</name>
   <description>Spring Batch extension for Notion</description>
