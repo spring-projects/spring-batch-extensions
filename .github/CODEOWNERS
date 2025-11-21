@@ -1,5 +1,5 @@
 /spring-batch-bigquery/ @dgray16
-/spring-batch-elasticsearch/
+/spring-batch-elasticsearch/ @hpoettker
 /spring-batch-excel/ @mdeinum
 /spring-batch-neo4j/ @michael-simons @meistermeier
 /spring-batch-notion/ @scordio
