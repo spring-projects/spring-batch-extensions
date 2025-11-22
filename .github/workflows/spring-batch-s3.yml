@@ -3,9 +3,11 @@ name: Spring Batch S3
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-s3.yml'
       - 'spring-batch-s3/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-s3.yml'
       - 'spring-batch-s3/**'
 
 env:
