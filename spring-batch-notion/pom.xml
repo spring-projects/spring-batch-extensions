@@ -38,34 +38,19 @@
     <url>https://github.com/spring-projects/spring-batch-extensions/tree/main/spring-batch-notion</url>
   </scm>
 
-  <properties>
-    <notion-sdk-jvm.version>1.11.1</notion-sdk-jvm.version>
-  </properties>
-
   <dependencies>
     <!-- Compile -->
     <dependency>
-      <groupId>com.github.seratch</groupId>
-      <artifactId>notion-sdk-jvm-core</artifactId>
-      <version>${notion-sdk-jvm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.seratch</groupId>
-      <artifactId>notion-sdk-jvm-httpclient</artifactId>
-      <version>${notion-sdk-jvm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.seratch</groupId>
-      <artifactId>notion-sdk-jvm-slf4j2</artifactId>
-      <version>${notion-sdk-jvm.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
+      <artifactId>spring-web</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.batch</groupId>
       <artifactId>spring-batch-infrastructure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
     <!-- Test -->
     <dependency>
