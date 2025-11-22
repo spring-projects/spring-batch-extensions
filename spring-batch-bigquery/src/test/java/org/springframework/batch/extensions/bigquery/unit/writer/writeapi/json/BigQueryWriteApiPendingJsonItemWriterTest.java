@@ -38,7 +38,7 @@ class BigQueryWriteApiPendingJsonItemWriterTest {
 	@Test
 	void testWrite_Exception() {
 		BigQueryItemWriterException ex = Assertions.assertThrows(BigQueryItemWriterException.class,
-				() -> new BigQueryWriteApiPendingJsonItemWriter<>().write(TestConstants.CHUNK));
+				() -> new BigQueryWriteApiPendingJsonItemWriter<>().write(TestConstants.JAVA_RECORD_CHUNK));
 		Assertions.assertEquals("Error on write happened", ex.getMessage());
 	}
 
@@ -78,7 +78,7 @@ class BigQueryWriteApiPendingJsonItemWriterTest {
 		writer.setBigQueryWriteClient(writeClient);
 		writer.setMarshaller(new JacksonJsonObjectMarshaller<>());
 
-		writer.write(TestConstants.CHUNK);
+		writer.write(TestConstants.JAVA_RECORD_CHUNK);
 
 		Mockito.verify(writeClient).createWriteStream(streamRequest);
 		Mockito.verify(writeClient).finalizeWriteStream(streamName.toString());

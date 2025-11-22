@@ -3,9 +3,11 @@ name: Spring Batch Excel
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-excel.yml'
       - 'spring-batch-excel/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-excel.yml'
       - 'spring-batch-excel/**'
 
 jobs:
@@ -13,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           cache: 'maven'
       - name: Build with Maven
         run: mvn -B package

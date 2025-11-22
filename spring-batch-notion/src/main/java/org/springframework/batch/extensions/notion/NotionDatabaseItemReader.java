@@ -25,13 +25,14 @@ import notion.api.v1.model.pages.Page;
 import notion.api.v1.model.pages.PageProperty;
 import notion.api.v1.model.pages.PageProperty.RichText;
 import notion.api.v1.request.databases.QueryDatabaseRequest;
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.data.AbstractPaginatedDataItemReader;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.data.AbstractPaginatedDataItemReader;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,39 +57,41 @@ import java.util.stream.Stream;
  * @author Stefano Cordio
  * @param <T> Type of item to be read
  */
-public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> implements InitializingBean {
-
-	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
+public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> {
 
 	private static final int DEFAULT_PAGE_SIZE = 100;
 
-	private String baseUrl;
+	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
 
-	private String token;
+	private final String token;
 
-	private String databaseId;
+	private final String databaseId;
 
-	private PropertyMapper<T> propertyMapper;
+	private final PropertyMapper<T> propertyMapper;
 
-	private QueryTopLevelFilter filter;
+	private String baseUrl = DEFAULT_BASE_URL;
 
-	private List<QuerySort> sorts;
+	private @Nullable QueryTopLevelFilter filter;
 
-	private NotionClient client;
+	private @Nullable List<QuerySort> sorts;
+
+	private @Nullable NotionClient client;
 
 	private boolean hasMore;
 
-	private String nextCursor;
+	private @Nullable String nextCursor;
 
 	/**
-	 * Create a new {@link NotionDatabaseItemReader} with the following defaults:
-	 * <ul>
-	 * <li>{@code baseUrl} = {@value #DEFAULT_BASE_URL}</li>
-	 * <li>{@code pageSize} = {@value #DEFAULT_PAGE_SIZE}</li>
-	 * </ul>
+	 * Create a new {@link NotionDatabaseItemReader}.
+	 * @param token the Notion integration token
+	 * @param databaseId UUID of the database to read from
+	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping properties
+	 * of a Notion item into a Java object
 	 */
-	public NotionDatabaseItemReader() {
-		this.baseUrl = DEFAULT_BASE_URL;
+	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
+		this.token = Objects.requireNonNull(token);
+		this.databaseId = Objects.requireNonNull(databaseId);
+		this.propertyMapper = Objects.requireNonNull(propertyMapper);
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
@@ -103,37 +106,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 */
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = Objects.requireNonNull(baseUrl);
-	}
-
-	/**
-	 * The Notion integration token.
-	 * <p>
-	 * Always required.
-	 * @param token the token
-	 */
-	public void setToken(String token) {
-		this.token = Objects.requireNonNull(token);
-	}
-
-	/**
-	 * UUID of the database to read from.
-	 * <p>
-	 * Always required.
-	 * @param databaseId the database UUID
-	 */
-	public void setDatabaseId(String databaseId) {
-		this.databaseId = Objects.requireNonNull(databaseId);
-	}
-
-	/**
-	 * The {@link PropertyMapper} responsible for mapping Notion item properties into a
-	 * Java object.
-	 * <p>
-	 * Always required.
-	 * @param propertyMapper the property mapper
-	 */
-	public void setPropertyMapper(PropertyMapper<T> propertyMapper) {
-		this.propertyMapper = Objects.requireNonNull(propertyMapper);
 	}
 
 	/**
@@ -178,9 +150,22 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected void doOpen() {
+		client = new NotionClient(token);
+		client.setHttpClient(new JavaNetHttpClient());
+		client.setLogger(new Slf4jLogger());
+		client.setBaseUrl(baseUrl);
+
+		hasMore = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected Iterator<T> doPageRead() {
 		if (!hasMore) {
-			return null;
+			return Collections.emptyIterator();
 		}
 
 		QueryDatabaseRequest request = new QueryDatabaseRequest(databaseId);
@@ -189,6 +174,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		request.setStartCursor(nextCursor);
 		request.setPageSize(pageSize);
 
+		@SuppressWarnings("DataFlowIssue")
 		QueryResults queryResults = client.queryDatabase(request);
 
 		hasMore = queryResults.getHasMore();
@@ -197,7 +183,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		return queryResults.getResults()
 			.stream()
 			.map(NotionDatabaseItemReader::getProperties)
-			.map(properties -> propertyMapper.map(properties))
+			.map(propertyMapper::map)
 			.iterator();
 	}
 
@@ -223,19 +209,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	protected void doOpen() {
-		client = new NotionClient(token);
-		client.setHttpClient(new JavaNetHttpClient());
-		client.setLogger(new Slf4jLogger());
-		client.setBaseUrl(baseUrl);
-
-		hasMore = true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@SuppressWarnings("DataFlowIssue")
 	@Override
 	protected void doClose() {
 		client.close();
@@ -252,16 +226,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		for (int i = 0; i < itemIndex; i++) {
 			read();
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void afterPropertiesSet() {
-		Assert.state(token != null, "'token' must be set");
-		Assert.state(databaseId != null, "'databaseId' must be set");
-		Assert.state(propertyMapper != null, "'propertyMapper' must be set");
 	}
 
 }

@@ -3,9 +3,11 @@ name: Spring Batch BigQuery
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-bigquery.yml'
       - 'spring-batch-bigquery/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-bigquery.yml'
       - 'spring-batch-bigquery/**'
 
 jobs:

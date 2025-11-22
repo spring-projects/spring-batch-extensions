@@ -19,13 +19,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.6</version>
         <relativePath/>
     </parent>
 
     <groupId>org.springframework.batch.extensions</groupId>
     <artifactId>spring-batch-excel</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.0</version>
 
     <name>Spring Batch Excel</name>
     <description>Spring Batch extension for Microsoft Excel</description>
@@ -53,7 +53,7 @@
     </scm>
 
     <properties>
-        <poi.version>5.4.0</poi.version>
+        <poi.version>5.4.1</poi.version>
     </properties>
 
     <dependencies>

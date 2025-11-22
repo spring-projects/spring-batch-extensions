@@ -55,7 +55,7 @@ class EmulatorBigQueryLoadJobCsvItemWriterTest extends EmulatorBaseItemWriterTes
 
 		writer.write(expectedChunk);
 
-		ResultVerifier.verifyTableResult(expectedChunk,
+		ResultVerifier.verifyJavaRecordTableResult(expectedChunk,
 				bigQuery.listTableData(tableId, BigQuery.TableDataListOption.pageSize(5L)));
 	}
 

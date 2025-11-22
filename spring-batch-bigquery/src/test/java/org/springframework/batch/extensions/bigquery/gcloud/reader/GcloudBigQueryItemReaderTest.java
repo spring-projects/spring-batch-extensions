@@ -99,10 +99,10 @@ class GcloudBigQueryItemReaderTest extends GcloudBaseBigQueryIntegrationTest {
 
 	private void verifyResult(BigQueryQueryItemReader<PersonDto> reader) throws Exception {
 		PersonDto actualFirstPerson = reader.read();
-		PersonDto expectedFirstPerson = TestConstants.CHUNK.getItems().get(0);
+		PersonDto expectedFirstPerson = TestConstants.JAVA_RECORD_CHUNK.getItems().get(0);
 
 		PersonDto actualSecondPerson = reader.read();
-		PersonDto expectedSecondPerson = TestConstants.CHUNK.getItems().get(1);
+		PersonDto expectedSecondPerson = TestConstants.JAVA_RECORD_CHUNK.getItems().get(1);
 
 		PersonDto actualThirdPerson = reader.read();
 
@@ -133,7 +133,7 @@ class GcloudBigQueryItemReaderTest extends GcloudBaseBigQueryIntegrationTest {
 			.build();
 
 		writer.afterPropertiesSet();
-		writer.write(TestConstants.CHUNK);
+		writer.write(TestConstants.JAVA_RECORD_CHUNK);
 		job.get().waitFor();
 	}
 

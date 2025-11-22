@@ -18,6 +18,7 @@ package org.springframework.batch.extensions.bigquery.common;
 
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
+import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.batch.item.Chunk;
 
@@ -28,7 +29,7 @@ public final class ResultVerifier {
 	private ResultVerifier() {
 	}
 
-	public static void verifyTableResult(Chunk<PersonDto> expected, TableResult actual) {
+	public static void verifyJavaRecordTableResult(Chunk<PersonDto> expected, TableResult actual) {
 		List<FieldValueList> actualList = actual.streamValues().toList();
 
 		Assertions.assertEquals(expected.size(), actual.getTotalRows());
@@ -44,6 +45,30 @@ public final class ResultVerifier {
 				.stream()
 				.map(PersonDto::age)
 				.map(Long::valueOf)
+				.anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
+
+			Assertions.assertTrue(containsName);
+			Assertions.assertTrue(containsAge);
+		});
+	}
+
+	public static void verifyAvroTableResult(Chunk<? extends GenericRecord> expected, TableResult actual) {
+		List<FieldValueList> actualList = actual.streamValues().toList();
+
+		Assertions.assertEquals(expected.size(), actual.getTotalRows());
+		Assertions.assertEquals(expected.size(), actualList.size());
+
+		actualList.forEach(field -> {
+			boolean containsName = expected.getItems()
+				.stream()
+				.map(r -> r.get(TestConstants.NAME))
+				.anyMatch(name -> field.get(0).getStringValue().equals(name));
+
+			boolean containsAge = expected.getItems()
+				.stream()
+				.map(r -> r.get(TestConstants.AGE))
+				.map(Integer.class::cast)
+				.map(Integer::longValue)
 				.anyMatch(age -> age.compareTo(field.get(1).getLongValue()) == 0);
 
 			Assertions.assertTrue(containsName);

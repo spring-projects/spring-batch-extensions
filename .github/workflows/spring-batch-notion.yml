@@ -3,9 +3,11 @@ name: Spring Batch Notion
 on:
   pull_request:
     paths:
+      - '.github/workflows/spring-batch-notion.yml'
       - 'spring-batch-notion/**'
   push:
     paths:
+      - '.github/workflows/spring-batch-notion.yml'
       - 'spring-batch-notion/**'
 
 env:
@@ -20,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw $MAVEN_ARGS verify javadoc:javadoc

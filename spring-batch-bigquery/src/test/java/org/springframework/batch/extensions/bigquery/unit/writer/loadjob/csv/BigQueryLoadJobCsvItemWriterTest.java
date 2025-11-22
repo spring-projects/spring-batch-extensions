@@ -53,7 +53,7 @@ class BigQueryLoadJobCsvItemWriterTest extends AbstractBigQueryTest {
 	@Test
 	void testDoInitializeProperties() throws IllegalAccessException, NoSuchFieldException {
 		TestWriter writer = new TestWriter();
-		List<PersonDto> items = TestConstants.CHUNK.getItems();
+		List<PersonDto> items = TestConstants.JAVA_RECORD_CHUNK.getItems();
 		MethodHandles.Lookup handle = MethodHandles.privateLookupIn(BigQueryLoadJobCsvItemWriter.class,
 				MethodHandles.lookup());
 
@@ -92,7 +92,7 @@ class BigQueryLoadJobCsvItemWriterTest extends AbstractBigQueryTest {
 	@Test
 	void testConvertObjectsToByteArrays() {
 		TestWriter writer = new TestWriter();
-		List<PersonDto> items = TestConstants.CHUNK.getItems();
+		List<PersonDto> items = TestConstants.JAVA_RECORD_CHUNK.getItems();
 
 		// Empty
 		Assertions.assertTrue(writer.testConvert(List.of()).isEmpty());

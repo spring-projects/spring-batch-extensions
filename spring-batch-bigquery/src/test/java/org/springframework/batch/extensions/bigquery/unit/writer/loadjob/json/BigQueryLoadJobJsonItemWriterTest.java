@@ -72,9 +72,9 @@ class BigQueryLoadJobJsonItemWriterTest extends AbstractBigQueryTest {
 
 		// Not empty
 		writer.setMarshaller(Record::toString);
-		List<byte[]> actual = writer.testConvert(TestConstants.CHUNK.getItems());
+		List<byte[]> actual = writer.testConvert(TestConstants.JAVA_RECORD_CHUNK.getItems());
 
-		List<byte[]> expected = TestConstants.CHUNK.getItems()
+		List<byte[]> expected = TestConstants.JAVA_RECORD_CHUNK.getItems()
 			.stream()
 			.map(PersonDto::toString)
 			.map(s -> s.concat("\n"))
@@ -157,11 +157,11 @@ class BigQueryLoadJobJsonItemWriterTest extends AbstractBigQueryTest {
 
 	private static final class TestWriter extends BigQueryLoadJobJsonItemWriter<PersonDto> {
 
-		public List<byte[]> testConvert(List<PersonDto> items) {
+		List<byte[]> testConvert(List<PersonDto> items) {
 			return convertObjectsToByteArrays(items);
 		}
 
-		public void testPerformFormatSpecificChecks() {
+		void testPerformFormatSpecificChecks() {
 			performFormatSpecificChecks();
 		}
 
