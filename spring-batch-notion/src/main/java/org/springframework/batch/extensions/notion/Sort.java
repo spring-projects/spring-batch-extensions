@@ -15,9 +15,10 @@
  */
 package org.springframework.batch.extensions.notion;
 
-import notion.api.v1.model.databases.query.sort.QuerySort;
-import notion.api.v1.model.databases.query.sort.QuerySortDirection;
-import notion.api.v1.model.databases.query.sort.QuerySortTimestamp;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import tools.jackson.databind.EnumNamingStrategies;
+import tools.jackson.databind.EnumNamingStrategies.SnakeCaseStrategy;
+import tools.jackson.databind.annotation.EnumNaming;
 
 import java.util.Objects;
 
@@ -81,76 +82,53 @@ public abstract sealed class Sort {
 	/**
 	 * Timestamps associated with database entries.
 	 */
+	@EnumNaming(SnakeCaseStrategy.class)
 	public enum Timestamp {
 
 		/**
 		 * The time the entry was created.
 		 */
-		CREATED_TIME(QuerySortTimestamp.CreatedTime),
+		CREATED_TIME,
 
 		/**
 		 * The time the entry was last edited.
 		 */
-		LAST_EDITED_TIME(QuerySortTimestamp.LastEditedTime);
-
-		private final QuerySortTimestamp querySortTimestamp;
-
-		Timestamp(QuerySortTimestamp querySortTimestamp) {
-			this.querySortTimestamp = querySortTimestamp;
-		}
-
-		private QuerySortTimestamp getQuerySortTimestamp() {
-			return querySortTimestamp;
-		}
+		LAST_EDITED_TIME;
 
 	}
 
 	/**
 	 * Sort directions.
 	 */
+	@EnumNaming(SnakeCaseStrategy.class)
 	public enum Direction {
 
 		/**
 		 * Ascending direction.
 		 */
-		ASCENDING(QuerySortDirection.Ascending),
+		ASCENDING,
 
 		/**
 		 * Descending direction.
 		 */
-		DESCENDING(QuerySortDirection.Descending);
-
-		private final QuerySortDirection querySortDirection;
-
-		Direction(QuerySortDirection querySortDirection) {
-			this.querySortDirection = querySortDirection;
-		}
-
-		private QuerySortDirection getQuerySortDirection() {
-			return querySortDirection;
-		}
+		DESCENDING;
 
 	}
 
 	private Sort() {
 	}
 
-	abstract QuerySort toQuerySort();
-
 	private static final class PropertySort extends Sort {
 
+		@JsonProperty
 		private final String property;
 
+		@JsonProperty
 		private final Direction direction;
 
 		private PropertySort(String property, Direction direction) {
 			this.property = Objects.requireNonNull(property);
 			this.direction = Objects.requireNonNull(direction);
-		}
-
-		@Override
-		QuerySort toQuerySort() {
-			return new QuerySort(property, null, direction.getQuerySortDirection());
 		}
 
 		@Override
@@ -162,18 +140,15 @@ public abstract sealed class Sort {
 
 	private static final class TimestampSort extends Sort {
 
+		@JsonProperty
 		private final Timestamp timestamp;
 
+		@JsonProperty
 		private final Direction direction;
 
 		private TimestampSort(Timestamp timestamp, Direction direction) {
 			this.timestamp = Objects.requireNonNull(timestamp);
 			this.direction = Objects.requireNonNull(direction);
-		}
-
-		@Override
-		QuerySort toQuerySort() {
-			return new QuerySort(null, timestamp.getQuerySortTimestamp(), direction.getQuerySortDirection());
 		}
 
 		@Override
