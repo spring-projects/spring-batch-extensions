@@ -22,14 +22,14 @@ import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.extensions.bigquery.common.NameUtils;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
-import org.springframework.batch.extensions.bigquery.common.NameUtils;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.emulator.writer.base.EmulatorBaseItemWriterTest;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.csv.BigQueryLoadJobCsvItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.csv.builder.BigQueryCsvItemWriterBuilder;
-import org.springframework.batch.item.Chunk;
+import org.springframework.batch.infrastructure.item.Chunk;
 
 class EmulatorBigQueryLoadJobCsvItemWriterTest extends EmulatorBaseItemWriterTest {
 

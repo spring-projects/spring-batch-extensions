@@ -21,7 +21,7 @@ import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
@@ -63,6 +63,12 @@ public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBe
 	private QueryJobConfiguration jobConfiguration;
 
 	private Iterator<FieldValueList> iterator;
+
+	/**
+	 * Default constructor
+	 */
+	public BigQueryQueryItemReader() {
+	}
 
 	/**
 	 * BigQuery service, responsible for API calls.

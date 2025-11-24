@@ -16,12 +16,20 @@
 
 package org.springframework.batch.extensions.bigquery.writer.loadjob;
 
-import com.google.cloud.bigquery.*;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.DatasetInfo;
+import com.google.cloud.bigquery.FormatOptions;
+import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.Table;
+import com.google.cloud.bigquery.TableDataWriteChannel;
+import com.google.cloud.bigquery.TableDefinition;
+import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryItemWriterException;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
@@ -42,6 +50,12 @@ import java.util.function.Consumer;
  * @since 0.1.0
  */
 public abstract class BigQueryLoadJobBaseItemWriter<T> implements ItemWriter<T>, InitializingBean {
+
+	/**
+	 * Default constructor
+	 */
+	protected BigQueryLoadJobBaseItemWriter() {
+	}
 
 	/** Logger that can be reused */
 	protected final Log logger = LogFactory.getLog(getClass());

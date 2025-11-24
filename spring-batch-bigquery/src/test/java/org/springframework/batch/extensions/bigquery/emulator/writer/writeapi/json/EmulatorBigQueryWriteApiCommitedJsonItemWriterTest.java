@@ -15,8 +15,8 @@ import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.emulator.writer.base.EmulatorBaseItemWriterTest;
 import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiCommitedJsonItemWriter;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;

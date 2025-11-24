@@ -20,7 +20,7 @@ import com.google.cloud.bigquery.FieldValueList;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.springframework.batch.extensions.bigquery.common.generated.PersonAvroDto;
-import org.springframework.batch.item.Chunk;
+import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.core.convert.converter.Converter;
 
 import java.util.Comparator;

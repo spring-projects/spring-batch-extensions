@@ -16,15 +16,15 @@
 
 package org.springframework.batch.extensions.bigquery.writer.loadjob.csv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Table;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.BigQueryLoadJobBaseItemWriter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.dataformat.csv.CsvMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,12 +47,18 @@ public class BigQueryLoadJobCsvItemWriter<T> extends BigQueryLoadJobBaseItemWrit
 	private Class<?> itemClass;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryLoadJobCsvItemWriter() {
+	}
+
+	/**
 	 * Actual type of incoming data can be obtained only in runtime
 	 */
 	@Override
-	protected synchronized void doInitializeProperties(List<? extends T> items) {
+	protected synchronized void doInitializeProperties(final List<? extends T> items) {
 		if (this.itemClass == null) {
-			T firstItem = items.stream().findFirst().orElseThrow(() -> {
+			final T firstItem = items.stream().findFirst().orElseThrow(() -> {
 				logger.warn("Class type was not found");
 				return new IllegalStateException("Class type was not found");
 			});
@@ -67,13 +73,13 @@ public class BigQueryLoadJobCsvItemWriter<T> extends BigQueryLoadJobBaseItemWrit
 	}
 
 	@Override
-	protected List<byte[]> convertObjectsToByteArrays(List<? extends T> items) {
+	protected List<byte[]> convertObjectsToByteArrays(final List<? extends T> items) {
 		return items.stream().map(this::mapItemToCsv).filter(Predicate.not(ObjectUtils::isEmpty)).toList();
 	}
 
 	@Override
 	protected void performFormatSpecificChecks() {
-		Table table = getTable();
+		final Table table = getTable();
 
 		if (Boolean.TRUE.equals(super.writeChannelConfig.getAutodetect())) {
 			if (tableHasDefinedSchema(table) && super.logger.isWarnEnabled()) {
@@ -84,14 +90,14 @@ public class BigQueryLoadJobCsvItemWriter<T> extends BigQueryLoadJobBaseItemWrit
 			Assert.notNull(super.writeChannelConfig.getSchema(), "Schema must be provided");
 
 			if (tableHasDefinedSchema(table)) {
-				boolean schemaEquals = Objects.equals(table.getDefinition().getSchema(),
+				final boolean schemaEquals = Objects.equals(table.getDefinition().getSchema(),
 						super.writeChannelConfig.getSchema());
 				Assert.isTrue(schemaEquals, "Schema must be the same");
 			}
 		}
 
-		String format = FormatOptions.csv().getType();
-		boolean formatEquals = Objects.equals(format, super.writeChannelConfig.getFormat());
+		final String format = FormatOptions.csv().getType();
+		final boolean formatEquals = Objects.equals(format, super.writeChannelConfig.getFormat());
 		Assert.isTrue(formatEquals, "Only %s format is allowed".formatted(format));
 
 	}
@@ -100,15 +106,15 @@ public class BigQueryLoadJobCsvItemWriter<T> extends BigQueryLoadJobBaseItemWrit
 	 * Row mapper which transforms single BigQuery row into a desired type.
 	 * @param rowMapper your row mapper
 	 */
-	public void setRowMapper(Converter<T, byte[]> rowMapper) {
+	public void setRowMapper(final Converter<T, byte[]> rowMapper) {
 		this.rowMapper = rowMapper;
 	}
 
-	private byte[] mapItemToCsv(T t) {
+	private byte[] mapItemToCsv(final T t) {
 		try {
 			return rowMapper == null ? objectWriter.writeValueAsBytes(t) : rowMapper.convert(t);
 		}
-		catch (JsonProcessingException e) {
+		catch (JacksonException e) {
 			logger.error("Error during processing of the line: ", e);
 			return new byte[] {};
 		}

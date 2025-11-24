@@ -16,9 +16,9 @@
 
 package org.springframework.batch.extensions.bigquery.writer;
 
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.ItemWriterException;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.ItemWriterException;
 
 /**
  * Unchecked {@link Exception} indicating that an error has occurred on during
@@ -35,7 +35,7 @@ public class BigQueryItemWriterException extends ItemWriterException {
 	 * @param message the message for this {@link Exception}
 	 * @param cause the other {@link Exception}
 	 */
-	public BigQueryItemWriterException(String message, Throwable cause) {
+	public BigQueryItemWriterException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
@@ -43,7 +43,7 @@ public class BigQueryItemWriterException extends ItemWriterException {
 	 * Create a new {@link BigQueryItemWriterException} based on a message.
 	 * @param message the message for this {@link Exception}
 	 */
-	public BigQueryItemWriterException(String message) {
+	public BigQueryItemWriterException(final String message) {
 		super(message);
 	}
 
