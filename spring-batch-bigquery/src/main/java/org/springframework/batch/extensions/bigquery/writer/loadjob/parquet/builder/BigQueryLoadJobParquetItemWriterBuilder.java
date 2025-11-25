@@ -50,6 +50,12 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	private BigQuery bigQuery;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryLoadJobParquetItemWriterBuilder() {
+	}
+
+	/**
 	 * Instructs which fields are expected.
 	 * @param schema your schema
 	 * @return {@link BigQueryLoadJobParquetItemWriterBuilder}
@@ -78,7 +84,7 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	 * @return {@link BigQueryLoadJobParquetItemWriterBuilder}
 	 * @see BigQueryLoadJobParquetItemWriter#setDatasetInfo(DatasetInfo)
 	 */
-	public BigQueryLoadJobParquetItemWriterBuilder datasetInfo(DatasetInfo datasetInfo) {
+	public BigQueryLoadJobParquetItemWriterBuilder datasetInfo(final DatasetInfo datasetInfo) {
 		this.datasetInfo = datasetInfo;
 		return this;
 	}
@@ -89,7 +95,7 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	 * @return {@link BigQueryLoadJobParquetItemWriterBuilder}
 	 * @see BigQueryLoadJobParquetItemWriter#setJobConsumer(Consumer)
 	 */
-	public BigQueryLoadJobParquetItemWriterBuilder jobConsumer(Consumer<Job> consumer) {
+	public BigQueryLoadJobParquetItemWriterBuilder jobConsumer(final Consumer<Job> consumer) {
 		this.jobConsumer = consumer;
 		return this;
 	}
@@ -100,7 +106,7 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	 * @return {@link BigQueryLoadJobParquetItemWriterBuilder}
 	 * @see BigQueryLoadJobParquetItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
 	 */
-	public BigQueryLoadJobParquetItemWriterBuilder writeChannelConfig(WriteChannelConfiguration configuration) {
+	public BigQueryLoadJobParquetItemWriterBuilder writeChannelConfig(final WriteChannelConfiguration configuration) {
 		this.writeChannelConfig = configuration;
 		return this;
 	}
@@ -111,7 +117,7 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	 * @return {@link BigQueryLoadJobParquetItemWriter}
 	 * @see BigQueryLoadJobParquetItemWriter#setBigQuery(BigQuery)
 	 */
-	public BigQueryLoadJobParquetItemWriterBuilder bigQuery(BigQuery bigQuery) {
+	public BigQueryLoadJobParquetItemWriterBuilder bigQuery(final BigQuery bigQuery) {
 		this.bigQuery = bigQuery;
 		return this;
 	}
@@ -122,7 +128,7 @@ public class BigQueryLoadJobParquetItemWriterBuilder {
 	 * @return {@link BigQueryLoadJobParquetItemWriter}
 	 */
 	public BigQueryLoadJobParquetItemWriter build() {
-		BigQueryLoadJobParquetItemWriter writer = new BigQueryLoadJobParquetItemWriter();
+		final BigQueryLoadJobParquetItemWriter writer = new BigQueryLoadJobParquetItemWriter();
 
 		writer.setCodecName(this.codecName == null ? CompressionCodecName.UNCOMPRESSED : this.codecName);
 		writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);

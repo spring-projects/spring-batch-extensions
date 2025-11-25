@@ -49,6 +49,12 @@ public class BigQueryQueryItemReaderBuilder<T> {
 	private Class<T> targetType;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryQueryItemReaderBuilder() {
+	}
+
+	/**
 	 * BigQuery service, responsible for API calls.
 	 * @param bigQuery BigQuery service
 	 * @return {@link BigQueryQueryItemReaderBuilder}

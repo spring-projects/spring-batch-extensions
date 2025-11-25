@@ -30,8 +30,8 @@ import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryT
 import org.springframework.batch.extensions.bigquery.writer.loadjob.BigQueryLoadJobBaseItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.json.BigQueryLoadJobJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.json.builder.BigQueryLoadJobJsonItemWriterBuilder;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JsonObjectMarshaller;
 
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;

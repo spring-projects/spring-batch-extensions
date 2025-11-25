@@ -36,19 +36,24 @@ public final class RecordMapper<T> {
 	private final SimpleTypeConverter simpleConverter = new SimpleTypeConverter();
 
 	/**
-	 * Generates a conversion from BigQuery response to a Java record.
-	 * @param targetType a Java record {@link Class}
-	 * @return {@link Converter}
-	 * @see org.springframework.batch.item.file.mapping.RecordFieldSetMapper
+	 * Default constructor
 	 */
-	public Converter<FieldValueList, T> generateMapper(Class<T> targetType) {
-		Constructor<T> constructor = BeanUtils.getResolvableConstructor(targetType);
+	public RecordMapper() {
+	}
+
+	/**
+	 * Generates a conversion from BigQuery response to a Java record.
+	 * @param targetType a {@link Record}
+	 * @return {@link Converter}
+	 * @see org.springframework.batch.infrastructure.item.file.mapping.RecordFieldSetMapper
+	 */
+	public Converter<FieldValueList, T> generateMapper(final Class<T> targetType) {
+		final Constructor<T> constructor = BeanUtils.getResolvableConstructor(targetType);
 		Assert.isTrue(constructor.getParameterCount() > 0, "Record without fields is redundant");
 
-		String[] parameterNames = BeanUtils.getParameterNames(constructor);
-		Class<?>[] parameterTypes = constructor.getParameterTypes();
-
-		Object[] args = new Object[parameterNames.length];
+		final String[] parameterNames = BeanUtils.getParameterNames(constructor);
+		final Class<?>[] parameterTypes = constructor.getParameterTypes();
+		final Object[] args = new Object[parameterNames.length];
 
 		return source -> {
 			if (args[0] == null) {

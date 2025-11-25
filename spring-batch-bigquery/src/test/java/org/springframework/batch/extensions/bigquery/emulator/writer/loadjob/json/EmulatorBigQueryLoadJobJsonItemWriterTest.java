@@ -23,15 +23,15 @@ import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.batch.extensions.bigquery.common.NameUtils;
 import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.ResultVerifier;
-import org.springframework.batch.extensions.bigquery.common.NameUtils;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.emulator.writer.base.EmulatorBaseItemWriterTest;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.json.BigQueryLoadJobJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.json.builder.BigQueryLoadJobJsonItemWriterBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
 
 import java.util.stream.Stream;
 

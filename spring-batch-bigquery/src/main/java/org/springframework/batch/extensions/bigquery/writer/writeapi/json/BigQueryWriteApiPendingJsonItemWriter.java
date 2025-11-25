@@ -32,9 +32,9 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.batch.extensions.bigquery.writer.BigQueryItemWriterException;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.json.JsonObjectMarshaller;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -74,6 +74,12 @@ public class BigQueryWriteApiPendingJsonItemWriter<T> implements ItemWriter<T>, 
 
 	private boolean writeFailed;
 
+	/**
+	 * Default constructor
+	 */
+	public BigQueryWriteApiPendingJsonItemWriter() {
+	}
+
 	@Override
 	public void write(final Chunk<? extends T> chunk) throws Exception {
 		if (!chunk.isEmpty()) {
@@ -81,14 +87,16 @@ public class BigQueryWriteApiPendingJsonItemWriter<T> implements ItemWriter<T>, 
 			String streamName = null;
 
 			try {
-				WriteStream writeStreamToCreate = WriteStream.newBuilder().setType(WriteStream.Type.PENDING).build();
+				final WriteStream writeStreamToCreate = WriteStream.newBuilder()
+					.setType(WriteStream.Type.PENDING)
+					.build();
 
-				CreateWriteStreamRequest createStreamRequest = CreateWriteStreamRequest.newBuilder()
+				final CreateWriteStreamRequest createStreamRequest = CreateWriteStreamRequest.newBuilder()
 					.setParent(tableName.toString())
 					.setWriteStream(writeStreamToCreate)
 					.build();
 
-				WriteStream writeStream = bigQueryWriteClient.createWriteStream(createStreamRequest);
+				final WriteStream writeStream = bigQueryWriteClient.createWriteStream(createStreamRequest);
 				streamName = writeStream.getName();
 
 				if (logger.isDebugEnabled()) {

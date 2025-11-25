@@ -22,8 +22,8 @@ import com.google.cloud.bigquery.DatasetInfo;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.WriteChannelConfiguration;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.json.BigQueryLoadJobJsonItemWriter;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JsonObjectMarshaller;
 
 import java.util.function.Consumer;
 
@@ -49,12 +49,18 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	private BigQuery bigQuery;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryLoadJobJsonItemWriterBuilder() {
+	}
+
+	/**
 	 * Converts your DTO into a {@link String}.
 	 * @param marshaller your mapper
 	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
 	 * @see BigQueryLoadJobJsonItemWriter#setMarshaller(JsonObjectMarshaller)
 	 */
-	public BigQueryLoadJobJsonItemWriterBuilder<T> marshaller(JsonObjectMarshaller<T> marshaller) {
+	public BigQueryLoadJobJsonItemWriterBuilder<T> marshaller(final JsonObjectMarshaller<T> marshaller) {
 		this.marshaller = marshaller;
 		return this;
 	}
@@ -66,7 +72,7 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
 	 * @see BigQueryLoadJobJsonItemWriter#setDatasetInfo(DatasetInfo)
 	 */
-	public BigQueryLoadJobJsonItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
+	public BigQueryLoadJobJsonItemWriterBuilder<T> datasetInfo(final DatasetInfo datasetInfo) {
 		this.datasetInfo = datasetInfo;
 		return this;
 	}
@@ -77,7 +83,7 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
 	 * @see BigQueryLoadJobJsonItemWriter#setJobConsumer(Consumer)
 	 */
-	public BigQueryLoadJobJsonItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
+	public BigQueryLoadJobJsonItemWriterBuilder<T> jobConsumer(final Consumer<Job> consumer) {
 		this.jobConsumer = consumer;
 		return this;
 	}
@@ -88,7 +94,7 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobJsonItemWriterBuilder}
 	 * @see BigQueryLoadJobJsonItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
 	 */
-	public BigQueryLoadJobJsonItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
+	public BigQueryLoadJobJsonItemWriterBuilder<T> writeChannelConfig(final WriteChannelConfiguration configuration) {
 		this.writeChannelConfig = configuration;
 		return this;
 	}
@@ -99,7 +105,7 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobJsonItemWriter}
 	 * @see BigQueryLoadJobJsonItemWriter#setBigQuery(BigQuery)
 	 */
-	public BigQueryLoadJobJsonItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
+	public BigQueryLoadJobJsonItemWriterBuilder<T> bigQuery(final BigQuery bigQuery) {
 		this.bigQuery = bigQuery;
 		return this;
 	}
@@ -109,7 +115,7 @@ public class BigQueryLoadJobJsonItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobJsonItemWriter}
 	 */
 	public BigQueryLoadJobJsonItemWriter<T> build() {
-		BigQueryLoadJobJsonItemWriter<T> writer = new BigQueryLoadJobJsonItemWriter<>();
+		final BigQueryLoadJobJsonItemWriter<T> writer = new BigQueryLoadJobJsonItemWriter<>();
 
 		writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
 		writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);

@@ -22,8 +22,8 @@ import com.google.cloud.bigquery.storage.v1.BigQueryWriteClient;
 import com.google.cloud.bigquery.storage.v1.TableName;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiCommitedJsonItemWriter;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JsonObjectMarshaller;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -48,6 +48,12 @@ public class BigQueryWriteApiCommitedJsonItemWriterBuilder<T> {
 	private ApiFutureCallback<AppendRowsResponse> apiFutureCallback;
 
 	private Executor executor;
+
+	/**
+	 * Default constructor
+	 */
+	public BigQueryWriteApiCommitedJsonItemWriterBuilder() {
+	}
 
 	/**
 	 * GRPC client that will be responsible for communication with BigQuery.
@@ -115,7 +121,7 @@ public class BigQueryWriteApiCommitedJsonItemWriterBuilder<T> {
 	 * automatically
 	 */
 	public BigQueryWriteApiCommitedJsonItemWriter<T> build() throws IOException {
-		BigQueryWriteApiCommitedJsonItemWriter<T> writer = new BigQueryWriteApiCommitedJsonItemWriter<>();
+		final BigQueryWriteApiCommitedJsonItemWriter<T> writer = new BigQueryWriteApiCommitedJsonItemWriter<>();
 
 		writer.setMarshaller(this.marshaller == null ? new JacksonJsonObjectMarshaller<>() : this.marshaller);
 

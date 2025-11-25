@@ -27,9 +27,9 @@ import org.springframework.batch.extensions.bigquery.common.PersonDto;
 import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.writer.writeapi.json.BigQueryWriteApiPendingJsonItemWriter;
 import org.springframework.batch.extensions.bigquery.writer.writeapi.json.builder.BigQueryWriteApiPendingJsonItemWriterBuilder;
-import org.springframework.batch.item.json.GsonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.GsonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.infrastructure.item.json.JsonObjectMarshaller;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

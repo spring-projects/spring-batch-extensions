@@ -48,12 +48,18 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	private BigQuery bigQuery;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryCsvItemWriterBuilder() {
+	}
+
+	/**
 	 * Row mapper which transforms single BigQuery row into desired type.
 	 * @param rowMapper your row mapper
 	 * @return {@link BigQueryCsvItemWriterBuilder}
 	 * @see BigQueryLoadJobCsvItemWriter#setRowMapper(Converter)
 	 */
-	public BigQueryCsvItemWriterBuilder<T> rowMapper(Converter<T, byte[]> rowMapper) {
+	public BigQueryCsvItemWriterBuilder<T> rowMapper(final Converter<T, byte[]> rowMapper) {
 		this.rowMapper = rowMapper;
 		return this;
 	}
@@ -65,7 +71,7 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	 * @return {@link BigQueryCsvItemWriterBuilder}
 	 * @see BigQueryLoadJobCsvItemWriter#setDatasetInfo(DatasetInfo)
 	 */
-	public BigQueryCsvItemWriterBuilder<T> datasetInfo(DatasetInfo datasetInfo) {
+	public BigQueryCsvItemWriterBuilder<T> datasetInfo(final DatasetInfo datasetInfo) {
 		this.datasetInfo = datasetInfo;
 		return this;
 	}
@@ -76,7 +82,7 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	 * @return {@link BigQueryCsvItemWriterBuilder}
 	 * @see BigQueryLoadJobCsvItemWriter#setJobConsumer(Consumer)
 	 */
-	public BigQueryCsvItemWriterBuilder<T> jobConsumer(Consumer<Job> consumer) {
+	public BigQueryCsvItemWriterBuilder<T> jobConsumer(final Consumer<Job> consumer) {
 		this.jobConsumer = consumer;
 		return this;
 	}
@@ -87,7 +93,7 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	 * @return {@link BigQueryCsvItemWriterBuilder}
 	 * @see BigQueryLoadJobCsvItemWriter#setWriteChannelConfig(WriteChannelConfiguration)
 	 */
-	public BigQueryCsvItemWriterBuilder<T> writeChannelConfig(WriteChannelConfiguration configuration) {
+	public BigQueryCsvItemWriterBuilder<T> writeChannelConfig(final WriteChannelConfiguration configuration) {
 		this.writeChannelConfig = configuration;
 		return this;
 	}
@@ -98,7 +104,7 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	 * @return {@link BigQueryCsvItemWriterBuilder}
 	 * @see BigQueryLoadJobCsvItemWriter#setBigQuery(BigQuery)
 	 */
-	public BigQueryCsvItemWriterBuilder<T> bigQuery(BigQuery bigQuery) {
+	public BigQueryCsvItemWriterBuilder<T> bigQuery(final BigQuery bigQuery) {
 		this.bigQuery = bigQuery;
 		return this;
 	}
@@ -108,7 +114,7 @@ public class BigQueryCsvItemWriterBuilder<T> {
 	 * @return {@link BigQueryLoadJobCsvItemWriter}
 	 */
 	public BigQueryLoadJobCsvItemWriter<T> build() {
-		BigQueryLoadJobCsvItemWriter<T> writer = new BigQueryLoadJobCsvItemWriter<>();
+		final BigQueryLoadJobCsvItemWriter<T> writer = new BigQueryLoadJobCsvItemWriter<>();
 
 		writer.setBigQuery(this.bigQuery == null ? BigQueryOptions.getDefaultInstance().getService() : this.bigQuery);
 

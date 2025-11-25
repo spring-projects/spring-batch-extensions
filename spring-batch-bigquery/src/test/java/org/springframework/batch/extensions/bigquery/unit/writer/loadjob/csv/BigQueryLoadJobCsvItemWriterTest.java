@@ -16,10 +16,6 @@
 
 package org.springframework.batch.extensions.bigquery.unit.writer.loadjob.csv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvFactory;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FormatOptions;
@@ -39,6 +35,10 @@ import org.springframework.batch.extensions.bigquery.common.TestConstants;
 import org.springframework.batch.extensions.bigquery.unit.base.AbstractBigQueryTest;
 import org.springframework.batch.extensions.bigquery.writer.loadjob.csv.BigQueryLoadJobCsvItemWriter;
 import org.springframework.core.convert.converter.Converter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.dataformat.csv.CsvFactory;
+import tools.jackson.dataformat.csv.CsvMapper;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -70,7 +70,7 @@ class BigQueryLoadJobCsvItemWriterTest extends AbstractBigQueryTest {
 		ObjectWriter objectWriter = (ObjectWriter) handle
 			.findVarHandle(BigQueryLoadJobCsvItemWriter.class, "objectWriter", ObjectWriter.class)
 			.get(writer);
-		Assertions.assertInstanceOf(CsvFactory.class, objectWriter.getFactory());
+		Assertions.assertInstanceOf(CsvFactory.class, objectWriter.generatorFactory());
 	}
 
 	@Test
@@ -117,7 +117,7 @@ class BigQueryLoadJobCsvItemWriterTest extends AbstractBigQueryTest {
 			try {
 				return csvWriter.writeValueAsBytes(pd);
 			}
-			catch (JsonProcessingException e) {
+			catch (JacksonException e) {
 				throw new RuntimeException(e);
 			}
 		}).toList();

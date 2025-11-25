@@ -29,6 +29,12 @@ public class BigQueryLoadJobParquetItemWriter extends BigQueryLoadJobBaseItemWri
 	private CompressionCodecName codecName;
 
 	/**
+	 * Default constructor
+	 */
+	public BigQueryLoadJobParquetItemWriter() {
+	}
+
+	/**
 	 * A {@link Schema} that is used to identify fields.
 	 * @param schema your schema
 	 */

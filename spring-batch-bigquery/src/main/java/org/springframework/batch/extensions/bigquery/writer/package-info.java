@@ -35,7 +35,7 @@
  * @see <a href="https://cloud.google.com/bigquery/quotas">BigQuery Quotas &amp;
  * Limits</a>
  */
-@NonNullApi
+@NullMarked
 package org.springframework.batch.extensions.bigquery.writer;
 
-import org.springframework.lang.NonNullApi;
+import org.jspecify.annotations.NullMarked;
