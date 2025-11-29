@@ -27,6 +27,7 @@ import notion.api.v1.model.databases.query.filter.condition.StatusFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,12 +35,24 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static org.springframework.batch.extensions.notion.Filter.where;
 
 /**
  * @author Stefano Cordio
  */
 class FilterTests {
+
+	private final JsonMapper jsonMapper = new JsonMapper();
+
+	@ParameterizedTest
+	@FieldSource({ "PROPERTY_FILTERS", "COMPOUND_FILTERS", "NESTED_FILTERS" })
+	void toJson(Filter underTest, String expected) throws Exception {
+		// WHEN
+		String result = jsonMapper.writeValueAsString(underTest);
+		// THEN
+		assertEquals(expected, result, true);
+	}
 
 	@ParameterizedTest
 	@FieldSource({ "PROPERTY_FILTERS", "COMPOUND_FILTERS", "NESTED_FILTERS" })
@@ -52,24 +65,26 @@ class FilterTests {
 
 	static final List<Arguments> CHECKBOX_FILTERS = Stream.of(true, false)
 		.flatMap(value -> Stream.of( //
-				arguments( //
-						where().checkbox("property").isEqualTo(value), //
-						supply(() -> {
-							CheckboxFilter checkboxFilter = new CheckboxFilter();
-							checkboxFilter.setEquals(value);
-							PropertyFilter propertyFilter = new PropertyFilter("property");
-							propertyFilter.setCheckbox(checkboxFilter);
-							return propertyFilter;
-						})),
-				arguments( //
-						where().checkbox("property").isNotEqualTo(value), //
-						supply(() -> {
-							CheckboxFilter checkboxFilter = new CheckboxFilter();
-							checkboxFilter.setDoesNotEqual(value);
-							PropertyFilter propertyFilter = new PropertyFilter("property");
-							propertyFilter.setCheckbox(checkboxFilter);
-							return propertyFilter;
-						}))))
+				arguments(where().checkbox("property").isEqualTo(value), """
+						{
+						  "filter": {
+						    "property": "property",
+						    "checkbox": {
+						      "equals": %s
+						    }
+						  }
+						}
+						""".formatted(value)), //
+				arguments(where().checkbox("property").isNotEqualTo(value), """
+						{
+						  "filter": {
+						    "property": "property",
+						    "checkbox": {
+						      "does_not_equal": %s
+						    }
+						  }
+						}
+						""".formatted(value))))
 		.toList();
 
 	static final List<Arguments> FILES_FILTERS = List.of( //
