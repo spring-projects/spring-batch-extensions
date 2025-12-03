@@ -15,22 +15,19 @@
  */
 package org.springframework.batch.extensions.notion;
 
-import notion.api.v1.NotionClient;
-import notion.api.v1.http.JavaNetHttpClient;
-import notion.api.v1.logging.Slf4jLogger;
-import notion.api.v1.model.databases.QueryResults;
-import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
-import notion.api.v1.model.databases.query.sort.QuerySort;
-import notion.api.v1.model.pages.Page;
-import notion.api.v1.model.pages.PageProperty;
-import notion.api.v1.model.pages.PageProperty.RichText;
-import notion.api.v1.request.databases.QueryDatabaseRequest;
 import org.jspecify.annotations.Nullable;
+import org.springframework.batch.extensions.notion.PageProperty.RichTextProperty;
+import org.springframework.batch.extensions.notion.PageProperty.TitleProperty;
 import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.data.AbstractPaginatedDataItemReader;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
+import org.springframework.web.client.ApiVersionInserter;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Restartable {@link ItemReader} that reads entries from a Notion database via a paging
@@ -71,11 +67,11 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	private String baseUrl = DEFAULT_BASE_URL;
 
-	private @Nullable QueryTopLevelFilter filter;
+	private @Nullable Filter filter;
 
-	private @Nullable List<QuerySort> sorts;
+	private Sort[] sorts = new Sort[0];
 
-	private @Nullable NotionClient client;
+	private @Nullable NotionDatabaseService service;
 
 	private boolean hasMore;
 
@@ -117,7 +113,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * @see Filter#where(Filter)
 	 */
 	public void setFilter(Filter filter) {
-		this.filter = filter.toQueryTopLevelFilter();
+		this.filter = filter;
 	}
 
 	/**
@@ -130,7 +126,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * @see Sort#by(Sort.Timestamp)
 	 */
 	public void setSorts(Sort... sorts) {
-		this.sorts = Stream.of(sorts).map(Sort::toQuerySort).toList();
+		this.sorts = sorts;
 	}
 
 	/**
@@ -151,10 +147,15 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 */
 	@Override
 	protected void doOpen() {
-		client = new NotionClient(token);
-		client.setHttpClient(new JavaNetHttpClient());
-		client.setLogger(new Slf4jLogger());
-		client.setBaseUrl(baseUrl);
+		RestClient restClient = RestClient.builder()
+			.baseUrl(baseUrl)
+			.apiVersionInserter(ApiVersionInserter.useHeader("Notion-Version"))
+			.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+			.build();
+
+		RestClientAdapter adapter = RestClientAdapter.create(restClient);
+		HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
+		service = factory.createClient(NotionDatabaseService.class);
 
 		hasMore = true;
 	}
@@ -168,53 +169,47 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 			return Collections.emptyIterator();
 		}
 
-		QueryDatabaseRequest request = new QueryDatabaseRequest(databaseId);
-		request.setFilter(filter);
-		request.setSorts(sorts);
-		request.setStartCursor(nextCursor);
-		request.setPageSize(pageSize);
+		QueryRequest request = new QueryRequest(pageSize, nextCursor, filter, sorts);
 
 		@SuppressWarnings("DataFlowIssue")
-		QueryResults queryResults = client.queryDatabase(request);
+		QueryResult result = service.query(databaseId, request);
 
-		hasMore = queryResults.getHasMore();
-		nextCursor = queryResults.getNextCursor();
+		hasMore = result.hasMore();
+		nextCursor = result.nextCursor();
 
-		return queryResults.getResults()
+		return result.results()
 			.stream()
 			.map(NotionDatabaseItemReader::getProperties)
 			.map(propertyMapper::map)
 			.iterator();
 	}
 
-	private static Map<String, String> getProperties(Page element) {
-		return element.getProperties()
+	private static Map<String, String> getProperties(Page page) {
+		return page.properties()
 			.entrySet()
 			.stream()
 			.collect(Collectors.toUnmodifiableMap(Entry::getKey, entry -> getPropertyValue(entry.getValue())));
 	}
 
 	private static String getPropertyValue(PageProperty property) {
-		return switch (property.getType()) {
-			case RichText -> getPlainText(property.getRichText());
-			case Title -> getPlainText(property.getTitle());
-			default -> throw new IllegalArgumentException("Unsupported type: " + property.getType());
-		};
+		if (property instanceof RichTextProperty p) {
+			return getPlainText(p.richText());
+		}
+		if (property instanceof TitleProperty p) {
+			return getPlainText(p.title());
+		}
+		throw new IllegalArgumentException("Unsupported type: " + property.getClass());
 	}
 
 	private static String getPlainText(List<RichText> texts) {
-		return texts.isEmpty() ? "" : texts.get(0).getPlainText();
+		return texts.isEmpty() ? "" : texts.get(0).plainText();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("DataFlowIssue")
 	@Override
 	protected void doClose() {
-		client.close();
-		client = null;
-
 		hasMore = false;
 	}
 
