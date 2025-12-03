@@ -21,10 +21,10 @@ import java.io.OutputStream;
 
 import org.springframework.batch.extensions.s3.serializer.S3Serializer;
 import org.springframework.batch.extensions.s3.stream.S3MultipartOutputStream;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemStream;
-import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemStream;
+import org.springframework.batch.infrastructure.item.ItemStreamException;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.util.ObjectUtils;
 
 /**

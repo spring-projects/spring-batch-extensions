@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.batch.extensions.s3.serializer.S3Serializer;
 import org.springframework.batch.extensions.s3.stream.S3MultipartOutputStream;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemStreamException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;

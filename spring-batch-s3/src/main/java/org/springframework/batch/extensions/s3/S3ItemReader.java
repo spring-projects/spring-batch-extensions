@@ -21,9 +21,9 @@ import java.util.Arrays;
 
 import org.springframework.batch.extensions.s3.serializer.S3Deserializer;
 import org.springframework.batch.extensions.s3.stream.S3InputStream;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStream;
-import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemStream;
+import org.springframework.batch.infrastructure.item.ItemStreamException;
 
 /**
  * An {@link ItemReader} that reads items from an S3 object using a specified
