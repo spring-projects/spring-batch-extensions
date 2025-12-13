@@ -15,21 +15,28 @@
  */
 package org.springframework.batch.extensions.notion;
 
-import notion.api.v1.model.databases.query.filter.CompoundFilterElement;
-import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
-import notion.api.v1.model.databases.query.filter.condition.CheckboxFilter;
-import notion.api.v1.model.databases.query.filter.condition.FilesFilter;
-import notion.api.v1.model.databases.query.filter.condition.MultiSelectFilter;
-import notion.api.v1.model.databases.query.filter.condition.NumberFilter;
-import notion.api.v1.model.databases.query.filter.condition.SelectFilter;
-import notion.api.v1.model.databases.query.filter.condition.StatusFilter;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonValue;
+import org.jspecify.annotations.Nullable;
+import org.springframework.batch.extensions.notion.Filter.FilterConditionBuilder.Condition;
+import tools.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import tools.jackson.databind.annotation.JsonNaming;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.function.BiConsumer;
+import java.util.StringJoiner;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /**
  * Filtering conditions to limit the entries returned from a database query.
@@ -41,6 +48,8 @@ import java.util.function.Consumer;
  *
  * @author Stefano Cordio
  */
+@JsonTypeName("filter")
+@JsonTypeInfo(use = Id.NAME, include = As.WRAPPER_OBJECT)
 public abstract sealed class Filter {
 
 	/**
@@ -63,10 +72,6 @@ public abstract sealed class Filter {
 	private Filter() {
 	}
 
-	abstract QueryTopLevelFilter toQueryTopLevelFilter();
-
-	abstract CompoundFilterElement toCompoundFilterElement();
-
 	/**
 	 * Base class for top level filters that support filters composition via the
 	 * {@link TopLevelFilter#and} and {@link TopLevelFilter#or} methods.
@@ -86,7 +91,7 @@ public abstract sealed class Filter {
 		 */
 		public FilterConditionBuilder<AndFilter> and() {
 			return new FilterConditionBuilder<>(
-					(property, customizer) -> new AndFilter(this, new PropertyFilter(property, customizer)));
+					(property, condition) -> new AndFilter(this, new PropertyFilter(property, condition)));
 		}
 
 		/**
@@ -105,7 +110,7 @@ public abstract sealed class Filter {
 		 */
 		public FilterConditionBuilder<OrFilter> or() {
 			return new FilterConditionBuilder<>(
-					(property, customizer) -> new OrFilter(this, new PropertyFilter(property, customizer)));
+					(property, condition) -> new OrFilter(this, new PropertyFilter(property, condition)));
 		}
 
 		/**
@@ -121,97 +126,43 @@ public abstract sealed class Filter {
 
 	private static final class DelegateFilter extends TopLevelFilter {
 
+		@JsonValue
 		private final Filter delegate;
 
 		private DelegateFilter(Filter delegate) {
-			this.delegate = Objects.requireNonNull(delegate);
-		}
-
-		@Override
-		QueryTopLevelFilter toQueryTopLevelFilter() {
-			return delegate.toQueryTopLevelFilter();
-		}
-
-		@Override
-		CompoundFilterElement toCompoundFilterElement() {
-			return delegate.toCompoundFilterElement();
+			this.delegate = delegate;
 		}
 
 	}
 
 	private static final class PropertyFilter extends TopLevelFilter {
 
+		@SuppressWarnings("unused")
+		@JsonProperty
 		private final String property;
 
-		private final NotionPropertyFilterCustomizer customizer;
+		@SuppressWarnings("unused")
+		@JsonAnyGetter
+		private final Map<String, Condition<?>> condition;
 
-		private PropertyFilter(String property, NotionPropertyFilterCustomizer customizer) {
+		private PropertyFilter(String property, Entry<String, Condition<?>> condition) {
 			this.property = property;
-			this.customizer = customizer;
+			this.condition = Map.ofEntries(condition);
 		}
 
 		@Override
-		QueryTopLevelFilter toQueryTopLevelFilter() {
-			return toNotionPropertyFilter();
-		}
-
-		@Override
-		CompoundFilterElement toCompoundFilterElement() {
-			return toNotionPropertyFilter();
-		}
-
-		private notion.api.v1.model.databases.query.filter.PropertyFilter toNotionPropertyFilter() {
-			var notionPropertyFilter = new notion.api.v1.model.databases.query.filter.PropertyFilter(property);
-			customizer.accept(notionPropertyFilter);
-			return notionPropertyFilter;
+		public String toString() {
+			return new StringJoiner(", ", PropertyFilter.class.getSimpleName() + "[", "]")
+				.add("property='" + property + "'")
+				.add(condition.toString())
+				.toString();
 		}
 
 	}
 
 	@FunctionalInterface
-	private interface NotionPropertyFilterFactory<T extends Filter>
-			extends BiFunction<String, NotionPropertyFilterCustomizer, T> {
-
-	}
-
-	@FunctionalInterface
-	private interface NotionPropertyFilterCustomizer
-			extends Consumer<notion.api.v1.model.databases.query.filter.PropertyFilter> {
-
-	}
-
-	static abstract sealed class CompoundFilter extends Filter {
-
-		final List<Filter> filters = new ArrayList<>();
-
-		private final NotionCompoundFilterSetter setter;
-
-		private CompoundFilter(NotionCompoundFilterSetter setter) {
-			this.setter = setter;
-		}
-
-		@Override
-		QueryTopLevelFilter toQueryTopLevelFilter() {
-			return toNotionCompoundFilter();
-		}
-
-		@Override
-		CompoundFilterElement toCompoundFilterElement() {
-			return toNotionCompoundFilter();
-		}
-
-		private notion.api.v1.model.databases.query.filter.CompoundFilter toNotionCompoundFilter() {
-			var notionCompoundFilter = new notion.api.v1.model.databases.query.filter.CompoundFilter();
-			var notionCompoundFilterElements = filters.stream().map(Filter::toCompoundFilterElement).toList();
-			setter.accept(notionCompoundFilter, notionCompoundFilterElements);
-			return notionCompoundFilter;
-		}
-
-	}
-
-	@FunctionalInterface
-	private interface NotionCompoundFilterSetter
-			extends BiConsumer<notion.api.v1.model.databases.query.filter.CompoundFilter, List<CompoundFilterElement>> {
+	private interface PropertyFilterFactory<T extends Filter>
+			extends BiFunction<String, Entry<String, Condition<?>>, T> {
 
 	}
 
@@ -221,11 +172,14 @@ public abstract sealed class Filter {
 	 * <p>
 	 * Returns entries that match <b>all</b> of the provided filters.
 	 */
-	public static final class AndFilter extends CompoundFilter {
+	public static final class AndFilter extends Filter {
+
+		@JsonProperty
+		@JsonTypeInfo(use = Id.DEDUCTION)
+		private final List<Filter> and = new ArrayList<>();
 
 		private AndFilter(Filter first, Filter second) {
-			super(notion.api.v1.model.databases.query.filter.CompoundFilter::setAnd);
-			filters.addAll(List.of(first, second));
+			and.addAll(List.of(first, second));
 		}
 
 		/**
@@ -234,8 +188,8 @@ public abstract sealed class Filter {
 		 * @return a {@link FilterConditionBuilder} instance for an {@link AndFilter}
 		 */
 		public FilterConditionBuilder<AndFilter> and() {
-			return new FilterConditionBuilder<>((property, customizer) -> {
-				filters.add(new PropertyFilter(property, customizer));
+			return new FilterConditionBuilder<>((property, condition) -> {
+				and.add(new PropertyFilter(property, condition));
 				return this;
 			});
 		}
@@ -246,7 +200,7 @@ public abstract sealed class Filter {
 		 * @return a new {@link AndFilter} instance
 		 */
 		public AndFilter and(Filter filter) {
-			filters.add(Objects.requireNonNull(filter));
+			and.add(Objects.requireNonNull(filter));
 			return this;
 		}
 
@@ -258,11 +212,14 @@ public abstract sealed class Filter {
 	 * <p>
 	 * Returns entries that match <b>any</b> of the provided filters.
 	 */
-	public static final class OrFilter extends CompoundFilter {
+	public static final class OrFilter extends Filter {
+
+		@JsonProperty
+		@JsonTypeInfo(use = Id.DEDUCTION)
+		private final List<Filter> or = new ArrayList<>();
 
 		private OrFilter(Filter first, Filter second) {
-			super(notion.api.v1.model.databases.query.filter.CompoundFilter::setOr);
-			filters.addAll(List.of(first, second));
+			or.addAll(List.of(first, second));
 		}
 
 		/**
@@ -271,8 +228,8 @@ public abstract sealed class Filter {
 		 * @return a {@link FilterConditionBuilder} instance for an {@link OrFilter}
 		 */
 		public FilterConditionBuilder<OrFilter> or() {
-			return new FilterConditionBuilder<>((property, customizer) -> {
-				filters.add(new PropertyFilter(property, customizer));
+			return new FilterConditionBuilder<>((property, condition) -> {
+				or.add(new PropertyFilter(property, condition));
 				return this;
 			});
 		}
@@ -283,7 +240,7 @@ public abstract sealed class Filter {
 		 * @return a new {@link OrFilter} instance
 		 */
 		public OrFilter or(Filter filter) {
-			filters.add(Objects.requireNonNull(filter));
+			or.add(Objects.requireNonNull(filter));
 			return this;
 		}
 
@@ -296,9 +253,9 @@ public abstract sealed class Filter {
 	 */
 	public static final class FilterConditionBuilder<T extends Filter> {
 
-		private final NotionPropertyFilterFactory<T> factory;
+		private final PropertyFilterFactory<T> factory;
 
-		private FilterConditionBuilder(NotionPropertyFilterFactory<T> factory) {
+		private FilterConditionBuilder(PropertyFilterFactory<T> factory) {
 			this.factory = factory;
 		}
 
@@ -316,7 +273,7 @@ public abstract sealed class Filter {
 		 * Start the definition of the filter condition for a {@code files} property.
 		 * @param property The name of the property as it appears in the database, or the
 		 * property ID
-		 * @return a new {@link CheckboxCondition} instance
+		 * @return a new {@link FilesCondition} instance
 		 */
 		public FilesCondition<T> files(String property) {
 			return new FilesCondition<>(property, factory);
@@ -363,19 +320,24 @@ public abstract sealed class Filter {
 			return new StatusCondition<>(property, factory);
 		}
 
+		@JsonNaming(SnakeCaseStrategy.class)
+		@JsonInclude(Include.NON_EMPTY)
 		static abstract sealed class Condition<T extends Filter> {
+
+			private final String name;
 
 			private final String property;
 
-			private final NotionPropertyFilterFactory<T> factory;
+			private final PropertyFilterFactory<T> factory;
 
-			private Condition(String property, NotionPropertyFilterFactory<T> factory) {
+			private Condition(String name, String property, PropertyFilterFactory<T> factory) {
+				this.name = name;
 				this.property = property;
 				this.factory = factory;
 			}
 
-			T toFilter(NotionPropertyFilterCustomizer customizer) {
-				return factory.apply(property, customizer);
+			T toFilter() {
+				return factory.apply(property, new SimpleEntry<>(name, this));
 			}
 
 		}
@@ -387,8 +349,16 @@ public abstract sealed class Filter {
 		 */
 		public static final class CheckboxCondition<T extends Filter> extends Condition<T> {
 
-			private CheckboxCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean equals;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean doesNotEqual;
+
+			private CheckboxCondition(String property, PropertyFilterFactory<T> factory) {
+				super("checkbox", property, factory);
 			}
 
 			/**
@@ -397,9 +367,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEqualTo(boolean value) {
-				CheckboxFilter checkboxFilter = new CheckboxFilter();
-				checkboxFilter.setEquals(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setCheckbox(checkboxFilter));
+				this.equals = value;
+				return toFilter();
 			}
 
 			/**
@@ -408,9 +377,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEqualTo(boolean value) {
-				CheckboxFilter checkboxFilter = new CheckboxFilter();
-				checkboxFilter.setDoesNotEqual(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setCheckbox(checkboxFilter));
+				this.doesNotEqual = value;
+				return toFilter();
 			}
 
 		}
@@ -422,8 +390,16 @@ public abstract sealed class Filter {
 		 */
 		public static final class FilesCondition<T extends Filter> extends Condition<T> {
 
-			private FilesCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isEmpty;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isNotEmpty;
+
+			private FilesCondition(String property, PropertyFilterFactory<T> factory) {
+				super("files", property, factory);
 			}
 
 			/**
@@ -431,9 +407,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEmpty() {
-				FilesFilter filesFilter = new FilesFilter();
-				filesFilter.setEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setFile(filesFilter));
+				this.isEmpty = true;
+				return toFilter();
 			}
 
 			/**
@@ -441,9 +416,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEmpty() {
-				FilesFilter filesFilter = new FilesFilter();
-				filesFilter.setNotEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setFile(filesFilter));
+				this.isNotEmpty = true;
+				return toFilter();
 			}
 
 		}
@@ -455,8 +429,24 @@ public abstract sealed class Filter {
 		 */
 		public static final class MultiSelectCondition<T extends Filter> extends Condition<T> {
 
-			private MultiSelectCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String contains;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String doesNotContain;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isEmpty;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isNotEmpty;
+
+			private MultiSelectCondition(String property, PropertyFilterFactory<T> factory) {
+				super("multi_select", property, factory);
 			}
 
 			/**
@@ -466,9 +456,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T contains(String value) {
-				MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-				multiSelectFilter.setContains(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setMultiSelect(multiSelectFilter));
+				this.contains = value;
+				return toFilter();
 			}
 
 			/**
@@ -478,9 +467,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T doesNotContain(String value) {
-				MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-				multiSelectFilter.setDoesNotContain(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setMultiSelect(multiSelectFilter));
+				this.doesNotContain = value;
+				return toFilter();
 			}
 
 			/**
@@ -488,9 +476,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEmpty() {
-				MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-				multiSelectFilter.setEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setMultiSelect(multiSelectFilter));
+				this.isEmpty = true;
+				return toFilter();
 			}
 
 			/**
@@ -498,9 +485,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEmpty() {
-				MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-				multiSelectFilter.setNotEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setMultiSelect(multiSelectFilter));
+				this.isNotEmpty = true;
+				return toFilter();
 			}
 
 		}
@@ -512,8 +498,40 @@ public abstract sealed class Filter {
 		 */
 		public static final class NumberCondition<T extends Filter> extends Condition<T> {
 
-			private NumberCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer equals;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer doesNotEqual;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer greaterThan;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer greaterThanOrEqualTo;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer lessThan;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Integer lessThanOrEqualTo;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isEmpty;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isNotEmpty;
+
+			private NumberCondition(String property, PropertyFilterFactory<T> factory) {
+				super("number", property, factory);
 			}
 
 			/**
@@ -523,9 +541,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEqualTo(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setEquals(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.equals = value;
+				return toFilter();
 			}
 
 			/**
@@ -535,9 +552,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEqualTo(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setDoesNotEqual(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.doesNotEqual = value;
+				return toFilter();
 			}
 
 			/**
@@ -546,9 +562,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isGreaterThan(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setGreaterThan(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.greaterThan = value;
+				return toFilter();
 			}
 
 			/**
@@ -558,9 +573,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isGreaterThanOrEqualTo(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setGreaterThanOrEqualTo(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.greaterThanOrEqualTo = value;
+				return toFilter();
 			}
 
 			/**
@@ -570,9 +584,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isLessThan(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setLessThan(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.lessThan = value;
+				return toFilter();
 			}
 
 			/**
@@ -582,9 +595,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isLessThanOrEqualTo(int value) {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setLessThanOrEqualTo(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.lessThanOrEqualTo = value;
+				return toFilter();
 			}
 
 			/**
@@ -592,9 +604,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEmpty() {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.isEmpty = true;
+				return toFilter();
 			}
 
 			/**
@@ -602,9 +613,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEmpty() {
-				NumberFilter numberFilter = new NumberFilter();
-				numberFilter.setNotEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setNumber(numberFilter));
+				this.isNotEmpty = true;
+				return toFilter();
 			}
 
 		}
@@ -616,8 +626,24 @@ public abstract sealed class Filter {
 		 */
 		public static final class SelectCondition<T extends Filter> extends Condition<T> {
 
-			private SelectCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String equals;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String doesNotEqual;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isEmpty;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isNotEmpty;
+
+			private SelectCondition(String property, PropertyFilterFactory<T> factory) {
+				super("select", property, factory);
 			}
 
 			/**
@@ -626,9 +652,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEqualTo(String value) {
-				SelectFilter selectFilter = new SelectFilter();
-				selectFilter.setEquals(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setSelect(selectFilter));
+				this.equals = value;
+				return toFilter();
 			}
 
 			/**
@@ -638,9 +663,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEqualTo(String value) {
-				SelectFilter selectFilter = new SelectFilter();
-				selectFilter.setDoesNotEqual(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setSelect(selectFilter));
+				this.doesNotEqual = value;
+				return toFilter();
 			}
 
 			/**
@@ -648,9 +672,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEmpty() {
-				SelectFilter selectFilter = new SelectFilter();
-				selectFilter.setEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setSelect(selectFilter));
+				this.isEmpty = true;
+				return toFilter();
 			}
 
 			/**
@@ -658,9 +681,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEmpty() {
-				SelectFilter selectFilter = new SelectFilter();
-				selectFilter.setNotEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setSelect(selectFilter));
+				this.isNotEmpty = true;
+				return toFilter();
 			}
 
 		}
@@ -672,8 +694,24 @@ public abstract sealed class Filter {
 		 */
 		public static final class StatusCondition<T extends Filter> extends Condition<T> {
 
-			private StatusCondition(String property, NotionPropertyFilterFactory<T> factory) {
-				super(property, factory);
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String equals;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable String doesNotEqual;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isEmpty;
+
+			@SuppressWarnings("unused")
+			@JsonProperty
+			private @Nullable Boolean isNotEmpty;
+
+			private StatusCondition(String property, PropertyFilterFactory<T> factory) {
+				super("status", property, factory);
 			}
 
 			/**
@@ -682,9 +720,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEqualTo(String value) {
-				StatusFilter statusFilter = new StatusFilter();
-				statusFilter.setEquals(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+				this.equals = value;
+				return toFilter();
 			}
 
 			/**
@@ -694,9 +731,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEqualTo(String value) {
-				StatusFilter statusFilter = new StatusFilter();
-				statusFilter.setDoesNotEqual(value);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+				this.doesNotEqual = value;
+				return toFilter();
 			}
 
 			/**
@@ -704,9 +740,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isEmpty() {
-				StatusFilter statusFilter = new StatusFilter();
-				statusFilter.setEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+				this.isEmpty = true;
+				return toFilter();
 			}
 
 			/**
@@ -714,9 +749,8 @@ public abstract sealed class Filter {
 			 * @return a filter with the newly defined condition
 			 */
 			public T isNotEmpty() {
-				StatusFilter statusFilter = new StatusFilter();
-				statusFilter.setNotEmpty(true);
-				return toFilter(notionPropertyFilter -> notionPropertyFilter.setStatus(statusFilter));
+				this.isNotEmpty = true;
+				return toFilter();
 			}
 
 		}

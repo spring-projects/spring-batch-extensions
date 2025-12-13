@@ -15,25 +15,16 @@
  */
 package org.springframework.batch.extensions.notion;
 
-import notion.api.v1.model.databases.query.filter.CompoundFilter;
-import notion.api.v1.model.databases.query.filter.PropertyFilter;
-import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
-import notion.api.v1.model.databases.query.filter.condition.CheckboxFilter;
-import notion.api.v1.model.databases.query.filter.condition.FilesFilter;
-import notion.api.v1.model.databases.query.filter.condition.MultiSelectFilter;
-import notion.api.v1.model.databases.query.filter.condition.NumberFilter;
-import notion.api.v1.model.databases.query.filter.condition.SelectFilter;
-import notion.api.v1.model.databases.query.filter.condition.StatusFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static org.springframework.batch.extensions.notion.Filter.where;
 
 /**
@@ -41,244 +32,272 @@ import static org.springframework.batch.extensions.notion.Filter.where;
  */
 class FilterTests {
 
+	// Test cases from https://developers.notion.com/reference/post-database-query-filter
+
+	private final JsonMapper jsonMapper = new JsonMapper();
+
 	@ParameterizedTest
 	@FieldSource({ "PROPERTY_FILTERS", "COMPOUND_FILTERS", "NESTED_FILTERS" })
-	void toQueryTopLevelFilter(Filter underTest, QueryTopLevelFilter expected) {
+	void toJson(Filter underTest, String expected) throws Exception {
 		// WHEN
-		QueryTopLevelFilter result = underTest.toQueryTopLevelFilter();
+		String result = jsonMapper.writeValueAsString(underTest);
 		// THEN
-		then(result).usingRecursiveComparison().isEqualTo(expected);
+		assertEquals(expected, result, true);
 	}
 
 	static final List<Arguments> CHECKBOX_FILTERS = Stream.of(true, false)
 		.flatMap(value -> Stream.of( //
-				arguments( //
-						where().checkbox("property").isEqualTo(value), //
-						supply(() -> {
-							CheckboxFilter checkboxFilter = new CheckboxFilter();
-							checkboxFilter.setEquals(value);
-							PropertyFilter propertyFilter = new PropertyFilter("property");
-							propertyFilter.setCheckbox(checkboxFilter);
-							return propertyFilter;
-						})),
-				arguments( //
-						where().checkbox("property").isNotEqualTo(value), //
-						supply(() -> {
-							CheckboxFilter checkboxFilter = new CheckboxFilter();
-							checkboxFilter.setDoesNotEqual(value);
-							PropertyFilter propertyFilter = new PropertyFilter("property");
-							propertyFilter.setCheckbox(checkboxFilter);
-							return propertyFilter;
-						}))))
+				arguments(where().checkbox("Task completed").isEqualTo(value), """
+						{
+						  "filter": {
+						    "property": "Task completed",
+						    "checkbox": {
+						      "equals": %s
+						    }
+						  }
+						}
+						""".formatted(value)), //
+				arguments(where().checkbox("Task completed").isNotEqualTo(value), """
+						{
+						  "filter": {
+						    "property": "Task completed",
+						    "checkbox": {
+						      "does_not_equal": %s
+						    }
+						  }
+						}
+						""".formatted(value))))
 		.toList();
 
 	static final List<Arguments> FILES_FILTERS = List.of( //
-			arguments( //
-					where().files("property").isEmpty(), //
-					supply(() -> {
-						FilesFilter filesFilter = new FilesFilter();
-						filesFilter.setEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setFile(filesFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().files("property").isNotEmpty(), //
-					supply(() -> {
-						FilesFilter filesFilter = new FilesFilter();
-						filesFilter.setNotEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setFile(filesFilter);
-						return propertyFilter;
-					})));
+			arguments(where().files("Blueprint").isEmpty(), """
+					{
+					  "filter": {
+					    "property": "Blueprint",
+					    "files": {
+					      "is_empty": true
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().files("Blueprint").isNotEmpty(), """
+					{
+					  "filter": {
+					    "property": "Blueprint",
+					    "files": {
+					      "is_not_empty": true
+					    }
+					  }
+					}
+					"""));
 
 	static final List<Arguments> MULTI_SELECT_FILTERS = List.of( //
-			arguments( //
-					where().multiSelect("property").contains("value"), //
-					supply(() -> {
-						MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-						multiSelectFilter.setContains("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setMultiSelect(multiSelectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().multiSelect("property").doesNotContain("value"), //
-					supply(() -> {
-						MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-						multiSelectFilter.setDoesNotContain("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setMultiSelect(multiSelectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().multiSelect("property").isEmpty(), //
-					supply(() -> {
-						MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-						multiSelectFilter.setEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setMultiSelect(multiSelectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().multiSelect("property").isNotEmpty(), //
-					supply(() -> {
-						MultiSelectFilter multiSelectFilter = new MultiSelectFilter();
-						multiSelectFilter.setNotEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setMultiSelect(multiSelectFilter);
-						return propertyFilter;
-					})));
+			arguments(where().multiSelect("Programming language").contains("TypeScript"), """
+					{
+					  "filter": {
+					    "property": "Programming language",
+					    "multi_select": {
+					      "contains": "TypeScript"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().multiSelect("Programming language").doesNotContain("TypeScript"), """
+					{
+					  "filter": {
+					    "property": "Programming language",
+					    "multi_select": {
+					      "does_not_contain": "TypeScript"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().multiSelect("Programming language").isEmpty(), """
+					{
+					  "filter": {
+					    "property": "Programming language",
+					    "multi_select": {
+					      "is_empty": true
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().multiSelect("Programming language").isNotEmpty(), """
+					{
+					  "filter": {
+					    "property": "Programming language",
+					    "multi_select": {
+					      "is_not_empty": true
+					    }
+					  }
+					}
+					"""));
 
 	static final List<Arguments> NUMBER_FILTERS = List.of( //
-			arguments( //
-					where().number("property").isEqualTo(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setEquals(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isNotEqualTo(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setDoesNotEqual(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isGreaterThan(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setGreaterThan(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isGreaterThanOrEqualTo(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setGreaterThanOrEqualTo(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isLessThan(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setLessThan(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isLessThanOrEqualTo(42), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setLessThanOrEqualTo(42);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isEmpty(), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().number("property").isNotEmpty(), //
-					supply(() -> {
-						NumberFilter numberFilter = new NumberFilter();
-						numberFilter.setNotEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setNumber(numberFilter);
-						return propertyFilter;
-					})));
+			arguments(where().number("Estimated working days").isEqualTo(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "equals": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isNotEqualTo(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "does_not_equal": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isGreaterThan(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "greater_than": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isGreaterThanOrEqualTo(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "greater_than_or_equal_to": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isLessThan(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "less_than": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isLessThanOrEqualTo(42), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "less_than_or_equal_to": 42
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isEmpty(), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "is_empty": true
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().number("Estimated working days").isNotEmpty(), """
+					{
+					  "filter": {
+					    "property": "Estimated working days",
+					    "number": {
+					      "is_not_empty": true
+					    }
+					  }
+					}
+					"""));
 
 	static final List<Arguments> SELECT_FILTERS = List.of( //
-			arguments( //
-					where().select("property").isEqualTo("value"), //
-					supply(() -> {
-						SelectFilter selectFilter = new SelectFilter();
-						selectFilter.setEquals("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setSelect(selectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().select("property").isNotEqualTo("value"), //
-					supply(() -> {
-						SelectFilter selectFilter = new SelectFilter();
-						selectFilter.setDoesNotEqual("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setSelect(selectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().select("property").isEmpty(), //
-					supply(() -> {
-						SelectFilter selectFilter = new SelectFilter();
-						selectFilter.setEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setSelect(selectFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().select("property").isNotEmpty(), //
-					supply(() -> {
-						SelectFilter selectFilter = new SelectFilter();
-						selectFilter.setNotEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setSelect(selectFilter);
-						return propertyFilter;
-					})));
+			arguments(where().select("Backend framework").isEqualTo("Spring"), """
+					{
+					  "filter": {
+					    "property": "Backend framework",
+					    "select": {
+					      "equals": "Spring"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().select("Backend framework").isNotEqualTo("Spring"), """
+					{
+					  "filter": {
+					    "property": "Backend framework",
+					    "select": {
+					      "does_not_equal": "Spring"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().select("Backend framework").isEmpty(), """
+					{
+					  "filter": {
+					    "property": "Backend framework",
+					    "select": {
+					      "is_empty": true
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().select("Backend framework").isNotEmpty(), """
+					{
+					  "filter": {
+					    "property": "Backend framework",
+					    "select": {
+					      "is_not_empty": true
+					    }
+					  }
+					}
+					"""));
 
 	static final List<Arguments> STATUS_FILTERS = List.of( //
-			arguments( //
-					where().status("property").isEqualTo("value"), //
-					supply(() -> {
-						StatusFilter statusFilter = new StatusFilter();
-						statusFilter.setEquals("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setStatus(statusFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().status("property").isNotEqualTo("value"), //
-					supply(() -> {
-						StatusFilter statusFilter = new StatusFilter();
-						statusFilter.setDoesNotEqual("value");
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setStatus(statusFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().status("property").isEmpty(), //
-					supply(() -> {
-						StatusFilter statusFilter = new StatusFilter();
-						statusFilter.setEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setStatus(statusFilter);
-						return propertyFilter;
-					})),
-			arguments( //
-					where().status("property").isNotEmpty(), //
-					supply(() -> {
-						StatusFilter statusFilter = new StatusFilter();
-						statusFilter.setNotEmpty(true);
-						PropertyFilter propertyFilter = new PropertyFilter("property");
-						propertyFilter.setStatus(statusFilter);
-						return propertyFilter;
-					})));
+			arguments(where().status("Project status").isEqualTo("Not started"), """
+					{
+					  "filter": {
+					    "property": "Project status",
+					    "status": {
+					      "equals": "Not started"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().status("Project status").isNotEqualTo("Not started"), """
+					{
+					  "filter": {
+					    "property": "Project status",
+					    "status": {
+					      "does_not_equal": "Not started"
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().status("Project status").isEmpty(), """
+					{
+					  "filter": {
+					    "property": "Project status",
+					    "status": {
+					      "is_empty": true
+					    }
+					  }
+					}
+					"""), //
+			arguments(where().status("Project status").isNotEmpty(), """
+					{
+					  "filter": {
+					    "property": "Project status",
+					    "status": {
+					      "is_not_empty": true
+					    }
+					  }
+					}
+					"""));
 
 	static final List<Arguments> PROPERTY_FILTERS = Stream.of( //
 			CHECKBOX_FILTERS, //
@@ -291,284 +310,246 @@ class FilterTests {
 		.toList();
 
 	static final List<Arguments> AND_FILTERS = List.of( //
+			arguments(where().checkbox("Complete").isEqualTo(true).and().number("Days").isGreaterThan(10), """
+					{
+					  "filter": {
+					    "and": [
+					      {
+					        "property": "Complete",
+					        "checkbox": {
+					          "equals": true
+					        }
+					      },
+					      {
+					        "property": "Days",
+					        "number": {
+					          "greater_than": 10
+					        }
+					      }
+					    ]
+					  }
+					}
+					"""),
+			arguments(where().checkbox("Complete").isEqualTo(true).and(where().number("Days").isGreaterThan(10)), """
+					{
+					  "filter": {
+					    "and": [
+					      {
+					        "property": "Complete",
+					        "checkbox": {
+					          "equals": true
+					        }
+					      },
+					      {
+					        "property": "Days",
+					        "number": {
+					          "greater_than": 10
+					        }
+					      }
+					    ]
+					  }
+					}
+					"""),
 			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.and().select("another").isNotEmpty(), //
+					where().checkbox("Complete").isEqualTo(true)
+						.and(where().number("Days").isGreaterThan(10))
+						.and().checkbox("Archived").isNotEqualTo(false)
+						.and(where().select("Language").isEmpty()),
 					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setAnd(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})),
-			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.and(where().select("another").isNotEmpty()),
-					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setAnd(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})),
-			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.and(where().select("another").isNotEmpty())
-						.and().checkbox("one-more").isNotEqualTo(true)
-						.and(where().select("another-more").isEmpty()),
-					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setAnd(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setDoesNotEqual(true);
-									PropertyFilter propertyFilter = new PropertyFilter("one-more");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another-more");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})));
+					"""
+							{
+							  "filter": {
+							    "and": [
+							      {
+							        "property": "Complete",
+							        "checkbox": {
+							          "equals": true
+							        }
+							      },
+							      {
+							        "property": "Days",
+							        "number": {
+							          "greater_than": 10
+							        }
+							      },
+							      {
+							        "property": "Archived",
+							        "checkbox": {
+							          "does_not_equal": false
+							        }
+							      },
+							      {
+							        "property": "Language",
+							        "select": {
+							          "is_empty": true
+							        }
+							      }
+							    ]
+							  }
+							}
+							"""));
 
 	static final List<Arguments> OR_FILTERS = List.of( //
+			arguments(where().checkbox("Complete").isEqualTo(true).or().number("Days").isGreaterThan(10), """
+					{
+					  "filter": {
+					    "or": [
+					      {
+					        "property": "Complete",
+					        "checkbox": {
+					          "equals": true
+					        }
+					      },
+					      {
+					        "property": "Days",
+					        "number": {
+					          "greater_than": 10
+					        }
+					      }
+					    ]
+					  }
+					}
+					"""),
+			arguments(where().checkbox("Complete").isEqualTo(true).or(where().number("Days").isGreaterThan(10)), """
+					{
+					  "filter": {
+					    "or": [
+					      {
+					        "property": "Complete",
+					        "checkbox": {
+					          "equals": true
+					        }
+					      },
+					      {
+					        "property": "Days",
+					        "number": {
+					          "greater_than": 10
+					        }
+					      }
+					    ]
+					  }
+					}
+					"""),
 			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.or().select("another").isNotEmpty(),
+					where().checkbox("Complete").isEqualTo(true)
+						.or(where().number("Days").isGreaterThan(10))
+						.or().checkbox("Archived").isNotEqualTo(false)
+						.or(where().select("Language").isEmpty()),
 					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setOr(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})),
-			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.or(where().select("another").isNotEmpty()),
-					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setOr(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})),
-			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(false)
-						.or(where().select("another").isNotEmpty())
-						.or().checkbox("one-more").isNotEqualTo(true)
-						.or(where().select("another-more").isEmpty()),
-					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setOr(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(false);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setNotEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setDoesNotEqual(true);
-									PropertyFilter propertyFilter = new PropertyFilter("one-more");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("another-more");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})));
+					"""
+							{
+							  "filter": {
+							    "or": [
+							      {
+							        "property": "Complete",
+							        "checkbox": {
+							          "equals": true
+							        }
+							      },
+							      {
+							        "property": "Days",
+							        "number": {
+							          "greater_than": 10
+							        }
+							      },
+							      {
+							        "property": "Archived",
+							        "checkbox": {
+							          "does_not_equal": false
+							        }
+							      },
+							      {
+							        "property": "Language",
+							        "select": {
+							          "is_empty": true
+							        }
+							      }
+							    ]
+							  }
+							}
+							"""));
 
 	static final List<Arguments> COMPOUND_FILTERS = Stream.of(AND_FILTERS, OR_FILTERS).flatMap(List::stream).toList();
 
 	static final List<Arguments> NESTED_FILTERS = List.of( //
+			arguments(where(where().checkbox("Task completed").isEqualTo(true)), """
+					{
+					  "filter": {
+					    "property": "Task completed",
+					    "checkbox": {
+					      "equals": true
+					    }
+					  }
+					}
+					"""),
 			arguments( // @formatter:off
-					where(where().checkbox("active").isEqualTo(true)),
+					where().checkbox("Complete").isEqualTo(true)
+						.and(where().select("Language").isEmpty().or().select("Language").isEqualTo("Java")),
 					// @formatter:on
-					supply(() -> {
-						CheckboxFilter checkboxFilter = new CheckboxFilter();
-						checkboxFilter.setEquals(true);
-						PropertyFilter propertyFilter = new PropertyFilter("active");
-						propertyFilter.setCheckbox(checkboxFilter);
-						return propertyFilter;
-					})),
+					"""
+							{
+							  "filter": {
+							    "and": [
+							      {
+							        "property": "Complete",
+							        "checkbox": {
+							          "equals": true
+							        }
+							      },
+							      {
+							        "or": [
+							          {
+							            "property": "Language",
+							            "select": {
+							              "is_empty": true
+							            }
+							          },
+							          {
+							            "property": "Language",
+							            "select": {
+							              "equals": "Java"
+							            }
+							          }
+							        ]
+							      }
+							    ]
+							  }
+							}
+							"""),
 			arguments( // @formatter:off
-					where().checkbox("active").isEqualTo(true)
-						.and(where().select("another").isEmpty().or().select("another").isEqualTo("value")),
+					where(where().checkbox("Complete").isEqualTo(true)
+							.or().select("Language").isNotEmpty())
+						.and().select("Backend framework").isEmpty(),
 					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setAnd(List.of( //
-								supply(() -> {
-									CheckboxFilter checkboxFilter = new CheckboxFilter();
-									checkboxFilter.setEquals(true);
-									PropertyFilter propertyFilter = new PropertyFilter("active");
-									propertyFilter.setCheckbox(checkboxFilter);
-									return propertyFilter;
-								}), //
-								supply(() -> {
-									CompoundFilter innerFilter = new CompoundFilter();
-
-									innerFilter.setOr(List.of( //
-											supply(() -> {
-												SelectFilter selectFilter = new SelectFilter();
-												selectFilter.setEmpty(true);
-												PropertyFilter propertyFilter = new PropertyFilter("another");
-												propertyFilter.setSelect(selectFilter);
-												return propertyFilter;
-											}), //
-											supply(() -> {
-												SelectFilter selectFilter = new SelectFilter();
-												selectFilter.setEquals("value");
-												PropertyFilter propertyFilter = new PropertyFilter("another");
-												propertyFilter.setSelect(selectFilter);
-												return propertyFilter;
-											})));
-
-									return innerFilter;
-								})));
-
-						return compoundFilter;
-					})),
-			arguments( // @formatter:off
-					where(where().checkbox("active").isEqualTo(false)
-							.or().select("another").isNotEmpty())
-						.and().select("one-more").isEmpty(),
-					// @formatter:on
-					supply(() -> {
-						CompoundFilter compoundFilter = new CompoundFilter();
-
-						compoundFilter.setAnd(List.of( //
-								supply(() -> {
-									CompoundFilter innerFilter = new CompoundFilter();
-
-									innerFilter.setOr(List.of( //
-											supply(() -> {
-												CheckboxFilter checkboxFilter = new CheckboxFilter();
-												checkboxFilter.setEquals(false);
-												PropertyFilter propertyFilter = new PropertyFilter("active");
-												propertyFilter.setCheckbox(checkboxFilter);
-												return propertyFilter;
-											}), //
-											supply(() -> {
-												SelectFilter selectFilter = new SelectFilter();
-												selectFilter.setNotEmpty(true);
-												PropertyFilter propertyFilter = new PropertyFilter("another");
-												propertyFilter.setSelect(selectFilter);
-												return propertyFilter;
-											})));
-
-									return innerFilter;
-								}), //
-								supply(() -> {
-									SelectFilter selectFilter = new SelectFilter();
-									selectFilter.setEmpty(true);
-									PropertyFilter propertyFilter = new PropertyFilter("one-more");
-									propertyFilter.setSelect(selectFilter);
-									return propertyFilter;
-								})));
-
-						return compoundFilter;
-					})));
-
-	private static <T> T supply(Supplier<T> supplier) {
-		return supplier.get();
-	}
+					"""
+							{
+							  "filter": {
+							    "and": [
+							      {
+							        "or": [
+							          {
+							            "property": "Complete",
+							            "checkbox": {
+							              "equals": true
+							            }
+							          },
+							          {
+							            "property": "Language",
+							            "select": {
+							              "is_not_empty": true
+							            }
+							          }
+							        ]
+							      },
+							      {
+							        "property": "Backend framework",
+							        "select": {
+							          "is_empty": true
+							        }
+							      }
+							    ]
+							  }
+							}
+							"""));
 
 }
