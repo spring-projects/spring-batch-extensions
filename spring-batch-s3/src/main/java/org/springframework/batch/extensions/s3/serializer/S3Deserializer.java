@@ -16,6 +16,8 @@
 
 package org.springframework.batch.extensions.s3.serializer;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A functional interface for serializing items to byte arrays for S3 storage.
  * Implementations should provide a way to convert an item of type T into a byte array.
@@ -34,6 +36,7 @@ public interface S3Deserializer<T> {
 	 * @param buffer the byte array to deserialize
 	 * @return the deserialized object
 	 */
+	@Nullable
 	T deserialize(byte[] buffer);
 
 }

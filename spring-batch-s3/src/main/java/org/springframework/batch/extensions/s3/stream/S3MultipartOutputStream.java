@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -44,7 +45,8 @@ public class S3MultipartOutputStream extends OutputStream {
 
 	private final PipedOutputStream pipedOutputStream;
 
-	private  ExecutorService singleThreadExecutor;
+	@Nullable
+	private ExecutorService singleThreadExecutor;
 
 	private volatile boolean uploading;
 
@@ -104,7 +106,7 @@ public class S3MultipartOutputStream extends OutputStream {
 
 		if (this.uploading) {
 			try {
-				if (!this.singleThreadExecutor.awaitTermination(10L, TimeUnit.SECONDS)) {
+				if (this.singleThreadExecutor != null && !this.singleThreadExecutor.awaitTermination(10L, TimeUnit.SECONDS)) {
 					logger.warn("Multipart upload thread did not finish in time");
 				}
 			}
@@ -117,7 +119,7 @@ public class S3MultipartOutputStream extends OutputStream {
 		super.close();
 	}
 
-	public void setSingleThreadExecutor(ExecutorService singleThreadExecutor) {
+	public void setSingleThreadExecutor(@Nullable ExecutorService singleThreadExecutor) {
 		this.singleThreadExecutor = singleThreadExecutor;
 	}
 }

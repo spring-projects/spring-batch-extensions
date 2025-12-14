@@ -23,6 +23,7 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -54,6 +55,7 @@ public class S3OutputStream extends OutputStream {
 
 	private final PipedOutputStream pipedOutputStream;
 
+	@Nullable
 	private ExecutorService singleThreadExecutor;
 
 	private volatile boolean uploading;

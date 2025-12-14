@@ -16,6 +16,7 @@
 
 package org.springframework.batch.extensions.s3.builder;
 
+import org.jspecify.annotations.Nullable;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.batch.extensions.s3.S3ItemReader;
@@ -23,14 +24,19 @@ import org.springframework.batch.extensions.s3.serializer.S3Deserializer;
 import org.springframework.batch.extensions.s3.stream.S3InputStream;
 
 public class S3ItemReaderBuilder<T> {
+	@Nullable
 	private S3Client s3Client;
 
+	@Nullable
 	private String bucketName;
 
+	@Nullable
 	private String objectKey;
 
+	@Nullable
 	private S3Deserializer<T> deserializer;
 
+	@Nullable
 	private Integer bufferSize;
 
 	public S3ItemReaderBuilder<T> s3Client(S3Client s3Client) {

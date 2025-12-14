@@ -19,6 +19,8 @@ package org.springframework.batch.extensions.s3.serializer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Simple deserializer for String items from S3. It reads lines from a byte array,
  * handling both \n and \r\n line endings.
@@ -41,6 +43,7 @@ public class S3StringDeserializer implements S3Deserializer<String> {
 	}
 
 	@Override
+	@Nullable
 	public String deserialize(byte[] buffer) {
 		String incoming = new String(buffer, this.charset);
 		this.stringBuilder.append(incoming);

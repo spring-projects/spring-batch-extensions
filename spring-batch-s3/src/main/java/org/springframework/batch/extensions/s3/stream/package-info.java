@@ -24,4 +24,7 @@
  * convenient way to read large datasets stored in S3 without loading them entirely into
  * memory.
  */
+@NullMarked
 package org.springframework.batch.extensions.s3.stream;
+
+import org.jspecify.annotations.NullMarked;

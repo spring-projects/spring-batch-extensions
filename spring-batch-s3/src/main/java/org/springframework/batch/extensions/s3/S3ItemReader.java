@@ -19,6 +19,8 @@ package org.springframework.batch.extensions.s3;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.batch.extensions.s3.serializer.S3Deserializer;
 import org.springframework.batch.extensions.s3.stream.S3InputStream;
 import org.springframework.batch.infrastructure.item.ItemReader;
@@ -49,6 +51,7 @@ public class S3ItemReader<T> implements ItemReader<T>, ItemStream {
 	}
 
 	@Override
+	@Nullable
 	public T read() throws Exception {
 		T item;
 

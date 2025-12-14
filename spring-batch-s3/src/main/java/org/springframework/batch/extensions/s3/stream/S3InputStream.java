@@ -19,6 +19,7 @@ package org.springframework.batch.extensions.s3.stream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -41,6 +42,7 @@ public class S3InputStream extends InputStream {
 
 	private final String objectKey;
 
+	@Nullable
 	private InputStream inputStream;
 
 	public S3InputStream(S3Client s3, String bucketName, String objectKey) {

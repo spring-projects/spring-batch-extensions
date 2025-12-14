@@ -19,6 +19,7 @@ package org.springframework.batch.extensions.s3.builder;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.jspecify.annotations.Nullable;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import org.springframework.batch.extensions.s3.S3ItemWriter;
@@ -28,18 +29,24 @@ import org.springframework.batch.extensions.s3.stream.S3MultipartUploader;
 import org.springframework.batch.extensions.s3.stream.S3OutputStream;
 
 public class S3ItemWriterBuilder<T> {
+	@Nullable
 	private S3Client s3Client;
 
+	@Nullable
 	private String bucket;
 
+	@Nullable
 	private String key;
 
+	@Nullable
 	private S3Serializer<T> serializer;
 
 	private boolean multipartUpload;
 
+	@Nullable
 	private String contentType;
 
+	@Nullable
 	private Integer partSize;
 
 	public S3ItemWriterBuilder<T>  s3Client(S3Client s3Client) {

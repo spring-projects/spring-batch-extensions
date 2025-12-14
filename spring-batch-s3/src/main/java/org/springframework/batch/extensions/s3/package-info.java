@@ -25,4 +25,7 @@
  * memory.
  */
 
+@NullMarked
 package org.springframework.batch.extensions.s3;
+
+import org.jspecify.annotations.NullMarked;
