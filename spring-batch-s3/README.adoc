@@ -107,8 +107,8 @@ There is also an additional option to set the `bufferSize` which is the size of 
 
 === Alternative reader
 
-Instead `S3ItemReader` you can also use  `FlatFileItemReader` with `InputStreamResources` to read files from S3 as well.
-To do so this package exposes a `S3InputStreamResource` that can be used for that purpose. Below an example:
+Instead of `S3ItemReader` you can also use  `FlatFileItemReader` with `InputStreamResources` to read files from S3 as well.
+To do so this package exposes a `S3InputStream` that can be used for that purpose. Below an example:
 
 [source,java]
 ----
