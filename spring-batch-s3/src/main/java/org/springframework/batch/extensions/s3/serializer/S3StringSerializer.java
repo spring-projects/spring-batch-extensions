@@ -16,6 +16,7 @@
 
 package org.springframework.batch.extensions.s3.serializer;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,9 +29,20 @@ import java.nio.charset.StandardCharsets;
  */
 public class S3StringSerializer implements S3Serializer<String> {
 
+	private final Charset charset;
+
+	public S3StringSerializer() {
+		this.charset = StandardCharsets.UTF_8;
+	}
+
+
+	public S3StringSerializer(Charset charset) {
+		this.charset = charset;
+	}
+
 	@Override
 	public byte[] serialize(String item) {
-		return (item + "\n").getBytes(StandardCharsets.UTF_8);
+		return (item + "\n").getBytes(this.charset);
 	}
 
 }
