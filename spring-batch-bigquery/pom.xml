@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
         <relativePath/>
     </parent>
 
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquery</artifactId>
-            <version>2.56.0</version>
+            <version>2.57.1</version>
             <exclusions>
                 <!-- Avoid version conflicts -->
                 <exclusion>
@@ -182,7 +182,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.21.3</version>
+            <version>1.21.4</version>
             <scope>test</scope>
             <exclusions>
                 <!-- Avoid version conflicts -->
@@ -284,6 +284,7 @@
             </plugin>
 
             <!-- Formatting -->
+            <!-- https://mvnrepository.com/artifact/io.spring.javaformat/spring-javaformat-maven-plugin -->
             <plugin>
                 <groupId>io.spring.javaformat</groupId>
                 <artifactId>spring-javaformat-maven-plugin</artifactId>

@@ -95,7 +95,7 @@ public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBe
 	}
 
 	@Override
-	public T read() throws Exception {
+	public T read() throws InterruptedException {
 		if (iterator == null) {
 			doOpen();
 		}
@@ -107,7 +107,7 @@ public class BigQueryQueryItemReader<T> implements ItemReader<T>, InitializingBe
 		return iterator.hasNext() ? rowMapper.convert(iterator.next()) : null;
 	}
 
-	private void doOpen() throws Exception {
+	private void doOpen() throws InterruptedException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Executing query");
 		}
