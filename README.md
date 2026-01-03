@@ -13,6 +13,7 @@ This project is part of the [Spring organization][] on GitHub.
 | [`spring-batch-excel`](spring-batch-excel)                 | Support for [Microsoft Excel] | [@mdeinum](https://github.com/mdeinum)               | [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-excel?label)](https://central.sonatype.com/artifact/org.springframework.batch.extensions/spring-batch-excel)                 | [![Spring Batch Excel](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-excel.yml?query=branch%3Amain)                         |
 | [`spring-batch-neo4j`](spring-batch-neo4j)                 | Support for [Neo4j]           | [@michael-simons](https://github.com/michael-simons) | [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-neo4j?label)](https://central.sonatype.com/artifact/org.springframework.batch.extensions/spring-batch-neo4j)                 | [![Spring Batch Neo4j](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml/badge.svg)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-neo4j.yml?query=branch%3Amain)                         |
 | [`spring-batch-notion`](spring-batch-notion)               | Support for [Notion]          | [@scordio](https://github.com/scordio)               | [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-notion?label)](https://central.sonatype.com/artifact/org.springframework.batch.extensions/spring-batch-notion)               | [![Spring Batch Notion](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-notion.yml/badge.svg?branch=main)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-notion.yml?query=branch%3Amain)          |
+| [`spring-batch-s3`](spring-batch-s3)                       | Support for [Amazon S3]       | [@andreacioni](https://github.com/andreacioni)       | [![Maven Central](https://img.shields.io/maven-central/v/org.springframework.batch.extensions/spring-batch-s3?label)](https://central.sonatype.com/artifact/org.springframework.batch.extensions/spring-batch-s3)                       | [![Spring Batch S3](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-s3.yml/badge.svg?branch=main)](https://github.com/spring-projects/spring-batch-extensions/actions/workflows/spring-batch-s3.yml?query=branch%3Amain)                      |
 
 ## Getting support
 
@@ -100,6 +101,7 @@ noted differently for individual extension Modules, but this should be the rare 
 
 **We look forward to your contributions!!**
 
+[Amazon S3]: https://aws.amazon.com/s3/
 [Apache License]: https://www.apache.org/licenses/LICENSE-2.0
 [Contributor Guidelines]: CONTRIBUTING.md
 [Elasticsearch]: https://www.elastic.co
