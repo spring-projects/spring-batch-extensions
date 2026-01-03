@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 
 class S3MultipartOutputStreamTests {
 
@@ -61,7 +62,7 @@ class S3MultipartOutputStreamTests {
 			ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
 
 			// then
-			then(this.multipartUploadMock).should().upload(captor.capture());
+			then(this.multipartUploadMock).should(timeout(1000L)).upload(captor.capture());
 			assertThat(captor.getValue().available()).as("InputStream should contain one byte").isEqualTo(1);
 		}
 	}
