@@ -188,6 +188,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 			Assert.hasText(this.name, "A name is required when saveState is set to true.");
 		}
 
+		if (token == null || databaseId == null || propertyMapper == null) {
+			throw new IllegalArgumentException("token, databaseId, and propertyMapper must not be null");
+		}
 		NotionDatabaseItemReader<T> reader = new NotionDatabaseItemReader<>(token, databaseId, propertyMapper);
 
 		reader.setSaveState(saveState);
@@ -197,7 +200,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 		if (name != null) {
 			reader.setName(name);
 		}
-		reader.setFilter(filter);
+		if (filter != null) {
+			reader.setFilter(filter);
+		}
 		reader.setSorts(sorts);
 		reader.setPageSize(pageSize);
 		reader.setMaxItemCount(maxItemCount);
