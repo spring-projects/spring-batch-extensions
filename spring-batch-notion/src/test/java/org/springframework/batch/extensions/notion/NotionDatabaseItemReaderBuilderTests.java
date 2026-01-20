@@ -22,6 +22,7 @@ import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import static org.assertj.core.api.BDDAssertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 
+@SuppressWarnings({ "DataFlowIssue", "null", "NullAway" })
 class NotionDatabaseItemReaderBuilderTests {
 
 	@Test
