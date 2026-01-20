@@ -54,6 +54,12 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	private int currentItemCount = 0;
 
 	/**
+	 * Default constructor for {@link NotionDatabaseItemReaderBuilder}.
+	 */
+	public NotionDatabaseItemReaderBuilder() {
+	}
+
+	/**
 	 * Sets the Notion integration token.
 	 * @param token the token
 	 * @return this builder
@@ -146,7 +152,7 @@ public class NotionDatabaseItemReaderBuilder<T> {
 
 	/**
 	 * The name used to calculate the key within the {@link ExecutionContext}. Required if
-	 * {@link #saveState(boolean)} is set to true. </br>
+	 * {@link #saveState(boolean)} is set to true. <br>
 	 * @param name the unique name of the component
 	 * @return this builder
 	 * @see NotionDatabaseItemReader#setName(String)
