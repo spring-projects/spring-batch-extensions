@@ -71,7 +71,11 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	private Sort[] sorts = new Sort[0];
 
-	private @Nullable NotionDatabaseService service;
+	private @Nullable NotionDatabaseService databaseService;
+
+	private @Nullable NotionDataSourceService dataSourceService;
+
+	private @Nullable String dataSourceId;
 
 	private boolean hasMore;
 
@@ -155,7 +159,14 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 		RestClientAdapter adapter = RestClientAdapter.create(restClient);
 		HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-		service = factory.createClient(NotionDatabaseService.class);
+
+		databaseService = factory.createClient(NotionDatabaseService.class);
+		dataSourceService = factory.createClient(NotionDataSourceService.class);
+
+		if (dataSourceId == null) {
+			DatabaseInfo databaseInfo = databaseService.getDatabase(databaseId);
+			dataSourceId = databaseInfo.dataSources().get(0).id();
+		}
 
 		hasMore = true;
 	}
@@ -172,7 +183,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		QueryRequest request = new QueryRequest(pageSize, nextCursor, filter, sorts);
 
 		@SuppressWarnings("DataFlowIssue")
-		QueryResult result = service.query(databaseId, request);
+		QueryResult result = dataSourceService.query(dataSourceId, request);
 
 		hasMore = result.hasMore();
 		nextCursor = result.nextCursor();
