@@ -155,6 +155,7 @@ limitations under the License.
               <!-- Check JSpecify annotations -->
               -Xep:NullAway
               -XepOpt:NullAway:OnlyNullMarked
+              -Xep:RequireExplicitNullMarking:WARN
               -XepOpt:NullAway:SuppressionNameAliases=DataFlowIssue
             </compilerArg>
           </compilerArgs>
@@ -167,7 +168,7 @@ limitations under the License.
             <path>
               <groupId>com.uber.nullaway</groupId>
               <artifactId>nullaway</artifactId>
-              <version>0.12.11</version>
+              <version>0.13.1</version>
             </path>
           </annotationProcessorPaths>
           <failOnWarning>true</failOnWarning>
