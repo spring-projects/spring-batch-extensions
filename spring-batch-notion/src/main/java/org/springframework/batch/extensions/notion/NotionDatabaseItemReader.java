@@ -85,9 +85,12 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * of a Notion item into a Java object
 	 */
 	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
-		this.token = Objects.requireNonNull(token);
-		this.databaseId = Objects.requireNonNull(databaseId);
-		this.propertyMapper = Objects.requireNonNull(propertyMapper);
+		Assert.notNull(token, "token is required");
+		Assert.notNull(databaseId, "databaseId is required");
+		Assert.notNull(propertyMapper, "propertyMapper is required");
+		this.token = token;
+		this.databaseId = databaseId;
+		this.propertyMapper = propertyMapper;
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 

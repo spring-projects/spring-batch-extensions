@@ -53,12 +53,12 @@ The following constructor parameters should be provided:
 
 and the following configuration options are available:
 
-| Property         | Required | Default                     | Description                                                                                                               |
-|------------------|----------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| `baseUrl`        | no       | `https://api.notion.com/v1` | Base URL of the Notion API. A custom value can be provided for testing purposes (e.g., the URL of a [WireMock][] server). |
-| `filter`         | no       | `null`                      | `Filter` condition to limit the returned items.                                                                           |
-| `pageSize`       | no       | `100`                       | Number of items to be read with each page. Must be greater than zero and less than or equal to 100.                       |
-| `sorts`          | no       | `null`                      | `Sort` conditions to order the returned items. Each condition is applied following the declaration order.                 |
+| Property         | Required | Default                         | Description                                                                                                               |
+|------------------|----------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| `baseUrl`        | no       | `https://api.notion.com/v1`     | Base URL of the Notion API. A custom value can be provided for testing purposes (e.g., the URL of a [WireMock][] server). |
+| `filter`         | no       | `null`                          | `Filter` condition to limit the returned items.                                                                           |
+| `pageSize`       | no       | `100`                           | Number of items to be read with each page. Must be greater than zero and less than or equal to 100.                       |
+| `sorts`          | no       | `Empty Sort Array(new Sort[0])` | `Sort` conditions to order the returned items. Each condition is applied following the declaration order.                 |
 
 In addition to the Notion-specific configuration, all the configuration options of the Spring Batch
 [`AbstractPaginatedDataItemReader`](https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/data/AbstractPaginatedDataItemReader.html)
