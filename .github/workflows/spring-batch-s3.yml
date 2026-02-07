@@ -1,0 +1,29 @@
+name: Spring Batch S3
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/spring-batch-s3.yml'
+      - 'spring-batch-s3/**'
+  push:
+    paths:
+      - '.github/workflows/spring-batch-s3.yml'
+      - 'spring-batch-s3/**'
+
+env:
+  MAVEN_ARGS: -B -V -ntp -e -Djansi.passthrough=true -Dstyle.color=always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+      - name: Build with Maven
+        run: ./mvnw $MAVEN_ARGS verify javadoc:javadoc
+        working-directory: spring-batch-s3
