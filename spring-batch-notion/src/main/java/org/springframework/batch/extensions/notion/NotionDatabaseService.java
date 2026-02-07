@@ -17,14 +17,13 @@ package org.springframework.batch.extensions.notion;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
-import org.springframework.web.service.annotation.PostExchange;
 
-@HttpExchange(url = "/databases", version = "2022-06-28", accept = MediaType.APPLICATION_JSON_VALUE)
+@HttpExchange(url = "/databases", version = "2025-09-03", accept = MediaType.APPLICATION_JSON_VALUE)
 interface NotionDatabaseService {
 
-	@PostExchange("/{databaseId}/query")
-	QueryResult query(@PathVariable String databaseId, @RequestBody QueryRequest request);
+	@GetExchange("/{databaseId}")
+	DatabaseInfo getDatabase(@PathVariable String databaseId);
 
 }

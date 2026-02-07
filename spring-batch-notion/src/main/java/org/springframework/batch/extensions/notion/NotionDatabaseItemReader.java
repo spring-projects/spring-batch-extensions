@@ -71,7 +71,11 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	private Sort[] sorts = new Sort[0];
 
-	private @Nullable NotionDatabaseService service;
+	private @Nullable NotionDatabaseService databaseService;
+
+	private @Nullable NotionDataSourceService dataSourceService;
+
+	private @Nullable String dataSourceId;
 
 	private boolean hasMore;
 
@@ -79,6 +83,9 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 	/**
 	 * Create a new {@link NotionDatabaseItemReader}.
+	 * <p>
+	 * This constructor automatically selects the first available data source from the
+	 * database.
 	 * @param token the Notion integration token
 	 * @param databaseId UUID of the database to read from
 	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping properties
@@ -87,6 +94,27 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
 		this.token = Objects.requireNonNull(token);
 		this.databaseId = Objects.requireNonNull(databaseId);
+		this.propertyMapper = Objects.requireNonNull(propertyMapper);
+		this.pageSize = DEFAULT_PAGE_SIZE;
+	}
+
+	/**
+	 * Create a new {@link NotionDatabaseItemReader} with a specific data source ID.
+	 * <p>
+	 * This constructor allows you to specify the data source ID directly, bypassing the
+	 * automatic discovery. This is useful when working with databases that have multiple
+	 * data sources.
+	 * @param token the Notion integration token
+	 * @param databaseId UUID of the database to read from
+	 * @param dataSourceId UUID of the data source to read from
+	 * @param propertyMapper the {@link PropertyMapper} responsible for mapping properties
+	 * of a Notion item into a Java object
+	 */
+	public NotionDatabaseItemReader(String token, String databaseId, String dataSourceId,
+			PropertyMapper<T> propertyMapper) {
+		this.token = Objects.requireNonNull(token);
+		this.databaseId = Objects.requireNonNull(databaseId);
+		this.dataSourceId = Objects.requireNonNull(dataSourceId);
 		this.propertyMapper = Objects.requireNonNull(propertyMapper);
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
@@ -155,7 +183,14 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 
 		RestClientAdapter adapter = RestClientAdapter.create(restClient);
 		HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-		service = factory.createClient(NotionDatabaseService.class);
+
+		databaseService = factory.createClient(NotionDatabaseService.class);
+		dataSourceService = factory.createClient(NotionDataSourceService.class);
+
+		if (dataSourceId == null) {
+			DatabaseInfo databaseInfo = databaseService.getDatabase(databaseId);
+			dataSourceId = databaseInfo.dataSources().get(0).id();
+		}
 
 		hasMore = true;
 	}
@@ -172,7 +207,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		QueryRequest request = new QueryRequest(pageSize, nextCursor, filter, sorts);
 
 		@SuppressWarnings("DataFlowIssue")
-		QueryResult result = service.query(databaseId, request);
+		QueryResult result = dataSourceService.query(dataSourceId, request);
 
 		hasMore = result.hasMore();
 		nextCursor = result.nextCursor();

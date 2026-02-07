@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.extensions.notion.it.pagination;
+package org.springframework.batch.extensions.notion.it.datasource;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
-import org.springframework.batch.extensions.notion.Sort;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
-import org.springframework.batch.extensions.notion.it.pagination.MultiplePagesDescendingTests.PaginatedDescendingJob.Item;
+import org.springframework.batch.extensions.notion.it.datasource.AutomaticDataSourceDiscoveryTest.AutomaticDiscoveryJob.Item;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
 import org.springframework.batch.infrastructure.item.support.ListItemWriter;
 import org.springframework.batch.test.JobOperatorTestUtils;
@@ -38,40 +37,31 @@ import org.springframework.context.annotation.Bean;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.springframework.batch.core.ExitStatus.COMPLETED;
-import static org.springframework.batch.extensions.notion.Sort.Direction.DESCENDING;
 import static org.springframework.batch.extensions.notion.it.RequestBodies.queryRequest;
-import static org.springframework.batch.extensions.notion.it.RequestBodies.sortByProperty;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION_VALUE;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.databaseInfoResponse;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.datasourceQueryResponse;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.result;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.richText;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.title;
+import static org.springframework.batch.extensions.notion.it.ResponseBodies.*;
 
 /**
- * @author Stefano Cordio
+ * Tests for {@link NotionDatabaseItemReader} with automatic data source discovery.
+ *
+ * @author Roeniss Moon
  */
 @IntegrationTest
-class MultiplePagesDescendingTests {
+class AutomaticDataSourceDiscoveryTest {
 
 	private static final UUID DATABASE_ID = randomUUID();
 
-	private static final UUID DATA_SOURCE_ID = randomUUID();
+	private static final UUID FIRST_DATA_SOURCE_ID = randomUUID();
+
+	private static final UUID SECOND_DATA_SOURCE_ID = randomUUID();
 
 	private static final int PAGE_SIZE = 2;
 
@@ -82,35 +72,25 @@ class MultiplePagesDescendingTests {
 	ListItemWriter<Item> itemWriter;
 
 	@Test
-	void should_succeed() throws Exception {
+	void should_use_firstly_returned_data_source_if_not_specified() throws Exception {
 		// GIVEN
-		UUID thirdResultId = randomUUID();
+		JSONObject firstResult = result(randomUUID(), FIRST_DATA_SOURCE_ID,
+				Map.of("Name", title("From first source"), "Value", richText("First value")));
 
-		JSONObject firstResult = result(randomUUID(), DATA_SOURCE_ID,
-				Map.of("Name", title("Name string"), "Value", richText("123456")));
-		JSONObject secondResult = result(randomUUID(), DATA_SOURCE_ID,
-				Map.of("Name", title("Another name string"), "Value", richText("0987654321")));
-		JSONObject thirdResult = result(thirdResultId, DATA_SOURCE_ID,
-				Map.of("Name", title(""), "Value", richText("abc-1234")));
-
+		// Database API returns 2 data sources (1st: default, 2nd: secondary)
+		// Discovery should automatically use the 1st data source
 		givenThat(get("/databases/%s".formatted(DATABASE_ID)) //
 			.withHeader(AUTHORIZATION, matching("Bearer .+"))
 			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
-			.willReturn(okJson(databaseInfoResponse(DATABASE_ID, DATA_SOURCE_ID))));
+			.willReturn(okJson(databaseInfoResponse(DATABASE_ID, FIRST_DATA_SOURCE_ID, SECOND_DATA_SOURCE_ID))));
 
-		givenThat(post("/data_sources/%s/query".formatted(DATA_SOURCE_ID)) //
+		// Query should go to the 1st data source (discovered automatically)
+		givenThat(post("/data_sources/%s/query".formatted(FIRST_DATA_SOURCE_ID)) //
 			.withHeader(AUTHORIZATION, matching("Bearer .+"))
 			.withHeader(CONTENT_TYPE, containing("application/json"))
 			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
-			.withRequestBody(equalToJson(queryRequest(PAGE_SIZE, sortByProperty("Name", DESCENDING))))
-			.willReturn(okJson(datasourceQueryResponse(thirdResultId, firstResult, secondResult))));
-
-		givenThat(post("/data_sources/%s/query".formatted(DATA_SOURCE_ID)) //
-			.withHeader(AUTHORIZATION, matching("Bearer .+"))
-			.withHeader(CONTENT_TYPE, containing("application/json"))
-			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
-			.withRequestBody(equalToJson(queryRequest(thirdResultId, PAGE_SIZE, sortByProperty("Name", DESCENDING))))
-			.willReturn(okJson(datasourceQueryResponse(thirdResult))));
+			.withRequestBody(equalToJson(queryRequest(PAGE_SIZE)))
+			.willReturn(okJson(datasourceQueryResponse(firstResult))));
 
 		// WHEN
 		JobExecution jobExecution = jobOperator.startJob();
@@ -119,14 +99,11 @@ class MultiplePagesDescendingTests {
 		then(jobExecution.getExitStatus()).isEqualTo(COMPLETED);
 
 		then(itemWriter.getWrittenItems()).asInstanceOf(LIST)
-			.containsExactly( //
-					new Item("Name string", "123456"), //
-					new Item("Another name string", "0987654321"), //
-					new Item("", "abc-1234"));
+			.containsExactly(new Item("From first source", "First value"));
 	}
 
 	@SpringBootApplication
-	static class PaginatedDescendingJob {
+	static class AutomaticDiscoveryJob {
 
 		@Value("${wiremock.server.baseUrl}")
 		private String wiremockBaseUrl;
@@ -147,13 +124,14 @@ class MultiplePagesDescendingTests {
 
 		@Bean
 		NotionDatabaseItemReader<Item> itemReader() {
+			// Use 3-parameter constructor - data source ID will be discovered
+			// automatically
 			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>("token", DATABASE_ID.toString(),
 					new RecordPropertyMapper<>());
 
 			reader.setSaveState(false);
 			reader.setBaseUrl(wiremockBaseUrl);
 			reader.setPageSize(PAGE_SIZE);
-			reader.setSorts(Sort.by("Name", DESCENDING));
 
 			return reader;
 		}
