@@ -19,7 +19,7 @@ package org.springframework.batch.extensions.excel.support.rowset;
 import java.util.Properties;
 
 /**
- * Used by the {@code org.springframework.batch.item.excel.AbstractExcelItemReader} to
+ * Used by the {@code org.springframework.batch.infrastructure.item.excel.AbstractExcelItemReader} to
  * abstract away the complexities of the underlying Excel API implementations.
  *
  * @author Marten Deinum

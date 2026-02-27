@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.batch.extensions.excel.RowMapper;
 import org.springframework.batch.extensions.excel.support.rowset.RowSet;
-import org.springframework.batch.support.DefaultPropertyEditorRegistrar;
+import org.springframework.batch.infrastructure.support.DefaultPropertyEditorRegistrar;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.MutablePropertyValues;
@@ -149,16 +149,16 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar
 	}
 
 	/**
-	 * Map the {@link org.springframework.batch.item.file.transform.FieldSet} to an object
+	 * Map the {@link org.springframework.batch.infrastructure.item.file.transform.FieldSet} to an object
 	 * retrieved from the enclosing Spring context, or to a new instance of the required
 	 * type if no prototype is available.
 	 * @throws org.springframework.validation.BindException if there is a type conversion
 	 * or other error (if the {@link org.springframework.validation.DataBinder} from
 	 * {@link #createBinder(Object)} has errors after binding).
 	 * @throws org.springframework.beans.NotWritablePropertyException if the
-	 * {@link org.springframework.batch.item.file.transform.FieldSet} contains a field
+	 * {@link org.springframework.batch.infrastructure.item.file.transform.FieldSet} contains a field
 	 * that cannot be mapped to a bean property.
-	 * @see org.springframework.batch.item.file.mapping.FieldSetMapper#mapFieldSet(org.springframework.batch.item.file.transform.FieldSet)
+	 * @see org.springframework.batch.infrastructure.item.file.mapping.FieldSetMapper#mapFieldSet(org.springframework.batch.infrastructure.item.file.transform.FieldSet)
 	 */
 	@Override
 	public T mapRow(RowSet rs) throws BindException {
