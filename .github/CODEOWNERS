@@ -3,3 +3,4 @@
 /spring-batch-excel/ @mdeinum
 /spring-batch-neo4j/ @michael-simons @meistermeier
 /spring-batch-notion/ @scordio
+/spring-batch-s3/ @andreacioni
