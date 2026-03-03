@@ -25,10 +25,10 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.batch.extensions.excel.FormulaEvaluatorFactory;
 import org.springframework.batch.extensions.excel.Sheet;
-import org.springframework.lang.Nullable;
 
 /**
  * Sheet implementation for Apache POI.
