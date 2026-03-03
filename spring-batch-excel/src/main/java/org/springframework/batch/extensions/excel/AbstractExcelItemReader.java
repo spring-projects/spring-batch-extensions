@@ -30,7 +30,6 @@ import org.springframework.batch.infrastructure.item.support.AbstractItemCountin
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * {@link org.springframework.batch.infrastructure.item.ItemReader} implementation to read an Excel file.
@@ -80,7 +79,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	public AbstractExcelItemReader() {
 		super();
-		this.setName(ClassUtils.getShortName(this.getClass()));
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.batch.extensions.excel.mapping;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -26,12 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.extensions.excel.MockSheet;
 import org.springframework.batch.extensions.excel.Player;
 import org.springframework.batch.extensions.excel.support.rowset.DefaultRowSetFactory;
-import org.springframework.batch.extensions.excel.support.rowset.RowSet;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.ParameterizedTypeReference;
 
 /**
  * @author Marten Deinum
@@ -42,29 +40,29 @@ class BeanWrapperRowMapperTests {
 	@Test
 	void givenNoNameWhenInitCompleteThenIllegalStateShouldOccur() {
 		Assertions.assertThatThrownBy(() -> {
-			BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<>();
+			var mapper = new BeanWrapperRowMapper<Player>();
 			mapper.afterPropertiesSet();
 		}).isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
 	void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructed() throws Exception {
-		BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<>();
+		var mapper = new BeanWrapperRowMapper<Player>();
 		mapper.setTargetType(Player.class);
 		mapper.afterPropertiesSet();
 
-		List<String[]> rows = new ArrayList<>();
+		var rows = new ArrayList<String[]>();
 		rows.add(new String[] { "id", "lastName", "firstName", "position", "birthYear", "debutYear" });
 		rows.add(new String[] { "AbduKa00", "Abdul-Jabbar", "Karim", "rb", "1974", "1996" });
 		MockSheet sheet = new MockSheet("players", rows);
 
-		RowSet rs = new DefaultRowSetFactory().create(sheet);
+		var rs = new DefaultRowSetFactory().create(sheet);
 		rs.next();
 		rs.next();
 
-		Player p = mapper.mapRow(rs);
+		var p = mapper.mapRow(rs);
 
-		SoftAssertions softly = new SoftAssertions();
+		var softly = new SoftAssertions();
 		softly.assertThat(p).isNotNull();
 		softly.assertThat(p.getId()).isEqualTo("AbduKa00");
 		softly.assertThat("Abdul-Jabbar").isEqualTo(p.getLastName());
@@ -80,20 +78,21 @@ class BeanWrapperRowMapperTests {
 	@Test
 	void givenAValidRowWhenMappingThenAValidPlayerShouldBeConstructedBasedOnPrototype() throws Exception {
 
-		ApplicationContext ctx = new AnnotationConfigApplicationContext(TestConfig.class);
-		BeanWrapperRowMapper<Player> mapper = ctx.getBean("playerRowMapper", BeanWrapperRowMapper.class);
+		var ctx = new AnnotationConfigApplicationContext(TestConfig.class);
+		var mapper = ctx.getBeanProvider(new ParameterizedTypeReference<BeanWrapperRowMapper<Player>>() {
+		}).getIfAvailable();
 
-		List<String[]> rows = new ArrayList<>();
+		var rows = new ArrayList<String[]>();
 		rows.add(new String[] { "id", "lastName", "firstName", "position", "birthYear", "debutYear" });
 		rows.add(new String[] { "AbduKa00", "Abdul-Jabbar", "Karim", "rb", "1974", "1996" });
 		MockSheet sheet = new MockSheet("players", rows);
 
-		RowSet rs = new DefaultRowSetFactory().create(sheet);
+		var rs = new DefaultRowSetFactory().create(sheet);
 		rs.next();
 		rs.next();
-		Player p = mapper.mapRow(rs);
+		var p = mapper.mapRow(rs);
 
-		SoftAssertions softly = new SoftAssertions();
+		var softly = new SoftAssertions();
 		softly.assertThat(p).isNotNull();
 		softly.assertThat(p.getId()).isEqualTo("AbduKa00");
 		softly.assertThat("Abdul-Jabbar").isEqualTo(p.getLastName());
@@ -111,7 +110,7 @@ class BeanWrapperRowMapperTests {
 
 		@Bean
 		public BeanWrapperRowMapper<Player> playerRowMapper() {
-			BeanWrapperRowMapper<Player> mapper = new BeanWrapperRowMapper<>();
+			var mapper = new BeanWrapperRowMapper<Player>();
 			mapper.setPrototypeBeanName("player");
 			return mapper;
 		}
@@ -119,11 +118,9 @@ class BeanWrapperRowMapperTests {
 		@Bean
 		@Scope("prototype")
 		public Player player() {
-			Player p = new Player();
+			var p = new Player();
 			p.setComment("comment from context");
 			return p;
 		}
-
 	}
-
 }
