@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * the reader will begin again at the same number item it left off at.
  * <p>
  * This implementation is thread-safe between calls to {@link #open(ExecutionContext)},
- * but remember to set <code>saveState</code> to <code>false</code> if used in a
+ * but remember to {@link #setSaveState(boolean)} to {@code false} if used in a
  * multi-threaded environment (no restart available).
  *
  * @author Stefano Cordio
@@ -55,9 +55,15 @@ import java.util.stream.Collectors;
  */
 public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader<T> {
 
-	private static final int DEFAULT_PAGE_SIZE = 100;
+	/**
+	 * Default number of items to be read with each page.
+	 */
+	public static final int DEFAULT_PAGE_SIZE = 100;
 
-	private static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
+	/**
+	 * Default URL of the Notion API.
+	 */
+	public static final String DEFAULT_BASE_URL = "https://api.notion.com/v1";
 
 	private final String token;
 
@@ -85,9 +91,12 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * of a Notion item into a Java object
 	 */
 	public NotionDatabaseItemReader(String token, String databaseId, PropertyMapper<T> propertyMapper) {
-		this.token = Objects.requireNonNull(token);
-		this.databaseId = Objects.requireNonNull(databaseId);
-		this.propertyMapper = Objects.requireNonNull(propertyMapper);
+		Assert.notNull(token, "token is required");
+		Assert.notNull(databaseId, "databaseId is required");
+		Assert.notNull(propertyMapper, "propertyMapper is required");
+		this.token = token;
+		this.databaseId = databaseId;
+		this.propertyMapper = propertyMapper;
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
@@ -108,7 +117,7 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 	 * {@link Filter} condition to limit the returned items.
 	 * <p>
 	 * If no filter is provided, all the items in the database will be returned.
-	 * @param filter the {@link Filter} conditions
+	 * @param filter the {@link Filter} condition
 	 * @see Filter#where()
 	 * @see Filter#where(Filter)
 	 */
@@ -142,9 +151,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		super.setPageSize(pageSize);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doOpen() {
 		RestClient restClient = RestClient.builder()
@@ -160,9 +166,6 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		hasMore = true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected Iterator<T> doPageRead() {
 		if (!hasMore) {
@@ -205,17 +208,11 @@ public class NotionDatabaseItemReader<T> extends AbstractPaginatedDataItemReader
 		return texts.isEmpty() ? "" : texts.get(0).plainText();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doClose() {
 		hasMore = false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void jumpToItem(int itemIndex) throws Exception {
 		for (int i = 0; i < itemIndex; i++) {

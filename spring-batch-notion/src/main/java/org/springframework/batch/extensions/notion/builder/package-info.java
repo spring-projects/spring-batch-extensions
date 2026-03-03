@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-@NullUnmarked
-package org.springframework.batch.extensions.notion.it;
+/**
+ * Builder for Notion item reader.
+ */
+@NullMarked
+package org.springframework.batch.extensions.notion.builder;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
