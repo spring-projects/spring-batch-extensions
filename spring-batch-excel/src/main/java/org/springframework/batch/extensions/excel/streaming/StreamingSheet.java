@@ -178,7 +178,7 @@ class StreamingSheet implements Sheet {
 		};
 	}
 
-	private class ValueRetrievingContentsHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
+	private final class ValueRetrievingContentsHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
 
 		private final Log logger = LogFactory.getLog(ValueRetrievingContentsHandler.class);
 
