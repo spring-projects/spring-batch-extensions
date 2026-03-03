@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Infrastructure to map the properties of a Notion item into a Java object.
  */

@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.extensions.notion;
+package org.springframework.batch.extensions.notion.builder;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.batch.extensions.notion.Filter;
+import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
+import org.springframework.batch.extensions.notion.Sort;
 import org.springframework.batch.extensions.notion.mapping.PropertyMapper;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.util.Assert;
@@ -23,13 +26,12 @@ import org.springframework.util.Assert;
 /**
  * A builder for the {@link NotionDatabaseItemReader}.
  *
- * @param <T> Type of item to be read
  * @author Jaeung Ha
+ * @param <T> Type of item to be read
  * @see NotionDatabaseItemReader
+ * @since 0.2.0
  */
 public class NotionDatabaseItemReaderBuilder<T> {
-
-	private static final int DEFAULT_PAGE_SIZE = 100;
 
 	private @Nullable String token;
 
@@ -45,7 +47,7 @@ public class NotionDatabaseItemReaderBuilder<T> {
 
 	private Sort[] sorts = new Sort[0];
 
-	private int pageSize = DEFAULT_PAGE_SIZE;
+	private int pageSize = NotionDatabaseItemReader.DEFAULT_PAGE_SIZE;
 
 	private boolean saveState = true;
 
@@ -54,15 +56,15 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	private int currentItemCount = 0;
 
 	/**
-	 * Default constructor for {@link NotionDatabaseItemReaderBuilder}.
+	 * Create a new {@link NotionDatabaseItemReaderBuilder}.
 	 */
 	public NotionDatabaseItemReaderBuilder() {
 	}
 
 	/**
-	 * Sets the Notion integration token.
+	 * The Notion integration token.
 	 * @param token the token
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#NotionDatabaseItemReader(String, String,
 	 * PropertyMapper)
 	 */
@@ -72,9 +74,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the UUID of the database to read from.
+	 * The UUID of the database to read from.
 	 * @param databaseId the database UUID
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#NotionDatabaseItemReader(String, String,
 	 * PropertyMapper)
 	 */
@@ -84,9 +86,10 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the {@link PropertyMapper} to use.
+	 * The {@link PropertyMapper} responsible for mapping properties of a Notion item into
+	 * a Java object.
 	 * @param propertyMapper the property mapper
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#NotionDatabaseItemReader(String, String,
 	 * PropertyMapper)
 	 */
@@ -96,9 +99,14 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the base URL of the Notion API.
+	 * The base URL of the Notion API.
+	 * <p>
+	 * Defaults to {@value NotionDatabaseItemReader#DEFAULT_BASE_URL}.
+	 * <p>
+	 * A custom value can be provided for testing purposes (e.g., the URL of a WireMock
+	 * server).
 	 * @param baseUrl the base URL
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setBaseUrl(String)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> baseUrl(String baseUrl) {
@@ -107,9 +115,11 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the {@link Filter} to apply.
+	 * {@link Filter} condition to limit the returned items.
+	 * <p>
+	 * If no filter is provided, all the items in the database will be returned.
 	 * @param filter the filter
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setFilter(Filter)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> filter(Filter filter) {
@@ -118,9 +128,12 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the {@link Sort}s to apply.
-	 * @param sorts the sorts
-	 * @return this builder
+	 * {@link Sort} conditions to order the returned items.
+	 * <p>
+	 * Each condition is applied following the declaration order, i.e., earlier sorts take
+	 * precedence over later ones.
+	 * @param sorts the {@link Sort} conditions
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setSorts(Sort...)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> sorts(Sort... sorts) {
@@ -129,9 +142,11 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the number of items to be read with each page.
+	 * The number of items to be read with each page.
+	 * <p>
+	 * Defaults to {@value NotionDatabaseItemReader#DEFAULT_PAGE_SIZE}.
 	 * @param pageSize the page size
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setPageSize(int)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> pageSize(int pageSize) {
@@ -142,7 +157,7 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	/**
 	 * Sets the flag that determines whether to save the state of the reader for restarts.
 	 * @param saveState the save state flag
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setSaveState(boolean)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> saveState(boolean saveState) {
@@ -151,10 +166,10 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * The name used to calculate the key within the {@link ExecutionContext}. Required if
-	 * {@link #saveState(boolean)} is set to true. <br>
-	 * @param name the unique name of the component
-	 * @return this builder
+	 * The name of the component which will be used as a stem for keys in the
+	 * {@link ExecutionContext}.
+	 * @param name the name for the component
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setName(String)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> name(String name) {
@@ -163,9 +178,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the maximum number of items to read.
+	 * The maximum index of the items to be read.
 	 * @param maxItemCount the maximum item count
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setMaxItemCount(int)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> maxItemCount(int maxItemCount) {
@@ -174,9 +189,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	}
 
 	/**
-	 * Sets the index of the item to start reading from.
+	 * The index of the item to start reading from.
 	 * @param currentItemCount the current item count
-	 * @return this builder
+	 * @return the current instance of the builder
 	 * @see NotionDatabaseItemReader#setCurrentItemCount(int)
 	 */
 	public NotionDatabaseItemReaderBuilder<T> currentItemCount(int currentItemCount) {
@@ -187,10 +202,9 @@ public class NotionDatabaseItemReaderBuilder<T> {
 	/**
 	 * Builds the {@link NotionDatabaseItemReader}.
 	 * @return the built reader
-	 * @throws IllegalArgumentException if required fields are missing
 	 */
 	public NotionDatabaseItemReader<T> build() {
-		if (this.saveState) {
+		if (this.saveState && this.name != null) {
 			Assert.hasText(this.name, "A name is required when saveState is set to true.");
 		}
 

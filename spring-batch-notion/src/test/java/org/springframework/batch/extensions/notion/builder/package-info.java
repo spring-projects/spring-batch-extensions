@@ -15,6 +15,6 @@
  */
 
 @NullUnmarked
-package org.springframework.batch.extensions.notion.it;
+package org.springframework.batch.extensions.notion.builder;
 
 import org.jspecify.annotations.NullUnmarked;
