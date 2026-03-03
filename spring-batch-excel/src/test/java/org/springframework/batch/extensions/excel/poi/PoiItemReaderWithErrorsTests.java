@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.batch.extensions.excel.ReflectionTestUtils;
 import org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper;
-import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;

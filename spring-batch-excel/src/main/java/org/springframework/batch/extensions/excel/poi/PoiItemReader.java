@@ -28,9 +28,9 @@ import org.springframework.batch.extensions.excel.Sheet;
 import org.springframework.core.io.Resource;
 
 /**
- * {@link org.springframework.batch.item.ItemReader} implementation which uses apache POI
+ * {@link org.springframework.batch.infrastructure.item.ItemReader} implementation which uses apache POI
  * to read an Excel file. It will read the file sheet for sheet and row for row. It is
- * based on the {@link org.springframework.batch.item.file.FlatFileItemReader}
+ * based on the {@link org.springframework.batch.infrastructure.item.file.FlatFileItemReader}
  *
  * This class is <b>not</b> thread-safe.
  *

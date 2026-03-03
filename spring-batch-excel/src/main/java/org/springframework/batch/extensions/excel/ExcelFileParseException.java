@@ -16,7 +16,7 @@
 
 package org.springframework.batch.extensions.excel;
 
-import org.springframework.batch.item.ParseException;
+import org.springframework.batch.infrastructure.item.ParseException;
 
 /**
  * Exception thrown when parsing excel files. The name of the sheet, the row number on
