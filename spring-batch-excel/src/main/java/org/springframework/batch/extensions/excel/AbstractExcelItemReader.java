@@ -25,17 +25,16 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.springframework.batch.extensions.excel.support.rowset.DefaultRowSetFactory;
 import org.springframework.batch.extensions.excel.support.rowset.RowSet;
 import org.springframework.batch.extensions.excel.support.rowset.RowSetFactory;
-import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.infrastructure.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.batch.infrastructure.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
- * {@link org.springframework.batch.item.ItemReader} implementation to read an Excel file.
+ * {@link org.springframework.batch.infrastructure.item.ItemReader} implementation to read an Excel file.
  * It will read the file sheet for sheet and row for row. It is loosy based on the
- * {@link org.springframework.batch.item.file.FlatFileItemReader}
+ * {@link org.springframework.batch.infrastructure.item.file.FlatFileItemReader}
  *
  * @param <T> the type
  * @author Marten Deinum
@@ -80,7 +79,6 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	public AbstractExcelItemReader() {
 		super();
-		this.setName(ClassUtils.getShortName(this.getClass()));
 	}
 
 	@Override
@@ -274,7 +272,7 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 
 	/**
 	 * In strict mode the reader will throw an exception on
-	 * {@link #open(org.springframework.batch.item.ExecutionContext)} if the input
+	 * {@link #open(org.springframework.batch.infrastructure.item.ExecutionContext)} if the input
 	 * resource does not exist.
 	 * @param strict true by default
 	 */

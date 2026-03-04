@@ -16,7 +16,7 @@
 
 package org.springframework.batch.extensions.excel;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface to wrap different Excel implementations like JExcel or Apache POI.
