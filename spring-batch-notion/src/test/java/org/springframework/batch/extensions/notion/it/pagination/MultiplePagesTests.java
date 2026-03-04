@@ -16,7 +16,6 @@
 package org.springframework.batch.extensions.notion.it.pagination;
 
 import org.json.JSONObject;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
@@ -41,6 +40,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -54,7 +54,8 @@ import static org.springframework.batch.core.ExitStatus.COMPLETED;
 import static org.springframework.batch.extensions.notion.it.RequestBodies.queryRequest;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION;
 import static org.springframework.batch.extensions.notion.it.RequestHeaders.NOTION_VERSION_VALUE;
-import static org.springframework.batch.extensions.notion.it.ResponseBodies.queryResponse;
+import static org.springframework.batch.extensions.notion.it.ResponseBodies.databaseInfoResponse;
+import static org.springframework.batch.extensions.notion.it.ResponseBodies.datasourceQueryResponse;
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.result;
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.richText;
 import static org.springframework.batch.extensions.notion.it.ResponseBodies.title;
@@ -66,6 +67,8 @@ import static org.springframework.batch.extensions.notion.it.ResponseBodies.titl
 class MultiplePagesTests {
 
 	private static final UUID DATABASE_ID = randomUUID();
+
+	private static final UUID DATA_SOURCE_ID = randomUUID();
 
 	private static final int PAGE_SIZE = 2;
 
@@ -80,26 +83,31 @@ class MultiplePagesTests {
 		// GIVEN
 		UUID thirdResultId = randomUUID();
 
-		JSONObject firstResult = result(randomUUID(), DATABASE_ID,
+		JSONObject firstResult = result(randomUUID(), DATA_SOURCE_ID,
 				Map.of("Name", title("Another name string"), "Value", richText("0987654321")));
-		JSONObject secondResult = result(randomUUID(), DATABASE_ID,
+		JSONObject secondResult = result(randomUUID(), DATA_SOURCE_ID,
 				Map.of("Name", title("Name string"), "Value", richText("123456")));
-		JSONObject thirdResult = result(thirdResultId, DATABASE_ID,
+		JSONObject thirdResult = result(thirdResultId, DATA_SOURCE_ID,
 				Map.of("Name", title(""), "Value", richText("abc-1234")));
 
-		givenThat(post("/databases/%s/query".formatted(DATABASE_ID)) //
+		givenThat(get("/databases/%s".formatted(DATABASE_ID)) //
+			.withHeader(AUTHORIZATION, matching("Bearer .+"))
+			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
+			.willReturn(okJson(databaseInfoResponse(DATABASE_ID, DATA_SOURCE_ID))));
+
+		givenThat(post("/data_sources/%s/query".formatted(DATA_SOURCE_ID)) //
 			.withHeader(AUTHORIZATION, matching("Bearer .+"))
 			.withHeader(CONTENT_TYPE, containing("application/json"))
 			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
 			.withRequestBody(equalToJson(queryRequest(PAGE_SIZE)))
-			.willReturn(okJson(queryResponse(thirdResultId, firstResult, secondResult))));
+			.willReturn(okJson(datasourceQueryResponse(thirdResultId, firstResult, secondResult))));
 
-		givenThat(post("/databases/%s/query".formatted(DATABASE_ID)) //
+		givenThat(post("/data_sources/%s/query".formatted(DATA_SOURCE_ID)) //
 			.withHeader(AUTHORIZATION, matching("Bearer .+"))
 			.withHeader(CONTENT_TYPE, containing("application/json"))
 			.withHeader(NOTION_VERSION, equalTo(NOTION_VERSION_VALUE))
 			.withRequestBody(equalToJson(queryRequest(thirdResultId, PAGE_SIZE)))
-			.willReturn(okJson(queryResponse(thirdResult))));
+			.willReturn(okJson(datasourceQueryResponse(thirdResult))));
 
 		// WHEN
 		JobExecution jobExecution = jobOperator.startJob();
