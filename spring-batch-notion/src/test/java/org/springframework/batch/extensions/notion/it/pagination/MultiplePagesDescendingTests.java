@@ -25,6 +25,7 @@ import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
 import org.springframework.batch.extensions.notion.Sort;
+import org.springframework.batch.extensions.notion.builder.NotionDatabaseItemReaderBuilder;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
 import org.springframework.batch.extensions.notion.it.pagination.MultiplePagesDescendingTests.PaginatedDescendingJob.Item;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
@@ -138,15 +139,15 @@ class MultiplePagesDescendingTests {
 
 		@Bean
 		NotionDatabaseItemReader<Item> itemReader() {
-			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>("token", DATABASE_ID.toString(),
-					new RecordPropertyMapper<>());
-
-			reader.setSaveState(false);
-			reader.setBaseUrl(wiremockBaseUrl);
-			reader.setPageSize(PAGE_SIZE);
-			reader.setSorts(Sort.by("Name", DESCENDING));
-
-			return reader;
+			return new NotionDatabaseItemReaderBuilder<Item>() //
+				.token("token")
+				.databaseId(DATABASE_ID.toString())
+				.propertyMapper(new RecordPropertyMapper<>())
+				.saveState(false)
+				.baseUrl(wiremockBaseUrl)
+				.pageSize(PAGE_SIZE)
+				.sorts(Sort.by("Name", DESCENDING))
+				.build();
 		}
 
 		@Bean

@@ -16,7 +16,6 @@
 package org.springframework.batch.extensions.notion.it.pagination;
 
 import org.json.JSONObject;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
@@ -25,6 +24,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.extensions.notion.NotionDatabaseItemReader;
+import org.springframework.batch.extensions.notion.builder.NotionDatabaseItemReaderBuilder;
 import org.springframework.batch.extensions.notion.it.IntegrationTest;
 import org.springframework.batch.extensions.notion.it.pagination.MultiplePagesTests.PaginatedJob.Item;
 import org.springframework.batch.extensions.notion.mapping.RecordPropertyMapper;
@@ -136,14 +136,14 @@ class MultiplePagesTests {
 
 		@Bean
 		NotionDatabaseItemReader<Item> itemReader() {
-			NotionDatabaseItemReader<Item> reader = new NotionDatabaseItemReader<>("token", DATABASE_ID.toString(),
-					new RecordPropertyMapper<>());
-
-			reader.setSaveState(false);
-			reader.setBaseUrl(wiremockBaseUrl);
-			reader.setPageSize(PAGE_SIZE);
-
-			return reader;
+			return new NotionDatabaseItemReaderBuilder<Item>() //
+				.token("token")
+				.databaseId(DATABASE_ID.toString())
+				.propertyMapper(new RecordPropertyMapper<>())
+				.saveState(false)
+				.baseUrl(wiremockBaseUrl)
+				.pageSize(PAGE_SIZE)
+				.build();
 		}
 
 		@Bean
