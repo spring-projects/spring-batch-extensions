@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2025 the original author or authors.
+  ~ Copyright 2002-2026 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>4.1.0</version>
         <relativePath/>
     </parent>
 
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquery</artifactId>
-            <version>2.57.1</version>
+            <version>2.67.0</version>
             <exclusions>
                 <!-- Avoid version conflicts -->
                 <exclusion>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-avro</artifactId>
-            <version>1.16.0</version>
+            <version>1.17.1</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.0</version>
             <optional>true</optional>
             <exclusions>
                 <!-- End implementation should not be forced by library -->
