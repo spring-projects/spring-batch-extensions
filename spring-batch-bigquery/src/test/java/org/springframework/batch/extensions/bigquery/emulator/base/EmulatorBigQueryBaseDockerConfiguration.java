@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2002-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public final class EmulatorBigQueryBaseDockerConfiguration {
 
 	public static final int GRPC_PORT = 9060;
 
-	public static final GenericContainer<?> CONTAINER = new GenericContainer<>("ghcr.io/goccy/bigquery-emulator:0.6.6")
+	public static final GenericContainer<?> CONTAINER = new GenericContainer<>("ghcr.io/goccy/bigquery-emulator:0.8.1")
 		.withExposedPorts(REST_PORT, GRPC_PORT);
 
 	private EmulatorBigQueryBaseDockerConfiguration() {
