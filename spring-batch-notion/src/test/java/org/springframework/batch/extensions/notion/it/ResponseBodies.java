@@ -30,11 +30,46 @@ import static java.util.UUID.randomUUID;
  */
 public class ResponseBodies {
 
-	public static String queryResponse(JSONObject... results) {
-		return queryResponse(null, results);
+	public static String databaseInfoResponse(UUID databaseId, UUID dataSourceId) {
+		try {
+			return new JSONObject() //
+				.put("object", "database")
+				.put("id", databaseId.toString())
+				.put("data_sources", new JSONArray() //
+					.put(new JSONObject() //
+						.put("id", dataSourceId.toString())
+						.put("name", "default")))
+				.toString();
+		}
+		catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public static String queryResponse(UUID nextCursor, JSONObject... results) {
+	public static String databaseInfoResponse(UUID databaseId, UUID firstDataSourceId, UUID secondDataSourceId) {
+		try {
+			return new JSONObject() //
+				.put("object", "database")
+				.put("id", databaseId.toString())
+				.put("data_sources", new JSONArray() //
+					.put(new JSONObject() //
+						.put("id", firstDataSourceId.toString())
+						.put("name", "default"))
+					.put(new JSONObject() //
+						.put("id", secondDataSourceId.toString())
+						.put("name", "secondary")))
+				.toString();
+		}
+		catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static String datasourceQueryResponse(JSONObject... results) {
+		return datasourceQueryResponse(null, results);
+	}
+
+	public static String datasourceQueryResponse(UUID nextCursor, JSONObject... results) {
 		try {
 			return new JSONObject() //
 				.put("object", "list")
@@ -50,7 +85,7 @@ public class ResponseBodies {
 		}
 	}
 
-	public static JSONObject result(UUID id, UUID databaseId, Map<?, ?> properties) {
+	public static JSONObject result(UUID id, UUID dataSourceId, Map<?, ?> properties) {
 		try {
 			Instant now = Instant.now();
 
@@ -62,8 +97,9 @@ public class ResponseBodies {
 				.put("created_by", new JSONObject())
 				.put("last_edited_by", new JSONObject())
 				.put("parent", new JSONObject() //
-					.put("type", "database_id")
-					.put("database_id", databaseId.toString()))
+					.put("type", "data_source_id")
+					.put("data_source_id", dataSourceId.toString())
+					.put("database_id", randomUUID().toString()))
 				.put("archived", false)
 				.put("properties", new JSONObject(properties))
 				.put("url", "https://www.notion.so/" + randomUUID().toString().replace("-", ""));

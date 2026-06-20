@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.extensions.notion.it;
+package org.springframework.batch.extensions.notion;
 
-/**
- * @author Stefano Cordio
- */
-public class RequestHeaders {
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
-	public static final String NOTION_VERSION = "Notion-Version";
+@HttpExchange(url = "/data_sources", version = "2025-09-03", accept = MediaType.APPLICATION_JSON_VALUE)
+interface NotionDataSourceService {
 
-	public static final String NOTION_VERSION_VALUE = "2025-09-03";
+	@PostExchange("/{dataSourceId}/query")
+	QueryResult query(@PathVariable String dataSourceId, @RequestBody QueryRequest request);
 
 }

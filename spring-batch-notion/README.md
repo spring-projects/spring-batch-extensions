@@ -32,24 +32,45 @@ implementation("org.springframework.batch.extensions:spring-batch-notion:${sprin
 
 The `NotionDatabaseItemReader` is a restartable `ItemReader` that reads entries from a [Notion Database] via a paging technique.
 
+### Basic Usage (Automatic Data Source Discovery)
+
 A minimal configuration of the item reader is as follows:
 
 ```java
 NotionDatabaseItemReader<Item> itemReader() {
 	String token = System.getenv("NOTION_TOKEN");
-	String databaseId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // UUID
+	String databaseId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // Database ID (UUID)
 	PropertyMapper<Item> propertyMapper = new CustomPropertyMapper();
 	return new NotionDatabaseItemReader<>(token, databaseId, propertyMapper);
 }
 ```
 
-The following constructor parameters should be provided:
+When `dataSourceId` is not provided as shown above, the reader automatically discovers it from the database. The reader will query the database metadata to retrieve the first available data source.
 
-| Property         | Description                                                                                                               |
-|------------------|---------------------------------------------------------------------------------------------------------------------------|
-| `token`          | The Notion integration token.                                                                                             |
-| `databaseId`     | UUID of the database to read from.                                                                                        |
-| `propertyMapper` | The `PropertyMapper` responsible for mapping properties of a Notion item into a Java object.                              |
+### Advanced Usage (Manual Data Source Selection)
+
+If the given Notion database has multiple data sources, you can specify the data source ID directly:
+
+```java
+NotionDatabaseItemReader<Item> itemReader() {
+	String token = System.getenv("NOTION_TOKEN");
+	String databaseId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // Database ID (UUID)
+	String dataSourceId = "YYYYYYYY-YYYY-YYYY-YYYY-YYYYYYYYYYYY"; // Data Source ID (UUID)
+	PropertyMapper<Item> propertyMapper = new CustomPropertyMapper();
+	return new NotionDatabaseItemReader<>(token, databaseId, dataSourceId, propertyMapper);
+}
+```
+
+### Constructor Parameters
+
+The constructor accepts the following parameters:
+
+| Property         | Required | Description                                                                                                                |
+|------------------|----------|----------------------------------------------------------------------------------------------------------------------------|
+| `token`          | yes      | The Notion integration token.                                                                                              |
+| `databaseId`     | yes      | UUID of the database to read from.                                                                                         |
+| `dataSourceId`   | no       | UUID of the data source to query. If not provided, the reader will automatically discover the first available data source. |
+| `propertyMapper` | yes      | The `PropertyMapper` responsible for mapping properties of a Notion item into a Java object.                               |
 
 and the following configuration options are available:
 
