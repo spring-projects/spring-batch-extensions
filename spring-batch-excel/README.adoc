@@ -1,10 +1,10 @@
 = spring-batch-excel
 
-Spring Batch extension containing an `ItemReader` implementation for Excel based on https://poi.apache.org[Apache POI]. It supports reading both XLS and XLSX files. For the latter, there is also (experimental) streaming support.
+Spring Batch extension containing an `ItemReader` implementation for Excel based on https://poi.apache.org[Apache POI]. It supports reading both XLS and XLSX files. For both formats there is also (experimental) streaming support.
 
 The `PoiItemReader` has the most features but is also the most memory intensive and might lead to memory issues with large XLS(X) sheets.
 
-To reduce the memory footprint the `StreamingXlsxItemReader` can be used, this will only keep the current row in memory and discard it afterward. Not everything is supported while streaming the XLSX file. It can be that formulas don't get evaluated or lead to an error.
+To reduce the memory footprint the `StreamingXlsxItemReader` (for XLSX) or the `StreamingXlsItemReader` (for legacy binary XLS) can be used, these will only keep the current row in memory and discard it afterward. Not everything is supported while streaming. It can be that formulas don't get evaluated or lead to an error.
 
 WARNING: The `ItemReader` classess are **not threadsafe**. The API from https://poi.apache.org/help/faq.html#20[Apache POI] itself isn't threadsafe as well as the https://docs.spring.io/spring-batch/docs/current/api/org/springframework/batch/item/support/AbstractItemCountingItemStreamItemReader.html[`AbstractItemCountingItemStreamItemReader`] used as a base class for the `ItemReader` classes. Reading from multiple threads is therefore not supported. Using a multi-threaded processor/writer should work as long as you use a single thread for reading.
 
@@ -82,6 +82,43 @@ public RowMapper rowMapper() {
 }
 ----
 
+== Configuration of `StreamingXlsItemReader`
+
+The `StreamingXlsItemReader` is the low-memory streaming reader for legacy binary `.xls` (BIFF8/HSSF) files, the counterpart of the `StreamingXlsxItemReader`. Like that reader it only keeps the current row in memory. While streaming, formulas are not evaluated (the cached value stored in the file is returned) and password protected files are not supported.
+
+Configuration can be done in XML or Java Config.
+
+=== XML
+
+[source,xml]
+----
+ <bean id="excelReader" class="org.springframework.batch.extensions.excel.streaming.StreamingXlsItemReader" scope="step">
+     <property name="resource" value="file:/path/to/your/excel/file" />
+     <property name="rowMapper">
+         <bean class="org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper" />
+     </property>
+ </bean>
+----
+
+=== Java Config
+
+[source,java]
+----
+@Bean
+@StepScope
+public StreamingXlsItemReader excelReader(RowMapper rowMapper) {
+    StreamingXlsItemReader reader = new StreamingXlsItemReader();
+    reader.setResource(new FileSystemResource("/path/to/your/excel/file"));
+    reader.setRowMapper(rowMapper);
+    return reader;
+}
+
+@Bean
+public RowMapper rowMapper() {
+    return new PassThroughRowMapper();
+}
+----
+
 == Configuration properties
 [cols="1,1,1,4"]
 .Properties for item readers
@@ -148,7 +185,7 @@ public BeanWrapperRowMapper rowMapper() {
 }
 ----
 
-NOTE: When using the `BeanWrapperRowMapper` with the `StreamingXlsxItemReader` it is required to use the `StaticColumnNameExtractor` to provide the column names for mapping purposes. The reason for this is that we cannot read a specific row while streaming the results.
+NOTE: When using the `BeanWrapperRowMapper` with one of the streaming item readers (`StreamingXlsxItemReader` or `StreamingXlsItemReader`) it is required to use the `StaticColumnNameExtractor` to provide the column names for mapping purposes. The reason for this is that we cannot read a specific row while streaming the results.
 
 [source,xml]
 ----
