@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.extensions.notion.it;
+package org.springframework.batch.extensions.notion;
+
+import tools.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import tools.jackson.databind.annotation.JsonNaming;
+
+import java.util.List;
 
 /**
  * @author Stefano Cordio
  */
-public class RequestHeaders {
+@JsonNaming(SnakeCaseStrategy.class)
+record DatabaseInfo(String id, List<DataSource> dataSources) {
 
-	public static final String NOTION_VERSION = "Notion-Version";
-
-	public static final String NOTION_VERSION_VALUE = "2025-09-03";
+	@JsonNaming(SnakeCaseStrategy.class)
+	record DataSource(String id, String name) {
+	}
 
 }
