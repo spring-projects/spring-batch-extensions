@@ -16,7 +16,11 @@
 
 package org.springframework.batch.extensions.excel;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,6 +66,8 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	private boolean strict = true;
 
 	private RowSetFactory rowSetFactory = new DefaultRowSetFactory();
+
+	private Set<String> sheetNames = Collections.emptySet();
 
 	private RowSet rs;
 
@@ -188,6 +194,10 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	private boolean nextSheet() {
 		while (this.currentSheet < this.getNumberOfSheets()) {
 			final Sheet sheet = this.getSheet(this.currentSheet);
+			if (!this.sheetNames.isEmpty() && !this.sheetNames.contains(sheet.getName())) {
+				this.currentSheet++;
+				continue;
+			}
 			this.rs = this.rowSetFactory.create(sheet);
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("Opening sheet " + sheet.getName() + ".");
@@ -212,6 +222,16 @@ public abstract class AbstractExcelItemReader<T> extends AbstractItemCountingIte
 	protected void doClose() throws Exception {
 		this.currentSheet = 0;
 		this.rs = null;
+	}
+
+	/**
+	 * Select sheets by name. By default, the reader processes every sheet in workbook
+	 * order.
+	 * @param sheetNames sheet names to process, or no names to process every sheet
+	 */
+	public void setSheetNames(String... sheetNames) {
+		Assert.noNullElements(sheetNames, "Sheet names must not contain null elements");
+		this.sheetNames = new HashSet<>(Arrays.asList(sheetNames));
 	}
 
 	/**
