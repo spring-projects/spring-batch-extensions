@@ -17,4 +17,7 @@
 /**
  * Support classes for the Apache POI library.
  */
+@NullUnmarked
 package org.springframework.batch.extensions.excel.poi;
+
+import org.jspecify.annotations.NullUnmarked;
