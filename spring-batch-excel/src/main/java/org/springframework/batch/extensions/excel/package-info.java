@@ -17,4 +17,7 @@
 /**
  * Core interfaces for reading Excel files.
  */
+@NullUnmarked
 package org.springframework.batch.extensions.excel;
+
+import org.jspecify.annotations.NullUnmarked;

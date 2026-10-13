@@ -17,4 +17,7 @@
 /**
  * RowSet abstraction for Excel documents.
  */
+@NullUnmarked
 package org.springframework.batch.extensions.excel.support.rowset;
+
+import org.jspecify.annotations.NullUnmarked;
