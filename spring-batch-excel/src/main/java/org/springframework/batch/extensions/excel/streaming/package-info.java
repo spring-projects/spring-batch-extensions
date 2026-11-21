@@ -17,4 +17,7 @@
 /**
  * Streaming implementation of ItemReaders.
  */
+@NullUnmarked
 package org.springframework.batch.extensions.excel.streaming;
+
+import org.jspecify.annotations.NullUnmarked;

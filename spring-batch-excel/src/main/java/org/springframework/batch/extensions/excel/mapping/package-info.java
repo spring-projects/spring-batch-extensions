@@ -17,4 +17,7 @@
 /**
  * Default {@code RowMapper} implementations.
  */
+@NullUnmarked
 package org.springframework.batch.extensions.excel.mapping;
+
+import org.jspecify.annotations.NullUnmarked;

@@ -74,6 +74,24 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>am.ik.maven</groupId>
+        <artifactId>nullability-maven-plugin</artifactId>
+        <version>0.5.2</version>
+        <extensions>true</extensions>
+        <configuration>
+          <nullAwayOptions>
+            <SuppressionNameAliases>DataFlowIssue</SuppressionNameAliases>
+          </nullAwayOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>configure</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <version>5.1.2</version>
@@ -130,31 +148,7 @@ limitations under the License.
         <configuration>
           <compilerArgs>
             <compilerArg>-Xlint:all,-varargs</compilerArg>
-            <!-- https://errorprone.info/docs/installation#maven -->
-            <compilerArg>-XDcompilePolicy=simple</compilerArg>
-            <compilerArg>--should-stop=ifError=FLOW</compilerArg>
-            <compilerArg>
-              -Xplugin:ErrorProne
-              -XepDisableAllChecks
-              <!-- Check JSpecify annotations -->
-              -Xep:NullAway
-              -XepOpt:NullAway:OnlyNullMarked
-              -Xep:RequireExplicitNullMarking:WARN
-              -XepOpt:NullAway:SuppressionNameAliases=DataFlowIssue
-            </compilerArg>
           </compilerArgs>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>com.google.errorprone</groupId>
-              <artifactId>error_prone_core</artifactId>
-              <version>2.46.0</version>
-            </path>
-            <path>
-              <groupId>com.uber.nullaway</groupId>
-              <artifactId>nullaway</artifactId>
-              <version>0.13.1</version>
-            </path>
-          </annotationProcessorPaths>
           <failOnWarning>true</failOnWarning>
         </configuration>
       </plugin>
